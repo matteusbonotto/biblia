@@ -28,7 +28,7 @@
   "efeitosAtivos": [
     {
       "id": "efeito-demo-1",
-      "termina_em": "2025-12-31T20:00:00.000Z",
+      "termina_em": "2027-12-31T20:00:00.000Z",
       "itens": { "nome": "Cálice Sagrado", "duracao_minutos": 30 }
     }
   ],
@@ -55,31 +55,402 @@
       "itens": { "nome": "Bíblia Sagrada", "tipo": "permanente" }
     }
   ],
-  "missoesAtivas": [
+  "todasMissoes": [
     {
       "id": "missao-demo-1",
       "status": "ativa",
-      "prazo_em": "2025-12-31T23:59:00.000Z",
+      "iniciada_em": "2027-01-15T08:00:00.000Z",
+      "prazo_em": "2027-01-22T23:59:00.000Z",
+      "modelo_id": "mod-1",
       "modelos_missao": {
         "id": "mod-1",
         "titulo": "Não mentir hoje",
-        "descricao": "Comprometa-se a falar a verdade durante o dia.",
+        "subtitulo": "Missão Humana Diária",
+        "descricao": "Comprometa-se a falar a verdade durante o dia. Seja honesto em todas as suas palavras e ações.",
+        "descricao_completa": "Esta missão desafia você a ser completamente honesto durante todo o dia. Evite qualquer forma de mentira, meias-verdades ou omissões intencionais. A honestidade é um valor fundamental que fortalece relacionamentos e constrói confiança. Lembre-se: 'A boca fala do que está cheio o coração' (Lucas 6:45).",
         "tipo": "humana",
+        "icone": "bi-person-heart",
         "recompensa_xp": 10,
-        "recompensa_ouro": 5
+        "recompensa_ouro": 5,
+        "recompensas": {
+          "xp": 10,
+          "ouro": 5,
+          "itens": []
+        },
+        "consequencias": {
+          "xp_perdido": 0,
+          "ouro_perdido": 0,
+          "mensagem": "Não completar esta missão pode resultar em pontos negativos e afetar sua jornada espiritual."
+        }
       }
     },
     {
       "id": "missao-demo-2",
       "status": "ativa",
-      "prazo_em": "2025-12-31T23:59:00.000Z",
+      "iniciada_em": "2027-01-15T09:00:00.000Z",
+      "prazo_em": "2027-01-22T23:59:00.000Z",
+      "modelo_id": "mod-3",
+      "modelos_missao": {
+        "id": "mod-3",
+        "titulo": "Ler 1 capítulo da Bíblia",
+        "subtitulo": "Missão de Conhecimento",
+        "descricao": "Leia um capítulo completo da Bíblia e marque como lido. Esta missão ajuda você a crescer no conhecimento da Palavra de Deus.",
+        "descricao_completa": "Leia um capítulo completo da Bíblia e marque como lido. Esta missão ajuda você a crescer no conhecimento da Palavra de Deus e a desenvolver o hábito da leitura bíblica diária. Escolha qualquer livro e capítulo que desejar. Após a leitura, reflita sobre o que você aprendeu e como pode aplicar isso em sua vida.",
+        "tipo": "conhecimento",
+        "icone": "bi-book",
+        "recompensa_xp": 20,
+        "recompensa_ouro": 10,
+        "recompensas": {
+          "xp": 20,
+          "ouro": 10,
+          "itens": []
+        },
+        "consequencias": {
+          "xp_perdido": 0,
+          "ouro_perdido": 0,
+          "mensagem": "Não completar esta missão pode resultar em pontos negativos."
+        }
+      }
+    },
+    {
+      "id": "missao-demo-3",
+      "status": "concluida",
+      "iniciada_em": "2027-01-14T08:00:00.000Z",
+      "concluida_em": "2027-01-14T20:00:00.000Z",
+      "prazo_em": "2027-01-21T23:59:00.000Z",
+      "modelo_id": "mod-2",
       "modelos_missao": {
         "id": "mod-2",
-        "titulo": "Ler 1 capítulo da Bíblia",
-        "descricao": "Leia um capítulo completo e marque como lido.",
+        "titulo": "Orar por alguém",
+        "subtitulo": "Missão Espiritual",
+        "descricao": "Interceda por uma pessoa específica. Dedique um tempo de oração intercessória.",
+        "descricao_completa": "Escolha uma pessoa específica e dedique um tempo de oração intercessória por ela. Pode ser alguém que está passando por dificuldades, alguém que precisa de cura, ou simplesmente alguém que você quer abençoar. A oração intercessória é uma forma poderosa de demonstrar amor e compaixão. 'Orai uns pelos outros' (Tiago 5:16).",
+        "tipo": "espiritual",
+        "icone": "bi-heart",
+        "recompensa_xp": 15,
+        "recompensa_ouro": 5,
+        "recompensas": {
+          "xp": 15,
+          "ouro": 5,
+          "itens": []
+        },
+        "consequencias": {
+          "xp_perdido": 0,
+          "ouro_perdido": 0,
+          "mensagem": "Não completar esta missão pode resultar em pontos negativos."
+        }
+      }
+    },
+    {
+      "id": "missao-demo-4",
+      "status": "concluida",
+      "iniciada_em": "2027-01-13T08:00:00.000Z",
+      "concluida_em": "2027-01-13T18:00:00.000Z",
+      "prazo_em": "2027-01-20T23:59:00.000Z",
+      "modelo_id": "mod-4",
+      "modelos_missao": {
+        "id": "mod-4",
+        "titulo": "Fazer 3 boas ações",
+        "subtitulo": "Missão de Tarefa",
+        "descricao": "Realize três atos de bondade hoje. Demonstre amor ao próximo através de ações práticas.",
+        "descricao_completa": "Realize três atos de bondade durante o dia. Pode ser ajudar alguém, fazer um elogio sincero, doar algo, ou qualquer outra ação que demonstre amor ao próximo. 'Assim brilhe a vossa luz diante dos homens, para que vejam as vossas boas obras' (Mateus 5:16).",
+        "tipo": "tarefa",
+        "icone": "bi-check-circle",
+        "recompensa_xp": 15,
+        "recompensa_ouro": 5,
+        "recompensas": {
+          "xp": 15,
+          "ouro": 5,
+          "itens": []
+        },
+        "consequencias": {
+          "xp_perdido": 0,
+          "ouro_perdido": 0,
+          "mensagem": "Não completar esta missão pode resultar em pontos negativos."
+        }
+      }
+    },
+    {
+      "id": "missao-demo-5",
+      "status": "expirada",
+      "iniciada_em": "2027-01-10T08:00:00.000Z",
+      "prazo_em": "2027-01-17T23:59:00.000Z",
+      "modelo_id": "mod-5",
+      "modelos_missao": {
+        "id": "mod-5",
+        "titulo": "Jejuar por 12 horas",
+        "subtitulo": "Missão Espiritual Avançada",
+        "descricao": "Complete um jejum de 12 horas. Esta missão espiritual fortalece sua comunhão com Deus.",
+        "descricao_completa": "Complete um jejum de 12 horas. Esta missão espiritual fortalece sua comunhão com Deus e desenvolve autodisciplina. Durante o jejum, dedique-se à oração e à leitura bíblica. Lembre-se de beber água. 'Quando jejuardes, não vos mostreis contristados' (Mateus 6:16).",
+        "tipo": "espiritual",
+        "icone": "bi-heart-pulse",
+        "recompensa_xp": 50,
+        "recompensa_ouro": 25,
+        "recompensas": {
+          "xp": 50,
+          "ouro": 25,
+          "itens": ["Pão da Vida"]
+        },
+        "consequencias": {
+          "xp_perdido": 0,
+          "ouro_perdido": 0,
+          "mensagem": "Esta missão expirou. Você não recebeu as recompensas. Tente novamente quando estiver pronto."
+        }
+      }
+    },
+    {
+      "id": "missao-demo-6",
+      "status": "abandonada",
+      "iniciada_em": "2027-01-12T08:00:00.000Z",
+      "prazo_em": "2027-01-19T23:59:00.000Z",
+      "modelo_id": "mod-6",
+      "modelos_missao": {
+        "id": "mod-6",
+        "titulo": "Evangelizar 3 pessoas",
+        "subtitulo": "Missão Espiritual de Impacto",
+        "descricao": "Compartilhe o evangelho com três pessoas. Seja um instrumento de transformação.",
+        "descricao_completa": "Compartilhe o evangelho com três pessoas durante esta semana. Pode ser através de uma conversa, um testemunho, ou compartilhando um versículo. Seja um instrumento de transformação na vida de outros. 'Ide por todo o mundo e pregai o evangelho' (Marcos 16:15).",
+        "tipo": "espiritual",
+        "icone": "bi-megaphone",
+        "recompensa_xp": 75,
+        "recompensa_ouro": 30,
+        "recompensas": {
+          "xp": 75,
+          "ouro": 30,
+          "itens": ["Cálice Sagrado", "Bíblia Sagrada"]
+        },
+        "consequencias": {
+          "xp_perdido": 0,
+          "ouro_perdido": 0,
+          "mensagem": "Você desistiu desta missão. As recompensas não foram concedidas. Não desista, tente novamente quando se sentir preparado."
+        }
+      }
+    },
+    {
+      "id": "missao-demo-7",
+      "status": "concluida",
+      "iniciada_em": "2027-01-11T08:00:00.000Z",
+      "concluida_em": "2027-01-11T22:00:00.000Z",
+      "prazo_em": "2027-01-18T23:59:00.000Z",
+      "modelo_id": "mod-7",
+      "modelos_missao": {
+        "id": "mod-7",
+        "titulo": "Estudar um livro da Bíblia",
+        "subtitulo": "Missão de Conhecimento Avançada",
+        "descricao": "Leia e estude um livro completo da Bíblia. Aprofunde seu conhecimento bíblico.",
+        "descricao_completa": "Leia e estude um livro completo da Bíblia. Escolha qualquer livro que desejar e dedique tempo para uma leitura atenta e reflexiva. Anote insights, versículos que chamaram sua atenção e como pode aplicar o aprendizado. 'Toda Escritura é inspirada por Deus' (2 Timóteo 3:16).",
         "tipo": "conhecimento",
+        "icone": "bi-journal-bookmark",
+        "recompensa_xp": 100,
+        "recompensa_ouro": 50,
+        "recompensas": {
+          "xp": 100,
+          "ouro": 50,
+          "itens": ["Bíblia Sagrada", "Cinto da Verdade"]
+        },
+        "consequencias": {
+          "xp_perdido": 0,
+          "ouro_perdido": 0,
+          "mensagem": "Não completar esta missão pode resultar em pontos negativos."
+        }
+      }
+    },
+    {
+      "id": "missao-demo-8",
+      "status": "ativa",
+      "iniciada_em": "2027-01-15T10:00:00.000Z",
+      "prazo_em": "2027-01-22T12:00:00.000Z",
+      "modelo_id": "mod-8",
+      "modelos_missao": {
+        "id": "mod-8",
+        "titulo": "Perdoar alguém",
+        "subtitulo": "Missão Humana de Libertação",
+        "descricao": "Perdoe alguém que te magoou. A libertação do perdão transforma vidas.",
+        "descricao_completa": "Perdoe alguém que te magoou. Esta missão desafia você a praticar o perdão genuíno, mesmo quando é difícil. O perdão não significa esquecer ou minimizar a dor, mas sim escolher libertar-se do ressentimento. 'Perdoai-nos as nossas dívidas, assim como nós perdoamos aos nossos devedores' (Mateus 6:12).",
+        "tipo": "humana",
+        "icone": "bi-heart-arrow",
+        "recompensa_xp": 30,
+        "recompensa_ouro": 15,
+        "recompensas": {
+          "xp": 30,
+          "ouro": 15,
+          "itens": ["Cálice Sagrado"]
+        },
+        "consequencias": {
+          "xp_perdido": 0,
+          "ouro_perdido": 0,
+          "mensagem": "Não completar esta missão pode resultar em pontos negativos e afetar sua jornada espiritual."
+        }
+      }
+    },
+    {
+      "id": "missao-demo-9",
+      "status": "expirada",
+      "iniciada_em": "2027-01-09T08:00:00.000Z",
+      "prazo_em": "2027-01-16T23:59:00.000Z",
+      "modelo_id": "mod-9",
+      "modelos_missao": {
+        "id": "mod-9",
+        "titulo": "Servir na igreja",
+        "subtitulo": "Missão de Tarefa de Serviço",
+        "descricao": "Dedique tempo servindo na sua igreja ou comunidade. Seja uma bênção para outros.",
+        "descricao_completa": "Dedique tempo servindo na sua igreja ou comunidade. Pode ser ajudando em eventos, visitando enfermos, auxiliando em atividades ou qualquer forma de serviço. 'Porque o Filho do homem também não veio para ser servido, mas para servir' (Marcos 10:45).",
+        "tipo": "tarefa",
+        "icone": "bi-people",
+        "recompensa_xp": 40,
+        "recompensa_ouro": 20,
+        "recompensas": {
+          "xp": 40,
+          "ouro": 20,
+          "itens": ["Pão da Vida"]
+        },
+        "consequencias": {
+          "xp_perdido": 0,
+          "ouro_perdido": 0,
+          "mensagem": "Esta missão expirou. Você não recebeu as recompensas. Tente novamente quando estiver disponível."
+        }
+      }
+    },
+    {
+      "id": "missao-demo-10",
+      "status": "abandonada",
+      "iniciada_em": "2027-01-08T08:00:00.000Z",
+      "prazo_em": "2027-01-15T23:59:00.000Z",
+      "modelo_id": "mod-10",
+      "modelos_missao": {
+        "id": "mod-10",
+        "titulo": "Meditar na Palavra por 30 minutos",
+        "subtitulo": "Missão de Conhecimento Profundo",
+        "descricao": "Dedique 30 minutos meditando em um versículo ou passagem bíblica. Aprofunde sua compreensão.",
+        "descricao_completa": "Dedique 30 minutos meditando em um versículo ou passagem bíblica. Escolha um texto que toque seu coração e reflita profundamente sobre seu significado, aplicação prática e como pode transformar sua vida. 'Meditarei nos teus preceitos' (Salmos 119:15).",
+        "tipo": "conhecimento",
+        "icone": "bi-lightbulb",
+        "recompensa_xp": 25,
+        "recompensa_ouro": 12,
+        "recompensas": {
+          "xp": 25,
+          "ouro": 12,
+          "itens": []
+        },
+        "consequencias": {
+          "xp_perdido": 0,
+          "ouro_perdido": 0,
+          "mensagem": "Você desistiu desta missão. As recompensas não foram concedidas. Tente novamente quando tiver tempo disponível."
+        }
+      }
+    },
+    {
+      "id": "missao-demo-11",
+      "status": "concluida",
+      "iniciada_em": "2027-01-07T08:00:00.000Z",
+      "concluida_em": "2027-01-07T19:00:00.000Z",
+      "prazo_em": "2027-01-14T23:59:00.000Z",
+      "modelo_id": "mod-11",
+      "modelos_missao": {
+        "id": "mod-11",
+        "titulo": "Confessar um pecado",
+        "subtitulo": "Missão Humana de Arrependimento",
+        "descricao": "Confesse um pecado a Deus e a alguém de confiança. O arrependimento traz libertação.",
+        "descricao_completa": "Confesse um pecado a Deus e a alguém de confiança (pastor, líder espiritual ou amigo maduro). O arrependimento genuíno traz libertação e restauração. 'Confessai as vossas culpas uns aos outros' (Tiago 5:16).",
+        "tipo": "humana",
+        "icone": "bi-chat-heart",
+        "recompensa_xp": 35,
+        "recompensa_ouro": 18,
+        "recompensas": {
+          "xp": 35,
+          "ouro": 18,
+          "itens": []
+        },
+        "consequencias": {
+          "xp_perdido": 0,
+          "ouro_perdido": 0,
+          "mensagem": "Não completar esta missão pode resultar em pontos negativos."
+        }
+      }
+    },
+    {
+      "id": "missao-demo-12",
+      "status": "ativa",
+      "iniciada_em": "2027-01-15T11:00:00.000Z",
+      "prazo_em": "2027-01-22T23:59:00.000Z",
+      "modelo_id": "mod-12",
+      "modelos_missao": {
+        "id": "mod-12",
+        "titulo": "Gratidão diária por 7 dias",
+        "subtitulo": "Missão Espiritual de Transformação",
+        "descricao": "Anote 3 coisas pelas quais você é grato todos os dias durante uma semana. Cultive um coração grato.",
+        "descricao_completa": "Anote 3 coisas pelas quais você é grato todos os dias durante uma semana. Pode ser em um caderno, aplicativo ou qualquer forma que preferir. Cultive um coração grato e veja como isso transforma sua perspectiva. 'Em tudo dai graças' (1 Tessalonicenses 5:18).",
+        "tipo": "espiritual",
+        "icone": "bi-emoji-smile",
+        "recompensa_xp": 60,
+        "recompensa_ouro": 35,
+        "recompensas": {
+          "xp": 60,
+          "ouro": 35,
+          "itens": ["Pão da Vida", "Cálice Sagrado"]
+        },
+        "consequencias": {
+          "xp_perdido": 0,
+          "ouro_perdido": 0,
+          "mensagem": "Não completar esta missão pode resultar em pontos negativos."
+        }
+      }
+    },
+    {
+      "id": "missao-demo-13",
+      "status": "concluida",
+      "iniciada_em": "2027-01-06T08:00:00.000Z",
+      "concluida_em": "2027-01-06T21:00:00.000Z",
+      "prazo_em": "2027-01-13T23:59:00.000Z",
+      "modelo_id": "mod-13",
+      "modelos_missao": {
+        "id": "mod-13",
+        "titulo": "Ajudar um necessitado",
+        "subtitulo": "Missão de Tarefa de Amor",
+        "descricao": "Ajude alguém em necessidade. Pode ser com comida, roupas, tempo ou recursos.",
+        "descricao_completa": "Ajude alguém em necessidade. Pode ser com comida, roupas, tempo ou recursos financeiros. Seja criativo e generoso. 'Quando o fizestes a um destes meus pequeninos irmãos, a mim o fizestes' (Mateus 25:40).",
+        "tipo": "tarefa",
+        "icone": "bi-hand-thumbs-up",
+        "recompensa_xp": 45,
+        "recompensa_ouro": 22,
+        "recompensas": {
+          "xp": 45,
+          "ouro": 22,
+          "itens": ["Cálice Sagrado"]
+        },
+        "consequencias": {
+          "xp_perdido": 0,
+          "ouro_perdido": 0,
+          "mensagem": "Não completar esta missão pode resultar em pontos negativos."
+        }
+      }
+    },
+    {
+      "id": "missao-demo-14",
+      "status": "expirada",
+      "iniciada_em": "2027-01-05T08:00:00.000Z",
+      "prazo_em": "2027-01-12T23:59:00.000Z",
+      "modelo_id": "mod-14",
+      "modelos_missao": {
+        "id": "mod-14",
+        "titulo": "Memorizar um versículo",
+        "subtitulo": "Missão de Conhecimento",
+        "descricao": "Memorize um versículo bíblico e recite-o diariamente. A Palavra no coração transforma.",
+        "descricao_completa": "Memorize um versículo bíblico e recite-o diariamente durante a semana. Escolha um versículo que seja significativo para você. A Palavra guardada no coração é uma arma poderosa. 'Guardo no coração as tuas palavras' (Salmos 119:11).",
+        "tipo": "conhecimento",
+        "icone": "bi-brain",
         "recompensa_xp": 20,
-        "recompensa_ouro": 10
+        "recompensa_ouro": 10,
+        "recompensas": {
+          "xp": 20,
+          "ouro": 10,
+          "itens": []
+        },
+        "consequencias": {
+          "xp_perdido": 0,
+          "ouro_perdido": 0,
+          "mensagem": "Esta missão expirou. Você não recebeu as recompensas. Tente novamente."
+        }
       }
     }
   ],
@@ -87,37 +458,323 @@
     {
       "id": "mod-1",
       "titulo": "Não mentir hoje",
-      "descricao": "Comprometa-se a falar a verdade durante o dia.",
+      "subtitulo": "Missão Humana Diária",
+      "descricao": "Comprometa-se a falar a verdade durante o dia. Seja honesto em todas as suas palavras e ações.",
+      "descricao_completa": "Esta missão desafia você a ser completamente honesto durante todo o dia. Evite qualquer forma de mentira, meias-verdades ou omissões intencionais. A honestidade é um valor fundamental que fortalece relacionamentos e constrói confiança. Lembre-se: 'A boca fala do que está cheio o coração' (Lucas 6:45).",
       "tipo": "humana",
+      "icone": "bi-person-heart",
+      "prazo_padrao_horas": 168,
       "recompensa_xp": 10,
       "recompensa_ouro": 5,
+      "recompensas": {
+        "xp": 10,
+        "ouro": 5,
+        "itens": []
+      },
+      "consequencias": {
+        "xp_perdido": 0,
+        "ouro_perdido": 0,
+        "mensagem": "Não completar esta missão pode resultar em pontos negativos e afetar sua jornada espiritual."
+      },
       "ativo": true
     },
     {
       "id": "mod-2",
       "titulo": "Orar por alguém",
-      "descricao": "Interceda por uma pessoa específica.",
+      "subtitulo": "Missão Espiritual",
+      "descricao": "Interceda por uma pessoa específica. Dedique um tempo de oração intercessória.",
+      "descricao_completa": "Escolha uma pessoa específica e dedique um tempo de oração intercessória por ela. Pode ser alguém que está passando por dificuldades, alguém que precisa de cura, ou simplesmente alguém que você quer abençoar. A oração intercessória é uma forma poderosa de demonstrar amor e compaixão. 'Orai uns pelos outros' (Tiago 5:16).",
       "tipo": "espiritual",
+      "icone": "bi-heart",
+      "prazo_padrao_horas": 168,
       "recompensa_xp": 15,
       "recompensa_ouro": 5,
+      "recompensas": {
+        "xp": 15,
+        "ouro": 5,
+        "itens": []
+      },
+      "consequencias": {
+        "xp_perdido": 0,
+        "ouro_perdido": 0,
+        "mensagem": "Não completar esta missão pode resultar em pontos negativos."
+      },
       "ativo": true
     },
     {
       "id": "mod-3",
       "titulo": "Ler 1 capítulo da Bíblia",
-      "descricao": "Leia um capítulo completo e marque como lido.",
+      "subtitulo": "Missão de Conhecimento",
+      "descricao": "Leia um capítulo completo da Bíblia e marque como lido. Esta missão ajuda você a crescer no conhecimento da Palavra de Deus.",
+      "descricao_completa": "Leia um capítulo completo da Bíblia e marque como lido. Esta missão ajuda você a crescer no conhecimento da Palavra de Deus e a desenvolver o hábito da leitura bíblica diária. Escolha qualquer livro e capítulo que desejar. Após a leitura, reflita sobre o que você aprendeu e como pode aplicar isso em sua vida.",
       "tipo": "conhecimento",
+      "icone": "bi-book",
+      "prazo_padrao_horas": 168,
       "recompensa_xp": 20,
       "recompensa_ouro": 10,
+      "recompensas": {
+        "xp": 20,
+        "ouro": 10,
+        "itens": []
+      },
+      "consequencias": {
+        "xp_perdido": 0,
+        "ouro_perdido": 0,
+        "mensagem": "Não completar esta missão pode resultar em pontos negativos."
+      },
       "ativo": true
     },
     {
       "id": "mod-4",
       "titulo": "Fazer 3 boas ações",
-      "descricao": "Realize três atos de bondade hoje.",
+      "subtitulo": "Missão de Tarefa",
+      "descricao": "Realize três atos de bondade hoje. Demonstre amor ao próximo através de ações práticas.",
+      "descricao_completa": "Realize três atos de bondade durante o dia. Pode ser ajudar alguém, fazer um elogio sincero, doar algo, ou qualquer outra ação que demonstre amor ao próximo. 'Assim brilhe a vossa luz diante dos homens, para que vejam as vossas boas obras' (Mateus 5:16).",
       "tipo": "tarefa",
+      "icone": "bi-check-circle",
+      "prazo_padrao_horas": 168,
       "recompensa_xp": 15,
       "recompensa_ouro": 5,
+      "recompensas": {
+        "xp": 15,
+        "ouro": 5,
+        "itens": []
+      },
+      "consequencias": {
+        "xp_perdido": 0,
+        "ouro_perdido": 0,
+        "mensagem": "Não completar esta missão pode resultar em pontos negativos."
+      },
+      "ativo": true
+    },
+    {
+      "id": "mod-5",
+      "titulo": "Jejuar por 12 horas",
+      "subtitulo": "Missão Espiritual Avançada",
+      "descricao": "Complete um jejum de 12 horas. Esta missão espiritual fortalece sua comunhão com Deus.",
+      "descricao_completa": "Complete um jejum de 12 horas. Esta missão espiritual fortalece sua comunhão com Deus e desenvolve autodisciplina. Durante o jejum, dedique-se à oração e à leitura bíblica. Lembre-se de beber água. 'Quando jejuardes, não vos mostreis contristados' (Mateus 6:16).",
+      "tipo": "espiritual",
+      "icone": "bi-heart-pulse",
+      "prazo_padrao_horas": 168,
+      "recompensa_xp": 50,
+      "recompensa_ouro": 25,
+      "recompensas": {
+        "xp": 50,
+        "ouro": 25,
+        "itens": ["Pão da Vida"]
+      },
+      "consequencias": {
+        "xp_perdido": 0,
+        "ouro_perdido": 0,
+        "mensagem": "Não completar esta missão pode resultar em pontos negativos."
+      },
+      "ativo": true
+    },
+    {
+      "id": "mod-6",
+      "titulo": "Evangelizar 3 pessoas",
+      "subtitulo": "Missão Espiritual de Impacto",
+      "descricao": "Compartilhe o evangelho com três pessoas. Seja um instrumento de transformação.",
+      "descricao_completa": "Compartilhe o evangelho com três pessoas durante esta semana. Pode ser através de uma conversa, um testemunho, ou compartilhando um versículo. Seja um instrumento de transformação na vida de outros. 'Ide por todo o mundo e pregai o evangelho' (Marcos 16:15).",
+      "tipo": "espiritual",
+      "icone": "bi-megaphone",
+      "prazo_padrao_horas": 168,
+      "recompensa_xp": 75,
+      "recompensa_ouro": 30,
+      "recompensas": {
+        "xp": 75,
+        "ouro": 30,
+        "itens": ["Cálice Sagrado", "Bíblia Sagrada"]
+      },
+      "consequencias": {
+        "xp_perdido": 0,
+        "ouro_perdido": 0,
+        "mensagem": "Não completar esta missão pode resultar em pontos negativos."
+      },
+      "ativo": true
+    },
+    {
+      "id": "mod-7",
+      "titulo": "Estudar um livro da Bíblia",
+      "subtitulo": "Missão de Conhecimento Avançada",
+      "descricao": "Leia e estude um livro completo da Bíblia. Aprofunde seu conhecimento bíblico.",
+      "descricao_completa": "Leia e estude um livro completo da Bíblia. Escolha qualquer livro que desejar e dedique tempo para uma leitura atenta e reflexiva. Anote insights, versículos que chamaram sua atenção e como pode aplicar o aprendizado. 'Toda Escritura é inspirada por Deus' (2 Timóteo 3:16).",
+      "tipo": "conhecimento",
+      "icone": "bi-journal-bookmark",
+      "prazo_padrao_horas": 168,
+      "recompensa_xp": 100,
+      "recompensa_ouro": 50,
+      "recompensas": {
+        "xp": 100,
+        "ouro": 50,
+        "itens": ["Bíblia Sagrada", "Cinto da Verdade"]
+      },
+      "consequencias": {
+        "xp_perdido": 0,
+        "ouro_perdido": 0,
+        "mensagem": "Não completar esta missão pode resultar em pontos negativos."
+      },
+      "ativo": true
+    },
+    {
+      "id": "mod-8",
+      "titulo": "Perdoar alguém",
+      "subtitulo": "Missão Humana de Libertação",
+      "descricao": "Perdoe alguém que te magoou. A libertação do perdão transforma vidas.",
+      "descricao_completa": "Perdoe alguém que te magoou. Esta missão desafia você a praticar o perdão genuíno, mesmo quando é difícil. O perdão não significa esquecer ou minimizar a dor, mas sim escolher libertar-se do ressentimento. 'Perdoai-nos as nossas dívidas, assim como nós perdoamos aos nossos devedores' (Mateus 6:12).",
+      "tipo": "humana",
+      "icone": "bi-heart-arrow",
+      "prazo_padrao_horas": 168,
+      "recompensa_xp": 30,
+      "recompensa_ouro": 15,
+      "recompensas": {
+        "xp": 30,
+        "ouro": 15,
+        "itens": ["Cálice Sagrado"]
+      },
+      "consequencias": {
+        "xp_perdido": 0,
+        "ouro_perdido": 0,
+        "mensagem": "Não completar esta missão pode resultar em pontos negativos e afetar sua jornada espiritual."
+      },
+      "ativo": true
+    },
+    {
+      "id": "mod-9",
+      "titulo": "Servir na igreja",
+      "subtitulo": "Missão de Tarefa de Serviço",
+      "descricao": "Dedique tempo servindo na sua igreja ou comunidade. Seja uma bênção para outros.",
+      "descricao_completa": "Dedique tempo servindo na sua igreja ou comunidade. Pode ser ajudando em eventos, visitando enfermos, auxiliando em atividades ou qualquer forma de serviço. 'Porque o Filho do homem também não veio para ser servido, mas para servir' (Marcos 10:45).",
+      "tipo": "tarefa",
+      "icone": "bi-people",
+      "prazo_padrao_horas": 168,
+      "recompensa_xp": 40,
+      "recompensa_ouro": 20,
+      "recompensas": {
+        "xp": 40,
+        "ouro": 20,
+        "itens": ["Pão da Vida"]
+      },
+      "consequencias": {
+        "xp_perdido": 0,
+        "ouro_perdido": 0,
+        "mensagem": "Não completar esta missão pode resultar em pontos negativos."
+      },
+      "ativo": true
+    },
+    {
+      "id": "mod-10",
+      "titulo": "Meditar na Palavra por 30 minutos",
+      "subtitulo": "Missão de Conhecimento Profundo",
+      "descricao": "Dedique 30 minutos meditando em um versículo ou passagem bíblica. Aprofunde sua compreensão.",
+      "descricao_completa": "Dedique 30 minutos meditando em um versículo ou passagem bíblica. Escolha um texto que toque seu coração e reflita profundamente sobre seu significado, aplicação prática e como pode transformar sua vida. 'Meditarei nos teus preceitos' (Salmos 119:15).",
+      "tipo": "conhecimento",
+      "icone": "bi-lightbulb",
+      "prazo_padrao_horas": 168,
+      "recompensa_xp": 25,
+      "recompensa_ouro": 12,
+      "recompensas": {
+        "xp": 25,
+        "ouro": 12,
+        "itens": []
+      },
+      "consequencias": {
+        "xp_perdido": 0,
+        "ouro_perdido": 0,
+        "mensagem": "Não completar esta missão pode resultar em pontos negativos."
+      },
+      "ativo": true
+    },
+    {
+      "id": "mod-11",
+      "titulo": "Confessar um pecado",
+      "subtitulo": "Missão Humana de Arrependimento",
+      "descricao": "Confesse um pecado a Deus e a alguém de confiança. O arrependimento traz libertação.",
+      "descricao_completa": "Confesse um pecado a Deus e a alguém de confiança (pastor, líder espiritual ou amigo maduro). O arrependimento genuíno traz libertação e restauração. 'Confessai as vossas culpas uns aos outros' (Tiago 5:16).",
+      "tipo": "humana",
+      "icone": "bi-chat-heart",
+      "prazo_padrao_horas": 168,
+      "recompensa_xp": 35,
+      "recompensa_ouro": 18,
+      "recompensas": {
+        "xp": 35,
+        "ouro": 18,
+        "itens": []
+      },
+      "consequencias": {
+        "xp_perdido": 0,
+        "ouro_perdido": 0,
+        "mensagem": "Não completar esta missão pode resultar em pontos negativos."
+      },
+      "ativo": true
+    },
+    {
+      "id": "mod-12",
+      "titulo": "Gratidão diária por 7 dias",
+      "subtitulo": "Missão Espiritual de Transformação",
+      "descricao": "Anote 3 coisas pelas quais você é grato todos os dias durante uma semana. Cultive um coração grato.",
+      "descricao_completa": "Anote 3 coisas pelas quais você é grato todos os dias durante uma semana. Pode ser em um caderno, aplicativo ou qualquer forma que preferir. Cultive um coração grato e veja como isso transforma sua perspectiva. 'Em tudo dai graças' (1 Tessalonicenses 5:18).",
+      "tipo": "espiritual",
+      "icone": "bi-emoji-smile",
+      "prazo_padrao_horas": 168,
+      "recompensa_xp": 60,
+      "recompensa_ouro": 35,
+      "recompensas": {
+        "xp": 60,
+        "ouro": 35,
+        "itens": ["Pão da Vida", "Cálice Sagrado"]
+      },
+      "consequencias": {
+        "xp_perdido": 0,
+        "ouro_perdido": 0,
+        "mensagem": "Não completar esta missão pode resultar em pontos negativos."
+      },
+      "ativo": true
+    },
+    {
+      "id": "mod-13",
+      "titulo": "Ajudar um necessitado",
+      "subtitulo": "Missão de Tarefa de Amor",
+      "descricao": "Ajude alguém em necessidade. Pode ser com comida, roupas, tempo ou recursos.",
+      "descricao_completa": "Ajude alguém em necessidade. Pode ser com comida, roupas, tempo ou recursos financeiros. Seja criativo e generoso. 'Quando o fizestes a um destes meus pequeninos irmãos, a mim o fizestes' (Mateus 25:40).",
+      "tipo": "tarefa",
+      "icone": "bi-hand-thumbs-up",
+      "prazo_padrao_horas": 168,
+      "recompensa_xp": 45,
+      "recompensa_ouro": 22,
+      "recompensas": {
+        "xp": 45,
+        "ouro": 22,
+        "itens": ["Cálice Sagrado"]
+      },
+      "consequencias": {
+        "xp_perdido": 0,
+        "ouro_perdido": 0,
+        "mensagem": "Não completar esta missão pode resultar em pontos negativos."
+      },
+      "ativo": true
+    },
+    {
+      "id": "mod-14",
+      "titulo": "Memorizar um versículo",
+      "subtitulo": "Missão de Conhecimento",
+      "descricao": "Memorize um versículo bíblico e recite-o diariamente. A Palavra no coração transforma.",
+      "descricao_completa": "Memorize um versículo bíblico e recite-o diariamente durante a semana. Escolha um versículo que seja significativo para você. A Palavra guardada no coração é uma arma poderosa. 'Guardo no coração as tuas palavras' (Salmos 119:11).",
+      "tipo": "conhecimento",
+      "icone": "bi-brain",
+      "prazo_padrao_horas": 168,
+      "recompensa_xp": 20,
+      "recompensa_ouro": 10,
+      "recompensas": {
+        "xp": 20,
+        "ouro": 10,
+        "itens": []
+      },
+      "consequencias": {
+        "xp_perdido": 0,
+        "ouro_perdido": 0,
+        "mensagem": "Não completar esta missão pode resultar em pontos negativos."
+      },
       "ativo": true
     }
   ],

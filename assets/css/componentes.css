@@ -508,6 +508,486 @@
   border-color: var(--cor-borda) !important;
 }
 
+/* ========== Cards de Missões ========== */
+.cards-missoes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .cards-missoes-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+.card-missao {
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--cor-fundo-card);
+  gap: 0.75rem;
+}
+
+.card-missao:hover {
+  border-color: var(--cor-primaria);
+}
+
+/* Card disponível - branco */
+.card-missao.disponivel {
+  background: #ffffff;
+  border-color: #e0e0e0;
+}
+
+[data-bs-theme="dark"] .card-missao.disponivel {
+  background: var(--cor-fundo-card);
+  border-color: var(--cor-borda);
+}
+
+/* Card ativa - azul (primary) */
+.card-missao.ativa {
+  background: #e3f2fd;
+  border-color: #2196f3;
+}
+
+[data-bs-theme="dark"] .card-missao.ativa {
+  background: rgba(33, 150, 243, 0.15);
+  border-color: #2196f3;
+}
+
+/* Card concluída - verde (success) */
+.card-missao.concluida {
+  background: #e8f5e9;
+  border-color: #4caf50;
+}
+
+[data-bs-theme="dark"] .card-missao.concluida {
+  background: rgba(76, 175, 80, 0.15);
+  border-color: #4caf50;
+}
+
+/* Card expirada/abandonada - vermelho (warning/danger) */
+.card-missao.expirada,
+.card-missao.abandonada {
+  background: #fff3e0;
+  border-color: #ff9800;
+}
+
+[data-bs-theme="dark"] .card-missao.expirada,
+[data-bs-theme="dark"] .card-missao.abandonada {
+  background: rgba(255, 152, 0, 0.15);
+  border-color: #ff9800;
+}
+
+.card-missao-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  position: relative;
+}
+
+.card-missao-icone {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.125rem;
+  flex-shrink: 0;
+}
+
+.card-missao.disponivel .card-missao-icone {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--cor-texto);
+}
+
+.card-missao.ativa .card-missao-icone {
+  background: rgba(33, 150, 243, 0.2);
+  color: #1976d2;
+}
+
+.card-missao.concluida .card-missao-icone {
+  background: rgba(76, 175, 80, 0.2);
+  color: #388e3c;
+}
+
+.card-missao.expirada .card-missao-icone,
+.card-missao.abandonada .card-missao-icone {
+  background: rgba(255, 152, 0, 0.2);
+  color: #f57c00;
+}
+
+.card-missao-titulo-wrapper {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.card-missao-titulo {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--cor-texto);
+  margin: 0;
+  line-height: 1.4;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.card-missao-id {
+  font-size: 0.6875rem;
+  font-weight: 400;
+  color: var(--cor-texto-secundario);
+  opacity: 0.5;
+  font-family: monospace;
+}
+
+.card-missao-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.card-missao-tipo {
+  font-size: 0.75rem;
+  color: var(--cor-texto-secundario);
+  text-transform: capitalize;
+}
+
+.card-missao-timer-top {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  color: var(--cor-texto-secundario);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 6px;
+}
+
+.card-missao-timer-top i {
+  font-size: 0.8125rem;
+  color: var(--cor-texto-secundario);
+}
+
+.card-missao-timer-top i.bi-check-circle {
+  color: #4caf50;
+}
+
+.card-missao-timer-top i.bi-exclamation-triangle {
+  color: #ff9800;
+}
+
+.card-missao-data-info {
+  font-size: 0.6875rem;
+  color: var(--cor-texto-secundario);
+}
+
+.contador-regressivo {
+  font-family: 'Courier New', 'Consolas', monospace;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--cor-texto);
+  font-size: 0.8125rem;
+}
+
+.card-missao-body {
+  padding: 0;
+  flex: 1;
+}
+
+.card-missao-descricao {
+  font-size: 0.8125rem;
+  color: var(--cor-texto-secundario);
+  margin: 0;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-missao-recompensas-wrapper {
+  padding: 0;
+}
+
+.card-missao-recompensas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+}
+
+.card-missao-recompensa-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--cor-texto-secundario);
+  font-weight: 400;
+}
+
+.card-missao-recompensa-item i {
+  font-size: 0.75rem;
+}
+
+[data-bs-theme="dark"] .card-missao-recompensa-item {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.card-missao-acoes {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 0.5rem;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.badge-status {
+  font-size: 0.6875rem;
+  padding: 0.1875rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.badge-status.disponivel {
+  background: #f5f5f5;
+  color: #616161;
+}
+
+.badge-status.ativa {
+  background: #2196f3;
+  color: #fff;
+}
+
+.badge-status.concluida {
+  background: #4caf50;
+  color: #fff;
+}
+
+.badge-status.expirada,
+.badge-status.abandonada {
+  background: #ff9800;
+  color: #fff;
+}
+
+/* Métricas e Legendas - Agrupamento Profissional */
+.metricas-legendas-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: var(--cor-fundo-card);
+  border-radius: var(--raio);
+  border: 1px solid var(--cor-borda);
+}
+
+.metricas-grupo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--cor-borda);
+}
+
+.metrica-item-profissional {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.metrica-numero {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--cor-primaria);
+  line-height: 1.2;
+  display: block;
+}
+
+.metrica-nome {
+  font-size: 0.75rem;
+  color: var(--cor-texto-secundario);
+  margin-top: 0.25rem;
+  line-height: 1.2;
+}
+
+.legendas-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.legenda-grupo-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.legenda-grupo-titulo {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--cor-texto);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.legenda-itens-linha {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.legenda-item-compacta {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  color: var(--cor-texto-secundario);
+}
+
+.legenda-cor {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+.legenda-icone-tipo {
+  font-size: 0.875rem;
+  color: var(--cor-texto-secundario);
+}
+
+.legenda-texto {
+  font-size: 0.75rem;
+  color: var(--cor-texto-secundario);
+}
+
+/* Filtros minimalistas */
+.filtros-missoes {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.filtro-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  border: 1px solid var(--cor-borda);
+  background: var(--cor-fundo-card);
+  color: var(--cor-texto);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filtro-btn:hover {
+  border-color: var(--cor-primaria);
+  color: var(--cor-primaria);
+}
+
+.filtro-btn.ativo {
+  background: var(--cor-primaria);
+  border-color: var(--cor-primaria);
+  color: #fff;
+}
+
+/* Paginação minimalista */
+.paginacao-missoes {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.paginacao-btn {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--cor-borda);
+  background: var(--cor-fundo-card);
+  color: var(--cor-texto);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.paginacao-btn:hover:not(:disabled) {
+  border-color: var(--cor-primaria);
+  color: var(--cor-primaria);
+}
+
+.paginacao-btn.ativo {
+  background: var(--cor-primaria);
+  border-color: var(--cor-primaria);
+  color: #fff;
+}
+
+.paginacao-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.paginacao-info {
+  font-size: 0.875rem;
+  color: var(--cor-texto-secundario);
+  margin: 0 0.5rem;
+}
+
+/* Modal de detalhes */
+.modal-detalhes-missao {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  padding: 1rem;
+}
+
+.modal-detalhes-missao .card-tema {
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
 @media (min-width: 768px) {
   .atalhos-home {
     grid-template-columns: repeat(4, 1fr);
@@ -524,5 +1004,8 @@
   }
   .titulo-pagina {
     font-size: 2rem;
+  }
+  .metricas-missoes {
+    grid-template-columns: repeat(5, 1fr);
   }
 }

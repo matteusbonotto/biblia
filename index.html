@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#25633b" />
   <meta name="description" content="App de missões e estudo bíblico para crescimento espiritual." />
   <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>Missões e Estudo Bíblico</title>
   <link rel="manifest" href="manifest.json" />
@@ -506,24 +507,324 @@
         <div x-show="pagina === 'missoes'" style="display: none;">
           <h2 class="titulo-pagina mb-1">Missões</h2>
           <p class="subtitulo-pagina mb-3">Cumpra missões e ganhe XP e ouro</p>
-          <p class="subtitulo-secao mb-2">Suas missões ativas</p>
-          <template x-for="m in missoesAtivas" :key="m.id">
-            <div class="card-tema p-3 mb-2">
-              <h3 class="fs-6 fw-600" x-text="m.modelos_missao?.titulo"></h3>
-              <p class="fs-menor texto-secundario" x-text="'Tipo: ' + (m.modelos_missao?.tipo || '') + ' · Recompensa: ' + (m.modelos_missao?.recompensa_xp || 0) + ' XP, ' + (m.modelos_missao?.recompensa_ouro || 0) + ' ouro'"></p>
-              <div class="d-flex gap-2">
-                <button class="btn btn-success btn-sm" @click="concluirMissao(m)">Concluir</button>
-                <button class="btn btn-outline-secondary btn-sm" @click="desistirMissao(m)">Desistir</button>
+
+          <!-- Métricas e Legendas - Agrupamento Profissional -->
+          <div class="metricas-legendas-wrapper">
+            <!-- Métricas -->
+            <div class="metricas-grupo">
+              <div class="metrica-item-profissional">
+                <span class="metrica-numero" x-text="filtroMissaoStatus === null ? (modelosMissoesFiltrados.length + totalMissoes) : totalMissoes"></span>
+                <span class="metrica-nome">Total</span>
+              </div>
+              <div class="metrica-item-profissional">
+                <span class="metrica-numero" x-text="metricasMissoes?.ativas || 0"></span>
+                <span class="metrica-nome">Ativas</span>
+              </div>
+              <div class="metrica-item-profissional">
+                <span class="metrica-numero" x-text="metricasMissoes?.concluidas || 0"></span>
+                <span class="metrica-nome">Concluídas</span>
+              </div>
+              <div class="metrica-item-profissional">
+                <span class="metrica-numero" x-text="(metricasMissoes?.abandonadas || 0) + (metricasMissoes?.expiradas || 0)"></span>
+                <span class="metrica-nome">Não concluídas</span>
+              </div>
+            </div>
+
+            <!-- Legendas agrupadas -->
+            <div class="legendas-grupo">
+              <div class="legenda-grupo-item">
+                <span class="legenda-grupo-titulo">Status</span>
+                <div class="legenda-itens-linha">
+                  <div class="legenda-item-compacta" title="Missões disponíveis para iniciar">
+                    <span class="legenda-cor" style="background: #ffffff; border: 1px solid #e0e0e0;"></span>
+                    <span class="legenda-texto">Disponível</span>
+                  </div>
+                  <div class="legenda-item-compacta" title="Missões em andamento">
+                    <span class="legenda-cor" style="background: #e3f2fd; border: 1px solid #2196f3;"></span>
+                    <span class="legenda-texto">Em andamento</span>
+                  </div>
+                  <div class="legenda-item-compacta" title="Missões concluídas">
+                    <span class="legenda-cor" style="background: #e8f5e9; border: 1px solid #4caf50;"></span>
+                    <span class="legenda-texto">Concluída</span>
+                  </div>
+                  <div class="legenda-item-compacta" title="Missões expiradas ou abandonadas">
+                    <span class="legenda-cor" style="background: #fff3e0; border: 1px solid #ff9800;"></span>
+                    <span class="legenda-texto">Não concluída</span>
+                  </div>
+                </div>
+              </div>
+              <div class="legenda-grupo-item">
+                <span class="legenda-grupo-titulo">Categorias</span>
+                <div class="legenda-itens-linha">
+                  <div class="legenda-item-compacta" title="Missões que envolvem valores humanos e relacionamentos">
+                    <i class="bi bi-person-heart legenda-icone-tipo"></i>
+                    <span class="legenda-texto">Humana</span>
+                  </div>
+                  <div class="legenda-item-compacta" title="Missões relacionadas à vida espiritual e comunhão com Deus">
+                    <i class="bi bi-heart legenda-icone-tipo"></i>
+                    <span class="legenda-texto">Espiritual</span>
+                  </div>
+                  <div class="legenda-item-compacta" title="Missões de aprendizado e estudo bíblico">
+                    <i class="bi bi-book legenda-icone-tipo"></i>
+                    <span class="legenda-texto">Conhecimento</span>
+                  </div>
+                  <div class="legenda-item-compacta" title="Missões de ações práticas e serviço">
+                    <i class="bi bi-check-circle legenda-icone-tipo"></i>
+                    <span class="legenda-texto">Tarefa</span>
+                  </div>
+                  <div class="legenda-item-compacta" title="Missões para casais realizarem juntos">
+                    <i class="bi bi-people legenda-icone-tipo"></i>
+                    <span class="legenda-texto">Casal</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filtros minimalistas -->
+          <div class="filtros-missoes">
+            <button type="button" class="filtro-btn" :class="{ ativo: filtroMissaoStatus === null }" @click="paginaMissoes = 1; filtroMissaoStatus = null; atualizarFiltrosMissoes()">Todas</button>
+            <button type="button" class="filtro-btn" :class="{ ativo: filtroMissaoStatus === 'ativa' }" @click="paginaMissoes = 1; filtroMissaoStatus = 'ativa'; atualizarFiltrosMissoes()">Ativas</button>
+            <button type="button" class="filtro-btn" :class="{ ativo: filtroMissaoStatus === 'concluida' }" @click="paginaMissoes = 1; filtroMissaoStatus = 'concluida'; atualizarFiltrosMissoes()">Concluídas</button>
+            <button type="button" class="filtro-btn" :class="{ ativo: filtroMissaoStatus === 'nao_concluidas' }" @click="paginaMissoes = 1; filtroMissaoStatus = 'nao_concluidas'; atualizarFiltrosMissoes()">Não Concluídas</button>
+            <button type="button" class="filtro-btn" :class="{ ativo: filtroMissaoTipo !== null }" @click="mostrarFiltroTipo = !mostrarFiltroTipo">
+              <i class="bi bi-funnel me-1"></i> Tipo
+            </button>
+          </div>
+
+          <!-- Filtro por tipo (dropdown) -->
+          <div x-show="mostrarFiltroTipo" class="mb-3">
+            <div class="d-flex gap-2 flex-wrap">
+              <button type="button" class="filtro-btn" :class="{ ativo: filtroMissaoTipo === null }" @click="filtroMissaoTipo = null; atualizarFiltrosMissoes()">Todos</button>
+              <button type="button" class="filtro-btn" :class="{ ativo: filtroMissaoTipo === 'humana' }" @click="filtroMissaoTipo = 'humana'; atualizarFiltrosMissoes()">Humanas</button>
+              <button type="button" class="filtro-btn" :class="{ ativo: filtroMissaoTipo === 'espiritual' }" @click="filtroMissaoTipo = 'espiritual'; atualizarFiltrosMissoes()">Espirituais</button>
+              <button type="button" class="filtro-btn" :class="{ ativo: filtroMissaoTipo === 'conhecimento' }" @click="filtroMissaoTipo = 'conhecimento'; atualizarFiltrosMissoes()">Conhecimento</button>
+              <button type="button" class="filtro-btn" :class="{ ativo: filtroMissaoTipo === 'tarefa' }" @click="filtroMissaoTipo = 'tarefa'; atualizarFiltrosMissoes()">Tarefa</button>
+              <button type="button" class="filtro-btn" :class="{ ativo: filtroMissaoTipo === 'casal' }" @click="filtroMissaoTipo = 'casal'; atualizarFiltrosMissoes()">Casal</button>
+            </div>
+          </div>
+
+          <!-- Cards de missões disponíveis (modelos) - só mostra quando não há filtro de status -->
+          <template x-if="filtroMissaoStatus === null">
+            <div>
+              <p class="subtitulo-secao mb-3">Novas missões disponíveis <span class="texto-secundario fs-menor" x-text="'(' + modelosMissoesFiltrados.length + ')'"></span></p>
+              <div class="cards-missoes-grid">
+                <template x-for="mod in modelosMissoesFiltrados" :key="mod.id">
+                  <div class="card-missao disponivel">
+                    <!-- Header com ícone, título e status -->
+                  <div class="card-missao-header">
+                    <div class="card-missao-icone">
+                      <i :class="'bi ' + (mod.icone || 'bi-flag')"></i>
+                    </div>
+                    <div class="card-missao-titulo-wrapper">
+                      <h3 class="card-missao-titulo">
+                        <span x-text="mod.titulo"></span>
+                        <span class="card-missao-id" x-text="'#' + mod.id.substring(0, 8)"></span>
+                      </h3>
+                      <div class="card-missao-meta">
+                        <span class="badge-status disponivel">Disponível</span>
+                        <span class="card-missao-tipo" x-text="mod.subtitulo || mod.tipo"></span>
+                      </div>
+                    </div>
+                    <!-- Contador no canto superior direito -->
+                    <div class="card-missao-timer-top">
+                      <i class="bi bi-clock"></i>
+                      <span class="contador-regressivo" 
+                            :data-prazo-modelo="mod.prazo_padrao_horas || 168"
+                            x-init="$nextTick(() => initCountdown($el, null, mod.prazo_padrao_horas || 168, null))"></span>
+                    </div>
+                  </div>
+                    
+                    <!-- Descrição -->
+                    <div class="card-missao-body">
+                      <p class="card-missao-descricao" x-text="mod.descricao || 'Complete esta missão para ganhar recompensas.'"></p>
+                    </div>
+                    
+                    <!-- Recompensas -->
+                    <div class="card-missao-recompensas-wrapper" x-show="(mod.recompensa_xp || 0) > 0 || (mod.recompensa_ouro || 0) > 0 || (mod.recompensas?.itens?.length || 0) > 0">
+                      <div class="card-missao-recompensas">
+                        <span class="card-missao-recompensa-item" x-show="(mod.recompensa_xp || mod.recompensas?.xp || 0) > 0">
+                          <i class="bi bi-star-fill"></i>
+                          <span x-text="(mod.recompensa_xp || mod.recompensas?.xp || 0) + ' XP'"></span>
+                        </span>
+                        <span class="card-missao-recompensa-item" x-show="(mod.recompensa_ouro || mod.recompensas?.ouro || 0) > 0">
+                          <i class="bi bi-coin"></i>
+                          <span x-text="(mod.recompensa_ouro || mod.recompensas?.ouro || 0) + ' ouro'"></span>
+                        </span>
+                        <template x-for="item in (mod.recompensas?.itens || [])" :key="item">
+                          <span class="card-missao-recompensa-item">
+                            <i class="bi bi-gift-fill"></i>
+                            <span x-text="item"></span>
+                          </span>
+                        </template>
+                      </div>
+                    </div>
+                    
+                    <!-- Ações -->
+                    <div class="card-missao-acoes">
+                      <button type="button" class="btn btn-outline-secondary btn-sm" @click="abrirDetalhesMissao(mod, 'modelo')">
+                        <i class="bi bi-eye me-1"></i> Ver detalhes
+                      </button>
+                      <button type="button" class="btn btn-primario btn-sm" @click="iniciarMissao(mod.id)">
+                        <i class="bi bi-play-fill me-1"></i> Iniciar
+                      </button>
+                    </div>
+                  </div>
+                </template>
               </div>
             </div>
           </template>
-          <p class="fw-600 mt-3">Iniciar nova missão</p>
-          <template x-for="mod in modelosMissoes" :key="mod.id">
-            <div class="card-tema p-3 mb-2">
-              <h3 class="fs-6" x-text="mod.titulo"></h3>
-              <button class="btn btn-primario btn-sm" @click="iniciarMissao(mod.id)">Iniciar</button>
+
+          <!-- Cards de missões (todas quando sem filtro, ou filtradas) -->
+          <div>
+            <p class="subtitulo-secao mb-3" x-show="filtroMissaoStatus !== null" x-text="(filtroMissaoStatus === 'ativa' ? 'Missões em andamento' : filtroMissaoStatus === 'concluida' ? 'Missões concluídas' : 'Missões não concluídas') + ' (' + totalMissoes + ')'"></p>
+            <p class="subtitulo-secao mb-3" x-show="filtroMissaoStatus === null && missoesFiltradas.length > 0" x-text="'Suas missões (' + totalMissoes + ')'"></p>
+            <div class="cards-missoes-grid">
+              <template x-for="m in missoesFiltradas" :key="m.id">
+                <div class="card-missao" :class="m.status === 'ativa' ? 'ativa' : m.status === 'concluida' ? 'concluida' : (m.status === 'expirada' || m.status === 'abandonada') ? (m.status === 'expirada' ? 'expirada' : 'abandonada') : 'disponivel'">
+                  <!-- Header com ícone, título e status -->
+                  <div class="card-missao-header">
+                    <div class="card-missao-icone">
+                      <i :class="'bi ' + (m.modelos_missao?.icone || 'bi-flag')"></i>
+                    </div>
+                    <div class="card-missao-titulo-wrapper">
+                      <h3 class="card-missao-titulo">
+                        <span x-text="m.modelos_missao?.titulo || 'Missão'"></span>
+                        <span class="card-missao-id" x-text="'#' + m.id.substring(0, 8)"></span>
+                      </h3>
+                      <div class="card-missao-meta">
+                        <span class="badge-status" :class="m.status" x-text="m.status === 'ativa' ? 'Em Andamento' : m.status === 'concluida' ? 'Concluída' : m.status === 'expirada' ? 'Expirada' : m.status === 'abandonada' ? 'Abandonada' : 'Disponível'"></span>
+                        <span class="card-missao-tipo" x-text="m.modelos_missao?.subtitulo || m.modelos_missao?.tipo || ''"></span>
+                      </div>
+                    </div>
+                    <!-- Contador no canto superior direito -->
+                    <template x-if="m.status === 'ativa' && m.prazo_em">
+                      <div class="card-missao-timer-top">
+                        <i class="bi bi-clock"></i>
+                        <span class="contador-regressivo" 
+                              :data-prazo="m.prazo_em"
+                              :data-missao-id="m.id"
+                              x-init="$nextTick(() => initCountdown($el, m.prazo_em, null, m.id))"></span>
+                      </div>
+                    </template>
+                    <template x-if="m.status === 'concluida' && m.concluida_em">
+                      <div class="card-missao-timer-top">
+                        <i class="bi bi-check-circle"></i>
+                        <span class="card-missao-data-info" x-text="formatarDataConclusao(m.concluida_em)"></span>
+                      </div>
+                    </template>
+                    <template x-if="m.status === 'expirada' && m.prazo_em">
+                      <div class="card-missao-timer-top">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <span class="card-missao-data-info" x-text="formatarDataExpiracao(m.prazo_em)"></span>
+                      </div>
+                    </template>
+                  </div>
+                  
+                  <!-- Descrição -->
+                  <div class="card-missao-body">
+                    <p class="card-missao-descricao" x-text="m.modelos_missao?.descricao || 'Complete esta missão para ganhar recompensas.'"></p>
+                  </div>
+                  
+                  <!-- Recompensas -->
+                  <div class="card-missao-recompensas-wrapper" x-show="(m.modelos_missao?.recompensa_xp || m.modelos_missao?.recompensas?.xp || 0) > 0 || (m.modelos_missao?.recompensa_ouro || m.modelos_missao?.recompensas?.ouro || 0) > 0 || (m.modelos_missao?.recompensas?.itens?.length || 0) > 0">
+                    <div class="card-missao-recompensas">
+                      <span class="card-missao-recompensa-item" x-show="(m.modelos_missao?.recompensa_xp || m.modelos_missao?.recompensas?.xp || 0) > 0">
+                        <i class="bi bi-star-fill"></i>
+                        <span x-text="(m.modelos_missao?.recompensa_xp || m.modelos_missao?.recompensas?.xp || 0) + ' XP'"></span>
+                      </span>
+                      <span class="card-missao-recompensa-item" x-show="(m.modelos_missao?.recompensa_ouro || m.modelos_missao?.recompensas?.ouro || 0) > 0">
+                        <i class="bi bi-coin"></i>
+                        <span x-text="(m.modelos_missao?.recompensa_ouro || m.modelos_missao?.recompensas?.ouro || 0) + ' ouro'"></span>
+                      </span>
+                      <template x-for="item in (m.modelos_missao?.recompensas?.itens || [])" :key="item">
+                        <span class="card-missao-recompensa-item">
+                          <i class="bi bi-gift-fill"></i>
+                          <span x-text="item"></span>
+                        </span>
+                      </template>
+                    </div>
+                  </div>
+                  
+                  <!-- Ações -->
+                  <div class="card-missao-acoes">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" @click="abrirDetalhesMissao(m, 'missao')">
+                      <i class="bi bi-eye me-1"></i> Ver detalhes
+                    </button>
+                    <template x-if="m.status === 'ativa'">
+                      <button type="button" class="btn btn-primario btn-sm" @click="concluirMissao(m)">
+                        <i class="bi bi-check-circle me-1"></i> Concluir
+                      </button>
+                      <button type="button" class="btn btn-outline-danger btn-sm" @click="desistirMissao(m)">
+                        <i class="bi bi-x-circle me-1"></i> Desistir
+                      </button>
+                    </template>
+                  </div>
+              </template>
             </div>
-          </template>
+            <p x-show="missoesFiltradas.length === 0 && filtroMissaoStatus !== null" class="texto-secundario text-center py-3">Nenhuma missão encontrada.</p>
+          </div>
+
+          <!-- Paginação -->
+          <div class="paginacao-missoes" x-show="totalMissoes > limiteMissoes">
+            <button type="button" class="paginacao-btn" @click="paginaMissoes = Math.max(1, paginaMissoes - 1); atualizarFiltrosMissoes()" :disabled="paginaMissoes === 1">
+              <i class="bi bi-chevron-left"></i>
+            </button>
+            <template x-for="p in paginasMissoes" :key="p">
+              <button type="button" class="paginacao-btn" :class="{ ativo: p === paginaMissoes }" @click="if (p !== '...') { paginaMissoes = p; atualizarFiltrosMissoes(); }" x-text="p === '...' ? '...' : p"></button>
+            </template>
+            <button type="button" class="paginacao-btn" @click="paginaMissoes = Math.min(totalPaginasMissoes, paginaMissoes + 1); atualizarFiltrosMissoes()" :disabled="paginaMissoes === totalPaginasMissoes">
+              <i class="bi bi-chevron-right"></i>
+            </button>
+            <span class="paginacao-info" x-text="paginaMissoes + '/' + totalPaginasMissoes"></span>
+            <select class="form-select form-select-sm" style="width: auto; min-width: 70px;" @change="limiteMissoes = parseInt($event.target.value); paginaMissoes = 1; atualizarFiltrosMissoes()">
+              <option value="10" :selected="limiteMissoes === 10">10</option>
+              <option value="20" :selected="limiteMissoes === 20">20</option>
+              <option value="50" :selected="limiteMissoes === 50">50</option>
+              <option value="999" :selected="limiteMissoes === 999">Todos</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Modal de detalhes da missão -->
+        <div x-show="modalDetalhesMissao.aberto" class="modal-detalhes-missao" @click.self="fecharDetalhesMissao()" x-transition>
+          <div class="card-tema p-3">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <h3 class="fw-600 mb-0" x-text="modalDetalhesMissao.missao?.modelos_missao?.titulo || modalDetalhesMissao.missao?.titulo || 'Detalhes da Missão'"></h3>
+              <button type="button" class="btn btn-link btn-sm p-0" @click="fecharDetalhesMissao()"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="mb-3">
+              <span class="badge-status" :class="modalDetalhesMissao.missao?.status || 'disponivel'" x-text="modalDetalhesMissao.missao?.status === 'ativa' ? 'Em Andamento' : modalDetalhesMissao.missao?.status === 'concluida' ? 'Concluída' : modalDetalhesMissao.missao?.status === 'expirada' ? 'Expirada' : modalDetalhesMissao.missao?.status === 'abandonada' ? 'Abandonada' : 'Disponível'"></span>
+            </div>
+            <p class="texto-secundario mb-3" x-text="modalDetalhesMissao.missao?.modelos_missao?.descricao_completa || modalDetalhesMissao.missao?.modelos_missao?.descricao || modalDetalhesMissao.missao?.descricao || 'Descrição completa da missão.'"></p>
+            <div class="mb-3">
+              <h4 class="fs-6 fw-600 mb-2">Recompensas</h4>
+              <div class="card-missao-recompensas">
+                <span class="card-missao-recompensa-item" x-show="(modalDetalhesMissao.missao?.modelos_missao?.recompensa_xp || modalDetalhesMissao.missao?.modelos_missao?.recompensas?.xp || modalDetalhesMissao.missao?.recompensa_xp || 0) > 0">
+                  <i class="bi bi-star-fill"></i> <span x-text="(modalDetalhesMissao.missao?.modelos_missao?.recompensa_xp || modalDetalhesMissao.missao?.modelos_missao?.recompensas?.xp || modalDetalhesMissao.missao?.recompensa_xp || 0) + ' XP'"></span>
+                </span>
+                <span class="card-missao-recompensa-item" x-show="(modalDetalhesMissao.missao?.modelos_missao?.recompensa_ouro || modalDetalhesMissao.missao?.modelos_missao?.recompensas?.ouro || modalDetalhesMissao.missao?.recompensa_ouro || 0) > 0">
+                  <i class="bi bi-coin"></i> <span x-text="(modalDetalhesMissao.missao?.modelos_missao?.recompensa_ouro || modalDetalhesMissao.missao?.modelos_missao?.recompensas?.ouro || modalDetalhesMissao.missao?.recompensa_ouro || 0) + ' ouro'"></span>
+                </span>
+                <!-- Itens de recompensa - verificar tanto em modelos_missao (para missões) quanto diretamente na missao (para modelos) -->
+                <template x-for="(item, index) in getItensRecompensaModal()" :key="'item-' + index">
+                  <span class="card-missao-recompensa-item">
+                    <i class="bi bi-gift-fill"></i>
+                    <span x-text="item"></span>
+                  </span>
+                </template>
+              </div>
+            </div>
+            <div class="mb-3" x-show="modalDetalhesMissao.missao?.modelos_missao?.consequencias || modalDetalhesMissao.missao?.consequencias">
+              <h4 class="fs-6 fw-600 mb-2">Consequências</h4>
+              <p class="texto-secundario fs-menor" x-text="(modalDetalhesMissao.missao?.modelos_missao?.consequencias?.mensagem || modalDetalhesMissao.missao?.consequencias?.mensagem || 'Não completar esta missão pode resultar em pontos negativos.')"></p>
+            </div>
+            <div class="d-flex gap-2 justify-content-end">
+              <button type="button" class="btn btn-outline-secondary btn-sm" @click="fecharDetalhesMissao()">Fechar</button>
+              <button type="button" class="btn btn-primario btn-sm" @click="iniciarMissao(modalDetalhesMissao.missao?.id || modalDetalhesMissao.missao?.modelo_id)" x-show="!modalDetalhesMissao.missao?.status || modalDetalhesMissao.missao?.status === 'disponivel'">Iniciar</button>
+              <button type="button" class="btn btn-primario btn-sm" @click="concluirMissao(modalDetalhesMissao.missao)" x-show="modalDetalhesMissao.missao?.status === 'ativa'">Concluir</button>
+            </div>
+          </div>
         </div>
 
         <!-- Inventário -->
@@ -728,7 +1029,7 @@
           <div x-show="notaPopup.aberto" class="modal-nota-overlay" @click.self="fecharNotaPopup()" x-transition>
             <div class="modal-nota card-tema p-3" role="dialog" aria-label="Nota">
               <h3 class="fs-6 fw-600 mb-2" x-text="notaPopup.id ? 'Sua nota' : 'Nova nota'"></h3>
-              <p x-show="notaPopup.textoRef" class="fs-menor texto-secundario mb-2"><em x-text="'Trecho: \"' + (notaPopup.textoRef || '') + '\"'"></em></p>
+              <p x-show="notaPopup.textoRef" class="fs-menor texto-secundario mb-2"><em x-text="'Trecho: ' + (notaPopup.textoRef || '')"></em></p>
               <textarea class="form-control mb-3" rows="4" x-model="notaPopup.conteudo" placeholder="Escreva sua nota..."></textarea>
               <div class="d-flex gap-2 justify-content-end">
                 <button type="button" class="btn btn-outline-secondary btn-sm" @click="fecharNotaPopup()">Fechar</button>
@@ -793,10 +1094,10 @@
           <p class="subtitulo-pagina mb-3">Aparência e informações do app</p>
           <div class="card-tema p-3 mb-3">
             <label class="form-label fw-600">Tema</label>
-            <select class="form-select" :value="temaSalvo || 'sistema'" @change="aplicarTema($event.target.value)">
-              <option value="sistema">Sistema</option>
+            <select class="form-select" :value="temaSalvo || 'claro'" @change="aplicarTema($event.target.value)">
               <option value="claro">Claro</option>
               <option value="escuro">Escuro</option>
+              <option value="sistema">Sistema</option>
             </select>
             <p class="fs-menor texto-secundario mt-2 mb-0">Define cores claras, escuras ou segue o do dispositivo.</p>
           </div>

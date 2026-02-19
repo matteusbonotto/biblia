@@ -13,7 +13,7 @@ import {
   registrarAceiteTermos
 } from './servicos/perfil.js';
 import { listarInventario, listarEfeitosAtivos, usarItem, equiparItem } from './servicos/inventario.js';
-import { listarModelosMissoes, listarMissoesAtivas, iniciarMissao, concluirMissao, desistirMissao } from './servicos/missoes.js';
+import { listarModelosMissoes, listarMissoesAtivas, listarTodasMissoes, obterMetricasMissoes, iniciarMissao, concluirMissao, desistirMissao } from './servicos/missoes.js';
 import { obterCapitulo } from './api/apiBiblia.js';
 import { montarUrlAvataaars, CONFIG_AVATAR_PADRAO } from './api/apiAvataaars.js';
 import { LIVROS_BIBLIA, obterLivrosAntigoTestamento, obterLivrosNovoTestamento } from './dados/livrosBiblia.js';
@@ -45,6 +45,17 @@ document.addEventListener('alpine:init', () => {
     inventario: [],
     missoesAtivas: [],
     modelosMissoes: [],
+    todasMissoes: [],
+    missoesFiltradas: [],
+    modelosMissoesFiltrados: [],
+    metricasMissoes: null,
+    filtroMissaoStatus: null,
+    filtroMissaoTipo: null,
+    mostrarFiltroTipo: false,
+    paginaMissoes: 1,
+    limiteMissoes: 10,
+    totalMissoes: 0,
+    modalDetalhesMissao: { aberto: false, missao: null },
     pagina: 'login',
     carregando: true,
     erro: '',
@@ -124,12 +135,17 @@ document.addEventListener('alpine:init', () => {
     quizEstudoEnviado: false,
     quizEstudoNota: null,
 
-    temaSalvo: 'sistema',
+    temaSalvo: 'claro',
+    tempoAtual: Date.now(),
+    _tempoContador: 0,
     init() {
-      this.temaSalvo = localStorage.getItem('tema') || 'sistema';
+      this.temaSalvo = localStorage.getItem('tema') || 'claro';
       this.aplicarTema(this.temaSalvo);
       this.atualizarPagina();
       window.addEventListener('hashchange', () => this.atualizarPagina());
+      
+      // Timer será inicializado via x-init em cada elemento
+      
       onMudancaAuth(async (evento, sessao) => {
         this.usuario = sessao?.user || null;
         if (this.usuario) {
@@ -144,9 +160,18 @@ document.addEventListener('alpine:init', () => {
         }
         this.carregando = false;
       });
-      obterUsuarioAtual().then((u) => {
+      obterUsuarioAtual().then(async (u) => {
         this.usuario = u;
-        if (u) this.carregarDadosUsuario();
+        if (u) {
+          try {
+            await this.carregarDadosUsuario();
+          } catch (e) {
+            console.error('Erro ao carregar dados do usuário:', e);
+          }
+        }
+        this.carregando = false;
+      }).catch((e) => {
+        console.error('Erro ao obter usuário:', e);
         this.carregando = false;
       });
     },
@@ -173,8 +198,19 @@ document.addEventListener('alpine:init', () => {
       if (this.usuario && (r === 'home' || r === 'inventario' || r === 'missoes')) {
         this.carregarDadosUsuario();
       }
-      if (r === 'missoes' && this.usuario && this.modelosMissoes.length === 0) {
-        listarModelosMissoes().then((data) => (this.modelosMissoes = data || []));
+      if (r === 'missoes' && this.usuario) {
+        if (this.modoDemo) {
+          // FORÇAR: Garantir que todasMissoes está carregado antes de filtrar
+          if (!this.todasMissoes || this.todasMissoes.length === 0) {
+            // Tentar usar missoesAtivas como fallback
+            if (this.missoesAtivas && this.missoesAtivas.length > 0) {
+              this.todasMissoes = this.missoesAtivas;
+            }
+          }
+          this.atualizarFiltrosMissoes();
+        } else {
+          this.carregarMissoes();
+        }
       }
       if (r === 'leitura-biblia' && this.usuario) this.carregarProgressoLeitura();
       if (r === 'ranking' && !this.modoDemo) this.carregarRanking();
@@ -192,8 +228,8 @@ document.addEventListener('alpine:init', () => {
       this.efeitosAtivos = await listarEfeitosAtivos(id);
       this.inventario = await listarInventario(id);
       this.missoesAtivas = await listarMissoesAtivas(id);
-      if (this.pagina === 'missoes' && this.modelosMissoes.length === 0) {
-        this.modelosMissoes = await listarModelosMissoes();
+      if (this.pagina === 'missoes') {
+        await this.carregarMissoes();
       }
     },
 
@@ -450,12 +486,32 @@ document.addEventListener('alpine:init', () => {
         this.moeda = dados.moeda || { ouro: 100 };
         this.efeitosAtivos = dados.efeitosAtivos || [];
         this.inventario = dados.inventario || [];
-        this.missoesAtivas = dados.missoesAtivas || [];
         this.modelosMissoes = dados.modelosMissoes || [];
         this.itensLoja = dados.itensLoja || [];
         this.ranking = dados.ranking || [];
         this.progressoLeitura = [];
         this.livrosAprovadosQuiz = [];
+        // Inicializar variáveis de missões - usar apenas todasMissoes (missoesAtivas foi removido)
+        this.todasMissoes = dados.todasMissoes || [];
+        this.missoesFiltradas = dados.todasMissoes || [];
+        this.modelosMissoesFiltrados = dados.modelosMissoes || [];
+        // Calcular missoesAtivas a partir de todasMissoes
+        this.missoesAtivas = this.todasMissoes.filter(m => m.status === 'ativa') || [];
+        // Calcular métricas reais (apenas missões, não modelos)
+        const todas = this.todasMissoes || [];
+        this.metricasMissoes = {
+          total: todas.length,
+          concluidas: todas.filter(m => m.status === 'concluida').length,
+          ativas: todas.filter(m => m.status === 'ativa').length,
+          abandonadas: todas.filter(m => m.status === 'abandonada').length,
+          expiradas: todas.filter(m => m.status === 'expirada').length
+        };
+        this.totalMissoes = todas.length;
+        
+        // Inicializar timers após carregar dados do demo
+        setTimeout(() => {
+          this.reinicializarTimersMissoes();
+        }, 500);
       } catch (e) {
         this.erro = 'Não foi possível carregar os dados da demonstração.';
         return;
@@ -630,8 +686,13 @@ document.addEventListener('alpine:init', () => {
         return;
       }
       const r = await iniciarMissao(this.usuario.id, modeloId);
-      if (r.sucesso) await this.carregarDadosUsuario();
-      else this.erro = r.erro || '';
+      if (r.sucesso) {
+        await this.carregarDadosUsuario();
+        await this.carregarMissoes();
+        this.fecharDetalhesMissao();
+      } else {
+        this.erro = r.erro || '';
+      }
     },
 
     async concluirMissao(m) {
@@ -641,7 +702,11 @@ document.addEventListener('alpine:init', () => {
         return;
       }
       const r = await concluirMissao(this.usuario.id, m.id);
-      if (r.sucesso) await this.carregarDadosUsuario();
+      if (r.sucesso) {
+        await this.carregarDadosUsuario();
+        await this.carregarMissoes();
+        this.fecharDetalhesMissao();
+      }
     },
 
     async desistirMissao(m) {
@@ -651,7 +716,473 @@ document.addEventListener('alpine:init', () => {
         return;
       }
       const r = await desistirMissao(this.usuario.id, m.id);
-      if (r.sucesso) await this.carregarDadosUsuario();
+      if (r.sucesso) {
+        await this.carregarDadosUsuario();
+        await this.carregarMissoes();
+      }
+    },
+
+    async carregarMissoes() {
+      if (!this.usuario) return;
+      
+      // No modo demo, usar dados já carregados
+      if (this.modoDemo) {
+        this.atualizarFiltrosMissoes();
+        return;
+      }
+      // Carregar métricas
+      this.metricasMissoes = await obterMetricasMissoes(this.usuario.id);
+      // Carregar modelos de missões disponíveis (só se não houver filtro de status ou se for null)
+      if (this.filtroMissaoStatus === null) {
+        this.modelosMissoes = await listarModelosMissoes();
+        // Filtrar modelos que o usuário ainda não iniciou
+        this.modelosMissoesFiltrados = this.modelosMissoes.filter(mod => {
+          if (this.filtroMissaoTipo && mod.tipo !== this.filtroMissaoTipo) return false;
+          return true;
+        });
+      } else {
+        this.modelosMissoes = [];
+        this.modelosMissoesFiltrados = [];
+      }
+      // Carregar missões do usuário
+      let statusFiltro = this.filtroMissaoStatus;
+      if (this.filtroMissaoStatus === 'nao_concluidas') {
+        statusFiltro = null; // Buscar todas para filtrar depois
+      }
+      
+      // Para filtro de ativas, garantir que buscamos todas para contar corretamente
+      if (this.filtroMissaoStatus === 'ativa') {
+        // Primeiro buscar todas as ativas para contar o total
+        const { missoes: todasAtivas, total: totalAtivas } = await listarTodasMissoes(
+          this.usuario.id,
+          'ativa',
+          this.filtroMissaoTipo,
+          9999,
+          0
+        );
+        this.totalMissoes = totalAtivas || (todasAtivas || []).filter(m => m.status === 'ativa').length;
+        
+        // Aplicar paginação localmente
+        const inicio = (this.paginaMissoes - 1) * this.limiteMissoes;
+        const fim = inicio + this.limiteMissoes;
+        this.missoesFiltradas = (todasAtivas || []).filter(m => m.status === 'ativa').slice(inicio, fim);
+        this.todasMissoes = todasAtivas || [];
+      } else {
+        const { missoes, total } = await listarTodasMissoes(
+          this.usuario.id,
+          statusFiltro,
+          this.filtroMissaoTipo,
+          this.limiteMissoes,
+          (this.paginaMissoes - 1) * this.limiteMissoes
+        );
+        this.todasMissoes = missoes || [];
+        this.totalMissoes = total || 0;
+        
+        // Filtrar missões por status se necessário
+        if (this.filtroMissaoStatus === 'nao_concluidas') {
+          this.missoesFiltradas = this.todasMissoes.filter(m => 
+            m.status === 'abandonada' || m.status === 'expirada'
+          );
+          // Recontar total para paginação - buscar todas e filtrar
+          const { missoes: todas } = await listarTodasMissoes(
+            this.usuario.id,
+            null,
+            this.filtroMissaoTipo,
+            9999,
+            0
+          );
+          this.totalMissoes = (todas || []).filter(m => 
+            m.status === 'abandonada' || m.status === 'expirada'
+          ).length;
+        } else {
+          this.missoesFiltradas = this.todasMissoes;
+        }
+      }
+      // Atualizar missões ativas para o HUD
+      this.missoesAtivas = this.todasMissoes.filter(m => m.status === 'ativa');
+      
+      // Reinicializar timers após carregar missões (usar setTimeout para garantir que o DOM foi atualizado)
+      setTimeout(() => {
+        this.reinicializarTimersMissoes();
+      }, 100);
+    },
+
+    // Função para inicializar contador regressivo em cada elemento
+    initCountdown(element, prazoEm, prazoModeloHoras, missaoId) {
+      if (!element) return;
+      
+      // Limpar intervalo anterior se existir
+      if (element._countdownInterval) {
+        clearInterval(element._countdownInterval);
+        element._countdownInterval = null;
+      }
+      
+      const self = this;
+      const updateTimer = function() {
+        try {
+          let dataFinal;
+          
+          // Ler atributos diretamente do DOM (Alpine.js já renderizou)
+          const prazoAttr = element.getAttribute('data-prazo');
+          const prazoModeloAttr = element.getAttribute('data-prazo-modelo');
+          const missaoIdAttr = element.getAttribute('data-missao-id');
+          
+          // Usar valores passados como parâmetro ou do atributo
+          const prazo = prazoEm || prazoAttr;
+          const prazoModelo = prazoModeloHoras || prazoModeloAttr;
+          const idMissao = missaoId || missaoIdAttr;
+          
+          if (prazo && prazo !== 'null' && prazo !== 'undefined' && prazo !== '') {
+            // Missão real com data específica
+            dataFinal = new Date(prazo).getTime();
+            if (isNaN(dataFinal)) {
+              element.textContent = '--:--:--:--';
+              return;
+            }
+          } else if (prazoModelo && prazoModelo !== 'null' && prazoModelo !== 'undefined' && prazoModelo !== '') {
+            // Modelo de missão - calcular a partir de agora + horas
+            const horas = parseInt(prazoModelo);
+            if (isNaN(horas)) {
+              element.textContent = '--:--:--:--';
+              return;
+            }
+            dataFinal = Date.now() + (horas * 60 * 60 * 1000);
+          } else {
+            element.textContent = '--:--:--:--';
+            return;
+          }
+          
+          // Define a data final (ex: 31 de Dezembro de 2026)
+          // Atualiza o contador a cada 1 segundo
+          const agora = Date.now();
+          const tempoRestante = dataFinal - agora;
+          
+          // Cálculos de tempo
+          const dias = Math.floor(tempoRestante / (1000 * 60 * 60 * 24));
+          const horas = Math.floor((tempoRestante % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const minutos = Math.floor((tempoRestante % (1000 * 60 * 60)) / (1000 * 60));
+          const segundos = Math.floor((tempoRestante % (1000 * 60)) / 1000);
+          
+          // Exibe o resultado no elemento
+          if (tempoRestante < 0) {
+            element.textContent = '00:00:00:00';
+            // Quando terminar, expirar missão (apenas se for missão real)
+            if (idMissao && idMissao !== 'null' && idMissao !== 'undefined' && idMissao !== '') {
+              self.expirarMissao(idMissao);
+            }
+            // Parar o intervalo
+            if (element._countdownInterval) {
+              clearInterval(element._countdownInterval);
+              element._countdownInterval = null;
+            }
+          } else {
+            element.textContent = dias.toString().padStart(2, '0') + ':' + 
+                                   horas.toString().padStart(2, '0') + ':' + 
+                                   minutos.toString().padStart(2, '0') + ':' + 
+                                   segundos.toString().padStart(2, '0');
+          }
+        } catch (e) {
+          // Silenciar erros
+        }
+      };
+      
+      // Executar imediatamente
+      updateTimer();
+      
+      // Criar intervalo para atualizar a cada segundo
+      element._countdownInterval = setInterval(updateTimer, 1000);
+    },
+
+    // Função para reinicializar todos os timers das missões visíveis
+    reinicializarTimersMissoes() {
+      // Limpar todos os intervalos existentes primeiro
+      document.querySelectorAll('.contador-regressivo').forEach(el => {
+        if (el._countdownInterval) {
+          clearInterval(el._countdownInterval);
+          el._countdownInterval = null;
+        }
+      });
+      
+      // Aguardar um pouco para garantir que o DOM foi atualizado
+      setTimeout(() => {
+        // Reinicializar timers para missões ativas
+        if (this.missoesFiltradas && this.missoesFiltradas.length > 0) {
+          this.missoesFiltradas.forEach(missao => {
+            if (missao.status === 'ativa' && missao.prazo_em) {
+              // Buscar todos os elementos com esse data-missao-id
+              const timerElements = document.querySelectorAll(`.contador-regressivo[data-missao-id="${missao.id}"]`);
+              timerElements.forEach(timerElement => {
+                if (timerElement && !timerElement._countdownInterval) {
+                  this.initCountdown(timerElement, missao.prazo_em, null, missao.id);
+                }
+              });
+            }
+          });
+        }
+        
+        // Reinicializar timers para modelos de missão (se visíveis)
+        if (this.filtroMissaoStatus === null && this.modelosMissoesFiltrados && this.modelosMissoesFiltrados.length > 0) {
+          this.modelosMissoesFiltrados.forEach(modelo => {
+            const prazoModelo = modelo.prazo_padrao_horas || 168;
+            // Buscar todos os elementos com esse atributo e inicializar apenas os que não têm intervalo
+            document.querySelectorAll(`.contador-regressivo[data-prazo-modelo="${prazoModelo}"]`).forEach(timerElement => {
+              if (timerElement && !timerElement._countdownInterval) {
+                this.initCountdown(timerElement, null, prazoModelo, null);
+              }
+            });
+          });
+        }
+        
+        // Se ainda houver elementos sem timer inicializado, tentar inicializar todos
+        document.querySelectorAll('.contador-regressivo').forEach(timerElement => {
+          if (!timerElement._countdownInterval) {
+            const prazoAttr = timerElement.getAttribute('data-prazo');
+            const prazoModeloAttr = timerElement.getAttribute('data-prazo-modelo');
+            const missaoIdAttr = timerElement.getAttribute('data-missao-id');
+            
+            if (prazoAttr && missaoIdAttr) {
+              this.initCountdown(timerElement, prazoAttr, null, missaoIdAttr);
+            } else if (prazoModeloAttr) {
+              this.initCountdown(timerElement, null, parseInt(prazoModeloAttr), null);
+            }
+          }
+        });
+      }, 150);
+    },
+
+    async expirarMissao(missaoId) {
+      // Encontrar a missão
+      const missao = this.missoesFiltradas?.find(m => m.id === missaoId && m.status === 'ativa');
+      if (!missao) return;
+      
+      // Verificar se realmente expirou
+      const prazo = new Date(missao.prazo_em).getTime();
+      if (prazo > Date.now()) return; // Ainda não expirou
+      
+      if (this.modoDemo) {
+        // No modo demo, atualizar localmente
+        missao.status = 'expirada';
+        this.atualizarFiltrosMissoes();
+        this.carregarMissoes();
+      } else {
+        // Em produção, chamar API
+        const { expirarMissao: expirarMissaoAPI } = await import('./servicos/missoes.js');
+        await expirarMissaoAPI(this.usuario.id, missaoId);
+        this.carregarMissoes();
+      }
+    },
+
+    formatarDataConclusao(data) {
+      if (!data) return '';
+      const d = new Date(data);
+      return d.toLocaleDateString('pt-BR', { 
+        day: '2-digit', 
+        month: '2-digit', 
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    },
+
+    formatarDataExpiracao(data) {
+      if (!data) return '';
+      const d = new Date(data);
+      return d.toLocaleDateString('pt-BR', { 
+        day: '2-digit', 
+        month: '2-digit', 
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    },
+
+    calcularPrazoModelo(prazoPadraoHoras) {
+      if (!prazoPadraoHoras) return '';
+      // Calcular prazo a partir de agora + horas padrão
+      const agora = this.tempoAtual || Date.now();
+      const prazo = agora + (prazoPadraoHoras * 60 * 60 * 1000);
+      const diff = prazo - agora;
+      if (diff <= 0) return '00:00:00:00';
+      const dias = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const horas = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutos = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const segundos = Math.floor((diff % (1000 * 60)) / 1000);
+      return `${dias.toString().padStart(2, '0')}:${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
+    },
+
+    abrirDetalhesMissao(missao, tipo = 'missao') {
+      this.modalDetalhesMissao = {
+        aberto: true,
+        missao: tipo === 'modelo' ? { ...missao, status: 'disponivel' } : missao
+      };
+    },
+
+    getItensRecompensaModal() {
+      if (!this.modalDetalhesMissao.missao) return [];
+      // Para missões: verificar em modelos_missao.recompensas.itens
+      // Para modelos: verificar em recompensas.itens
+      return this.modalDetalhesMissao.missao?.modelos_missao?.recompensas?.itens || 
+             this.modalDetalhesMissao.missao?.recompensas?.itens || 
+             [];
+    },
+
+    fecharDetalhesMissao() {
+      this.modalDetalhesMissao = { aberto: false, missao: null };
+    },
+
+    get totalPaginasMissoes() {
+      return Math.ceil(this.totalMissoes / this.limiteMissoes) || 1;
+    },
+
+    get paginasMissoes() {
+      const total = this.totalPaginasMissoes;
+      const atual = this.paginaMissoes;
+      const paginas = [];
+      if (total <= 7) {
+        for (let i = 1; i <= total; i++) paginas.push(i);
+      } else {
+        if (atual <= 3) {
+          for (let i = 1; i <= 4; i++) paginas.push(i);
+          paginas.push('...');
+          paginas.push(total);
+        } else if (atual >= total - 2) {
+          paginas.push(1);
+          paginas.push('...');
+          for (let i = total - 3; i <= total; i++) paginas.push(i);
+        } else {
+          paginas.push(1);
+          paginas.push('...');
+          for (let i = atual - 1; i <= atual + 1; i++) paginas.push(i);
+          paginas.push('...');
+          paginas.push(total);
+        }
+      }
+      return paginas;
+    },
+
+    atualizarFiltrosMissoes() {
+      if (this.modoDemo) {
+        // FORÇAR: Garantir que todasMissoes está inicializado - se estiver vazio, recarregar do demo
+        if (!this.todasMissoes || this.todasMissoes.length === 0) {
+          // Tentar recarregar dados do demo se disponível
+          if (this.missoesAtivas && this.missoesAtivas.length > 0) {
+            this.todasMissoes = this.missoesAtivas;
+          } else {
+            this.modelosMissoesFiltrados = [];
+            this.missoesFiltradas = [];
+            this.totalMissoes = 0;
+            return;
+          }
+        }
+        
+        // Filtrar modelos
+        let modelosFiltrados = (this.modelosMissoes || []).filter(mod => {
+          if (this.filtroMissaoTipo && mod.tipo !== this.filtroMissaoTipo) return false;
+          return true;
+        });
+        
+        // Filtrar missões - sempre usar uma cópia do array original
+        let todasMissoesFiltradas = [...(this.todasMissoes || [])];
+        
+        // Aplicar filtro de status
+        if (this.filtroMissaoStatus === 'ativa') {
+          // Filtrar apenas missões com status 'ativa' - FORÇAR exibição no modo demo
+          todasMissoesFiltradas = todasMissoesFiltradas.filter(m => {
+            if (!m) return false;
+            // No modo demo, sempre mostrar missões com status 'ativa', mesmo que tenham expirado
+            return m.status === 'ativa';
+          });
+          
+          // Se não encontrou nenhuma, tentar usar missoesAtivas como fallback
+          if (todasMissoesFiltradas.length === 0 && this.missoesAtivas && this.missoesAtivas.length > 0) {
+            todasMissoesFiltradas = [...this.missoesAtivas];
+          }
+          
+          // Não mostrar modelos quando filtrando por ativas
+          modelosFiltrados = [];
+        } else if (this.filtroMissaoStatus === 'concluida') {
+          todasMissoesFiltradas = todasMissoesFiltradas.filter(m => m && m.status === 'concluida');
+          modelosFiltrados = [];
+        } else if (this.filtroMissaoStatus === 'nao_concluidas') {
+          todasMissoesFiltradas = todasMissoesFiltradas.filter(m => m && (m.status === 'abandonada' || m.status === 'expirada'));
+          modelosFiltrados = [];
+        }
+        
+        // Aplicar filtro de tipo
+        if (this.filtroMissaoTipo) {
+          todasMissoesFiltradas = todasMissoesFiltradas.filter(m => m && m.modelos_missao?.tipo === this.filtroMissaoTipo);
+        }
+        
+        // Quando sem filtro de status: combinar modelos + missões e paginar tudo junto
+        if (this.filtroMissaoStatus === null) {
+          // Combinar todos os itens (modelos + missões)
+          const todosItens = [...modelosFiltrados.map(m => ({ ...m, _tipo: 'modelo' })), ...todasMissoesFiltradas.map(m => ({ ...m, _tipo: 'missao' }))];
+          this.totalMissoes = todosItens.length;
+          
+          // Aplicar paginação
+          const inicio = (this.paginaMissoes - 1) * this.limiteMissoes;
+          const fim = inicio + this.limiteMissoes;
+          const itensPaginados = todosItens.slice(inicio, fim);
+          
+          // Separar modelos e missões para exibição
+          this.modelosMissoesFiltrados = itensPaginados.filter(i => i._tipo === 'modelo').map(i => {
+            const { _tipo, ...rest } = i;
+            return rest;
+          });
+          this.missoesFiltradas = itensPaginados.filter(i => i._tipo === 'missao').map(i => {
+            const { _tipo, ...rest } = i;
+            return rest;
+          });
+        } else {
+          // Com filtro de status: só missões, paginadas normalmente
+          this.modelosMissoesFiltrados = [];
+          this.totalMissoes = todasMissoesFiltradas.length;
+          const inicio = (this.paginaMissoes - 1) * this.limiteMissoes;
+          const fim = inicio + this.limiteMissoes;
+          // FORÇAR: Garantir que pelo menos as missões sejam atribuídas
+          this.missoesFiltradas = todasMissoesFiltradas.slice(inicio, fim);
+        }
+        
+        // FORÇAR: Garantir que missoesFiltradas é um array válido e não está vazio quando deveria ter conteúdo
+        if (!Array.isArray(this.missoesFiltradas)) {
+          this.missoesFiltradas = [];
+        }
+        
+        // FORÇAR: Se o filtro é 'ativa' e não há missões, tentar usar missoesAtivas diretamente
+        if (this.filtroMissaoStatus === 'ativa' && this.missoesFiltradas.length === 0) {
+          // Tentar todas as fontes possíveis
+          let missoesAtivasParaExibir = [];
+          
+          // 1. Tentar de todasMissoes filtradas
+          if (this.todasMissoes && this.todasMissoes.length > 0) {
+            missoesAtivasParaExibir = this.todasMissoes.filter(m => m && m.status === 'ativa');
+          }
+          
+          // 2. Se ainda vazio, tentar de missoesAtivas
+          if (missoesAtivasParaExibir.length === 0 && this.missoesAtivas && this.missoesAtivas.length > 0) {
+            missoesAtivasParaExibir = this.missoesAtivas;
+          }
+          
+          // 3. Se encontrou, aplicar paginação e exibir
+          if (missoesAtivasParaExibir.length > 0) {
+            const inicio = (this.paginaMissoes - 1) * this.limiteMissoes;
+            const fim = inicio + this.limiteMissoes;
+            this.missoesFiltradas = missoesAtivasParaExibir.slice(inicio, fim);
+            this.totalMissoes = missoesAtivasParaExibir.length;
+            this.modelosMissoesFiltrados = [];
+          }
+        }
+        
+        // Reinicializar timers após atualizar filtros (modo demo)
+        // Usar $nextTick do Alpine.js para garantir que o DOM foi atualizado antes de reinicializar timers
+        this.$nextTick(() => {
+          setTimeout(() => {
+            this.reinicializarTimersMissoes();
+          }, 500);
+        });
+      } else {
+        this.carregarMissoes();
+      }
     },
 
     async carregarCapituloBiblia() {

@@ -20,6 +20,76 @@ async function listarMissoesAtivas(usuarioId) {
   return data || [];
 }
 
+async function listarTodasMissoes(usuarioId, filtroStatus = null, filtroTipo = null, limite = 10, offset = 0) {
+  if (!supabase || !usuarioId) return { missoes: [], total: 0 };
+  
+  // Expirar missões automaticamente antes de listar
+  await expirarMissoesAutomaticamente(usuarioId);
+  
+  const { data, error } = await supabase.rpc('listar_todas_missoes_usuario', {
+    p_usuario_id: usuarioId,
+    p_status: filtroStatus,
+    p_tipo: filtroTipo,
+    p_limit: limite,
+    p_offset: offset
+  });
+  if (error) {
+    console.error('Erro ao listar missões:', error);
+    return { missoes: [], total: 0 };
+  }
+  // Contar total para paginação
+  let query = supabase.from('missoes').select('*', { count: 'exact', head: true }).eq('usuario_id', usuarioId);
+  if (filtroStatus) query = query.eq('status', filtroStatus);
+  if (filtroTipo) {
+    const { data: modelos } = await supabase.from('modelos_missao').select('id').eq('tipo', filtroTipo);
+    if (modelos && modelos.length > 0) {
+      query = query.in('modelo_id', modelos.map(m => m.id));
+    } else {
+      return { missoes: [], total: 0 };
+    }
+  }
+  const { count } = await query;
+  return { missoes: data || [], total: count || 0 };
+}
+
+async function expirarMissoesAutomaticamente(usuarioId) {
+  if (!supabase || !usuarioId) return;
+  // Chamar função RPC para expirar missões
+  await supabase.rpc('expirar_missoes_automaticamente').catch(() => {});
+  // Também atualizar localmente as missões do usuário
+  const { error } = await supabase
+    .from('missoes')
+    .update({ status: 'expirada' })
+    .eq('usuario_id', usuarioId)
+    .eq('status', 'ativa')
+    .lt('prazo_em', new Date().toISOString());
+  if (error) console.error('Erro ao expirar missões:', error);
+}
+
+async function expirarMissao(usuarioId, missaoId) {
+  if (!supabase || !usuarioId) return { sucesso: false };
+  const { error } = await supabase
+    .from('missoes')
+    .update({ status: 'expirada' })
+    .eq('id', missaoId)
+    .eq('usuario_id', usuarioId)
+    .eq('status', 'ativa');
+  if (error) return { sucesso: false };
+  return { sucesso: true };
+}
+
+async function obterMetricasMissoes(usuarioId) {
+  if (!supabase || !usuarioId) return null;
+  const { data, error } = await supabase.rpc('obter_metricas_missoes_usuario', {
+    p_usuario_id: usuarioId
+  });
+  if (error) {
+    console.error('Erro ao obter métricas:', error);
+    return null;
+  }
+  return data;
+}
+
 async function iniciarMissao(usuarioId, modeloId) {
   if (!supabase || !usuarioId) return { sucesso: false, erro: 'Não autenticado' };
   const { data: modelo } = await supabase.from('modelos_missao').select('horas_prazo_maximo').eq('id', modeloId).single();
@@ -71,4 +141,4 @@ async function desistirMissao(usuarioId, missaoId) {
   return { sucesso: true };
 }
 
-export { listarModelosMissoes, listarMissoesAtivas, iniciarMissao, concluirMissao, desistirMissao };
+export { listarModelosMissoes, listarMissoesAtivas, listarTodasMissoes, obterMetricasMissoes, iniciarMissao, concluirMissao, desistirMissao, expirarMissao, expirarMissoesAutomaticamente };
