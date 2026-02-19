@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover" />
+  <meta name="theme-color" content="#25633b" />
+  <meta name="description" content="App de missões e estudo bíblico para crescimento espiritual." />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Missões e Estudo Bíblico</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+  <link rel="stylesheet" href="assets/css/tema.css" />
+  <link rel="stylesheet" href="assets/css/componentes.css" />
+  <link rel="stylesheet" href="assets/css/utilidades.css" />
+</head>
+<body x-data="app" x-cloak>
+  <template x-if="carregando && !usuario">
+    <div class="d-flex align-items-center justify-content-center min-vh-100">
+      <div class="spinner-border text-success" role="status"><span class="visually-hidden">Carregando…</span></div>
+    </div>
+  </template>
+
+  <!-- Login -->
+  <div x-show="pagina === 'login'" class="p-3 p-md-4" style="display: none;">
+    <div class="max-w-400 mx-auto mt-5">
+      <h1 class="text-center mb-4 texto-primario fw-600">Missões e Estudo Bíblico</h1>
+      <p class="text-center texto-secundario mb-4">Entre para continuar sua jornada.</p>
+      <div class="card-tema p-3 mb-3">
+        <p x-show="erro" class="text-danger mb-2 fs-menor" x-text="erro"></p>
+        <form @submit.prevent="fazerLogin()">
+          <label class="form-label">E-mail</label>
+          <input type="email" class="form-control mb-2" x-model="emailLogin" required />
+          <label class="form-label">Senha</label>
+          <input type="password" class="form-control mb-3" x-model="senhaLogin" required />
+          <button type="submit" class="btn btn-primario w-100">Entrar</button>
+        </form>
+        <div class="mt-3 pt-3 border-top border-secondary">
+          <button type="button" class="btn btn-outline-secondary w-100" @click="entrarModoDemo()">
+            <i class="bi bi-play-circle me-1"></i> Demo
+          </button>
+          <p class="fs-menor texto-secundario text-center mt-2 mb-0">Testar o app sem criar conta</p>
+        </div>
+      </div>
+      <p class="text-center">
+        <a href="#cadastro" class="texto-primario">Criar conta</a>
+      </p>
+      <p class="text-center fs-menor mt-4">
+        <a href="#termos" class="texto-secundario">Termos de Uso</a> ·
+        <a href="#sobre" class="texto-secundario">Sobre</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- Cadastro em etapas -->
+  <div x-show="pagina === 'cadastro'" class="p-3 p-md-4" style="display: none;">
+    <div class="passo-cadastro">
+      <h2 class="text-center mb-3 fw-600">Criar conta</h2>
+      <div class="indicador-passos">
+        <template x-for="i in 7" :key="i">
+          <span :class="{ ativo: i - 1 === passoCadastro }"></span>
+        </template>
+      </div>
+      <p x-show="erro" class="text-danger mb-2" x-text="erro"></p>
+
+      <div x-show="passoCadastro === 0" class="card-tema p-3">
+        <h3 class="fs-6 fw-600 mb-2">Termos de Uso e Política de Privacidade</h3>
+        <p class="fs-menor mb-2">Para criar sua conta, você precisa <strong>ler e aceitar</strong> os termos abaixo. O cadastro só é concluído após o aceite.</p>
+        <div class="termos-resumo">
+          <h4>1. O que é o app</h4>
+          <p>Plataforma de crescimento espiritual e estudo bíblico com missões, leitura da Bíblia, quizzes, pontos (XP), ouro, ranking e conquistas. Uso pessoal e gratuito.</p>
+          <h4>2. Aceite obrigatório</h4>
+          <p>O aceite será registrado com data e hora. Menores de 18 anos devem ter autorização do responsável.</p>
+          <h4>3. Dados que coletamos (LGPD)</h4>
+          <ul>
+            <li>Nome, e-mail, senha, data de nascimento, estado civil, avatar e preferências</li>
+            <li>Progresso (missões, leitura, quizzes) e registro de aceite dos termos</li>
+            <li>Não vendemos seus dados; compartilhamos apenas com Supabase e APIs necessárias ao serviço</li>
+          </ul>
+          <h4>4. Seus direitos</h4>
+          <p>Acesso, correção, exclusão, portabilidade e revogação do consentimento. Contato: [e-mail do projeto].</p>
+          <h4>5. Responsabilidade</h4>
+          <p>O app é oferecido "como está". Você é responsável por manter sua senha em sigilo.</p>
+          <p class="mb-0"><a href="#termos" target="_blank" class="texto-primario">Ler termos completos</a></p>
+        </div>
+        <label class="d-flex align-items-start gap-2">
+          <input type="checkbox" x-model="aceiteTermos" class="mt-1" />
+          <span class="fs-menor">Li e aceito os Termos de Uso e a Política de Privacidade acima.</span>
+        </label>
+      </div>
+      <div x-show="passoCadastro === 1" class="card-tema p-3">
+        <label class="form-label">Como devo te chamar?</label>
+        <input type="text" class="form-control mb-2" x-model="nomeCadastro" placeholder="Nome" />
+        <input type="text" class="form-control" x-model="sobrenomeCadastro" placeholder="Sobrenome" />
+      </div>
+      <div x-show="passoCadastro === 2" class="card-tema p-3">
+        <p class="mb-2">Que bom ter você aqui, <span x-text="nomeCadastro || '...'"></span>! Quantos anos você tem?</p>
+        <label class="form-label">Data de nascimento</label>
+        <input type="date" class="form-control" x-model="dataNascimentoCadastro" />
+      </div>
+      <div x-show="passoCadastro === 3" class="card-tema p-3">
+        <label class="form-label">Qual seu e-mail?</label>
+        <input type="email" class="form-control" x-model="emailCadastro" required />
+      </div>
+      <div x-show="passoCadastro === 4" class="card-tema p-3">
+        <label class="form-label">Crie uma senha segura</label>
+        <input type="password" class="form-control" x-model="senhaCadastro" minlength="6" required />
+      </div>
+      <div x-show="passoCadastro === 5" class="card-tema p-3">
+        <label class="form-label">Qual seu status civil?</label>
+        <select class="form-select" x-model="estadoCivilCadastro">
+          <option value="">Selecione</option>
+          <option value="solteiro">Solteiro(a)</option>
+          <option value="casado">Casado(a)</option>
+          <option value="outro">Outro</option>
+        </select>
+      </div>
+      <div x-show="passoCadastro === 6" class="card-tema p-3 editor-personagem">
+        <p class="text-center fw-600 mb-2">Crie seu personagem</p>
+        <img :src="urlAvatar(configAvatarCadastro)" alt="Avatar" class="avatar-preview-grande" />
+
+        <div class="grupo-opcao">
+          <div class="grupo-opcao-titulo">Estilo</div>
+          <div class="seletor-setas">
+            <button type="button" class="btn-setas" @click="cicloOpcaoAvatar('avatarStyle', -1)" aria-label="Anterior"><i class="bi bi-chevron-left"></i></button>
+            <span class="nome-opcao" x-text="labelOpcaoAvatar('avatarStyle')"></span>
+            <button type="button" class="btn-setas" @click="cicloOpcaoAvatar('avatarStyle', 1)" aria-label="Próximo"><i class="bi bi-chevron-right"></i></button>
+          </div>
+        </div>
+
+        <div class="grupo-opcao">
+          <div class="grupo-opcao-titulo">Cabelo</div>
+          <div class="seletor-setas">
+            <button type="button" class="btn-setas" @click="cicloOpcaoAvatar('topType', -1)" aria-label="Anterior"><i class="bi bi-chevron-left"></i></button>
+            <span class="nome-opcao texto-truncado" x-text="labelOpcaoAvatar('topType')"></span>
+            <button type="button" class="btn-setas" @click="cicloOpcaoAvatar('topType', 1)" aria-label="Próximo"><i class="bi bi-chevron-right"></i></button>
+          </div>
+          <div class="swatches">
+            <template x-for="op in opcoesAvataaars.hairColor" :key="op.valor">
+              <button type="button" class="swatch" :class="{ ativo: configAvatarCadastro.hairColor === op.valor }" :style="'background:' + (op.hex || '#ccc')" :title="op.label" @click="selecionarOpcaoAvatar('hairColor', op.valor)" :aria-label="'Cor do cabelo: ' + op.label"></button>
+            </template>
+          </div>
+        </div>
+
+        <div class="grupo-opcao">
+          <div class="grupo-opcao-titulo">Acessórios</div>
+          <div class="seletor-setas">
+            <button type="button" class="btn-setas" @click="cicloOpcaoAvatar('accessoriesType', -1)" aria-label="Anterior"><i class="bi bi-chevron-left"></i></button>
+            <span class="nome-opcao" x-text="labelOpcaoAvatar('accessoriesType')"></span>
+            <button type="button" class="btn-setas" @click="cicloOpcaoAvatar('accessoriesType', 1)" aria-label="Próximo"><i class="bi bi-chevron-right"></i></button>
+          </div>
+        </div>
+
+        <div class="grupo-opcao">
+          <div class="grupo-opcao-titulo">Barba / Bigode</div>
+          <div class="seletor-setas">
+            <button type="button" class="btn-setas" @click="cicloOpcaoAvatar('facialHairType', -1)" aria-label="Anterior"><i class="bi bi-chevron-left"></i></button>
+            <span class="nome-opcao" x-text="labelOpcaoAvatar('facialHairType')"></span>
+            <button type="button" class="btn-setas" @click="cicloOpcaoAvatar('facialHairType', 1)" aria-label="Próximo"><i class="bi bi-chevron-right"></i></button>
+          </div>
+          <template x-if="configAvatarCadastro.facialHairType !== 'Blank'">
+            <div class="swatches mt-2">
+              <template x-for="op in opcoesAvataaars.facialHairColor" :key="op.valor">
+                <button type="button" class="swatch" :class="{ ativo: configAvatarCadastro.facialHairColor === op.valor }" :style="'background:' + (op.hex || '#ccc')" @click="selecionarOpcaoAvatar('facialHairColor', op.valor)"></button>
+              </template>
+            </div>
+          </template>
+        </div>
+
+        <div class="grupo-opcao">
+          <div class="grupo-opcao-titulo">Roupa</div>
+          <div class="seletor-setas">
+            <button type="button" class="btn-setas" @click="cicloOpcaoAvatar('clotheType', -1)" aria-label="Anterior"><i class="bi bi-chevron-left"></i></button>
+            <span class="nome-opcao" x-text="labelOpcaoAvatar('clotheType')"></span>
+            <button type="button" class="btn-setas" @click="cicloOpcaoAvatar('clotheType', 1)" aria-label="Próximo"><i class="bi bi-chevron-right"></i></button>
+          </div>
+          <div class="swatches">
+            <template x-for="op in opcoesAvataaars.clotheColor" :key="op.valor">
+              <button type="button" class="swatch" :class="{ ativo: configAvatarCadastro.clotheColor === op.valor }" :style="'background:' + (op.hex || '#ccc')" @click="selecionarOpcaoAvatar('clotheColor', op.valor)"></button>
+            </template>
+          </div>
+        </div>
+
+        <div class="grupo-opcao">
+          <div class="grupo-opcao-titulo">Olhos</div>
+          <div class="seletor-setas">
+            <button type="button" class="btn-setas" @click="cicloOpcaoAvatar('eyeType', -1)" aria-label="Anterior"><i class="bi bi-chevron-left"></i></button>
+            <span class="nome-opcao" x-text="labelOpcaoAvatar('eyeType')"></span>
+            <button type="button" class="btn-setas" @click="cicloOpcaoAvatar('eyeType', 1)" aria-label="Próximo"><i class="bi bi-chevron-right"></i></button>
+          </div>
+        </div>
+
+        <div class="grupo-opcao">
+          <div class="grupo-opcao-titulo">Sobrancelhas</div>
+          <div class="seletor-setas">
+            <button type="button" class="btn-setas" @click="cicloOpcaoAvatar('eyebrowType', -1)" aria-label="Anterior"><i class="bi bi-chevron-left"></i></button>
+            <span class="nome-opcao" x-text="labelOpcaoAvatar('eyebrowType')"></span>
+            <button type="button" class="btn-setas" @click="cicloOpcaoAvatar('eyebrowType', 1)" aria-label="Próximo"><i class="bi bi-chevron-right"></i></button>
+          </div>
+        </div>
+
+        <div class="grupo-opcao">
+          <div class="grupo-opcao-titulo">Boca</div>
+          <div class="seletor-setas">
+            <button type="button" class="btn-setas" @click="cicloOpcaoAvatar('mouthType', -1)" aria-label="Anterior"><i class="bi bi-chevron-left"></i></button>
+            <span class="nome-opcao" x-text="labelOpcaoAvatar('mouthType')"></span>
+            <button type="button" class="btn-setas" @click="cicloOpcaoAvatar('mouthType', 1)" aria-label="Próximo"><i class="bi bi-chevron-right"></i></button>
+          </div>
+        </div>
+
+        <div class="grupo-opcao">
+          <div class="grupo-opcao-titulo">Cor de pele</div>
+          <div class="swatches">
+            <template x-for="op in opcoesAvataaars.skinColor" :key="op.valor">
+              <button type="button" class="swatch" :class="{ ativo: configAvatarCadastro.skinColor === op.valor }" :style="'background:' + (op.hex || '#ccc')" :title="op.label" @click="selecionarOpcaoAvatar('skinColor', op.valor)"></button>
+            </template>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex gap-2 mt-3">
+        <button type="button" class="btn btn-outline-secondary" @click="voltarCadastro()" x-show="passoCadastro > 0">Voltar</button>
+        <button type="button" class="btn btn-primario flex-grow-1" @click="avancarCadastro()"
+          x-text="passoCadastro === 6 ? 'Criar conta' : 'Continuar'"
+          :disabled="(passoCadastro === 0 && !aceiteTermos) || (passoCadastro === 3 && !emailCadastro) || (passoCadastro === 4 && senhaCadastro.length < 6) || carregando"></button>
+      </div>
+      <p class="text-center mt-3"><a href="#login" class="texto-primario">Já tenho conta</a></p>
+    </div>
+  </div>
+
+  <!-- HUD + área logada (header e footer fixos; scroll só no conteúdo) -->
+  <template x-if="usuario">
+    <div class="layout-logado">
+      <header class="hud-topo">
+        <div>
+          <span class="nivel-xp" x-text="'Nível ' + (nivel?.nivel || 1)"></span>
+          <div class="progresso-xp mt-1">
+            <div class="barra" :style="'width:' + Math.min(100, ((nivel?.xp_total || 0) % 100)) + '%'"></div>
+          </div>
+        </div>
+        <div class="ouro-streak">
+          <span x-text="(moeda?.ouro ?? 0) + ' ouro'"></span>
+          <span class="ms-2" x-text="(nivel?.dias_sequencia ?? 0) + ' dias'"></span>
+        </div>
+      </header>
+
+      <main class="area-principal p-3">
+        <p x-show="erro" class="alert alert-danger py-2" x-text="erro"></p>
+        <p x-show="sucesso" class="alert alert-success py-2" x-text="sucesso"></p>
+
+        <nav x-show="pagina !== 'home'" class="mb-2" aria-label="Voltar">
+          <a href="#home" class="btn btn-link btn-sm p-0 texto-primario"><i class="bi bi-arrow-left"></i> Início</a>
+        </nav>
+
+        <!-- Home -->
+        <div x-show="pagina === 'home'" style="display: none;">
+          <h2 class="titulo-pagina mb-1">Olá, <span x-text="perfil?.nome || 'amigo'"></span>!</h2>
+          <p class="subtitulo-pagina mb-3">Resumo do dia e atalhos rápidos</p>
+          <div class="mb-3" x-show="efeitosAtivos.length">
+            <span class="fs-menor texto-secundario">Efeitos ativos: </span>
+            <template x-for="e in efeitosAtivos" :key="e.id">
+              <span class="efeito-ativo me-1" x-text="(e.itens?.nome || '') + ' – ' + tempoRestante(e.termina_em)"></span>
+            </template>
+          </div>
+          <p class="texto-secundario mb-3">Ações rápidas</p>
+          <div class="acoes-rapidas mb-4">
+            <button type="button" @click="registrarAcaoRapida('orar')"><i class="bi bi-heart"></i> Orar</button>
+            <button type="button" @click="registrarAcaoRapida('perdoar')"><i class="bi bi-hand-thumbs-up"></i> Perdoar</button>
+            <button type="button" @click="registrarAcaoRapida('confessar')"><i class="bi bi-chat-dots"></i> Confessar</button>
+            <button type="button" @click="registrarAcaoRapida('interceder')"><i class="bi bi-people"></i> Interceder</button>
+          </div>
+          <p class="fw-600 mb-2">Atalhos</p>
+          <div class="atalhos-home">
+            <a href="#missoes"><i class="bi bi-flag"></i> Missões</a>
+            <a href="#leitura-biblia"><i class="bi bi-book"></i> Leitura Bíblia</a>
+            <a href="#estudo"><i class="bi bi-journal-bookmark"></i> Estudo do evangelho</a>
+            <a href="#inventario"><i class="bi bi-backpack"></i> Inventário</a>
+            <a href="#loja"><i class="bi bi-shop"></i> Loja</a>
+            <a href="#ranking"><i class="bi bi-trophy"></i> Ranking</a>
+            <a href="#perfil"><i class="bi bi-person"></i> Perfil</a>
+            <a href="#configuracoes"><i class="bi bi-gear"></i> Configurações</a>
+          </div>
+        </div>
+
+        <!-- Loja -->
+        <div x-show="pagina === 'loja'" style="display: none;">
+          <h2 class="titulo-pagina mb-1">Loja</h2>
+          <p class="subtitulo-pagina mb-3">Gaste seu ouro em itens para a jornada. Saldo: <strong class="texto-primario" x-text="(moeda?.ouro ?? 0) + ' ouro'"></strong></p>
+          <template x-for="item in itensLoja" :key="item.id">
+            <div class="card-tema p-3 mb-2 d-flex justify-content-between align-center">
+              <div>
+                <span class="fw-600" x-text="item.nome"></span>
+                <p class="fs-menor texto-secundario mb-0" x-text="item.descricao"></p>
+                <span class="texto-primario fw-600" x-text="item.preco_ouro + ' ouro'"></span>
+              </div>
+              <button class="btn btn-primario btn-sm" @click="comprarItem(item)" :disabled="(moeda?.ouro ?? 0) < item.preco_ouro" x-text="(moeda?.ouro ?? 0) >= item.preco_ouro ? 'Comprar' : 'Sem ouro'"></button>
+            </div>
+          </template>
+        </div>
+
+        <!-- Estudo do evangelho (reformado/calvinista, 100% Bíblia) -->
+        <div x-show="pagina === 'estudo'" style="display: none;">
+          <!-- Barra de progresso global (trilhas e dentro de aulas) -->
+          <div class="mb-3" x-show="viewEstudo === 'trilhas' || viewEstudo === 'aulas'">
+            <div class="d-flex justify-content-between align-items-center fs-menor texto-secundario mb-1">
+              <span>Progresso do estudo</span>
+              <span x-show="viewEstudo === 'trilhas'" x-text="aulasCompletasEstudo() + ' / ' + totalAulasEstudo() + ' aulas'"></span>
+              <span x-show="viewEstudo === 'aulas' && trilhaSelecionadaEstudo" x-text="aulasCompletasNaTrilha(trilhaSelecionadaEstudo) + ' / ' + totalAulasNaTrilha(trilhaSelecionadaEstudo) + ' aulas desta trilha'"></span>
+            </div>
+            <div class="barra-progresso-tema" style="height: 8px;">
+              <div class="preenchimento" :style="'width:' + (viewEstudo === 'aulas' && trilhaSelecionadaEstudo ? percentualTrilhaEstudo(trilhaSelecionadaEstudo) : percentualProgressoEstudo()) + '%'"></div>
+            </div>
+          </div>
+
+          <template x-if="viewEstudo === 'trilhas'">
+            <div>
+              <h2 class="titulo-pagina mb-1">Estudo do evangelho</h2>
+              <p class="subtitulo-pagina mb-3">Trilhas de doutrina reformada e calvinista presbiteriana, 100% baseadas na Bíblia.</p>
+              <div class="estudo-trilhas">
+                <template x-for="trilha in TRILHAS_ESTUDO" :key="trilha.id">
+                  <button type="button" class="estudo-card-trilha card-tema p-3 mb-2 w-100 text-start d-flex align-items-center gap-3" @click="selecionarTrilhaEstudo(trilha)">
+                    <span class="estudo-icone-trilha"><i :class="trilha.icone"></i></span>
+                    <div class="flex-grow-1">
+                      <div class="d-flex justify-content-between align-items-center gap-2">
+                        <span class="fw-600" x-text="trilha.titulo"></span>
+                        <span class="fs-menor texto-primario fw-600" x-text="aulasCompletasNaTrilha(trilha) + '/' + totalAulasNaTrilha(trilha)"></span>
+                      </div>
+                      <p class="fs-menor texto-secundario mb-1 mt-1" x-text="trilha.descricao"></p>
+                      <div class="barra-progresso-tema" style="height: 4px;">
+                        <div class="preenchimento" :style="'width:' + percentualTrilhaEstudo(trilha) + '%'"></div>
+                      </div>
+                    </div>
+                    <i class="bi bi-chevron-right texto-secundario"></i>
+                  </button>
+                </template>
+              </div>
+            </div>
+          </template>
+
+          <template x-if="viewEstudo === 'aulas' && trilhaSelecionadaEstudo">
+            <div>
+              <button type="button" class="btn btn-link btn-sm p-0 mb-2 texto-primario" @click="voltarEstudoTrilhas()"><i class="bi bi-arrow-left"></i> Trilhas</button>
+              <h2 class="titulo-pagina mb-1" x-text="trilhaSelecionadaEstudo.titulo"></h2>
+              <p class="subtitulo-pagina mb-2" x-text="trilhaSelecionadaEstudo.descricao"></p>
+              <p class="fs-menor texto-secundario mb-3" x-text="aulasCompletasNaTrilha(trilhaSelecionadaEstudo) + ' de ' + totalAulasNaTrilha(trilhaSelecionadaEstudo) + ' aulas concluídas'"></p>
+              <div class="estudo-aulas">
+                <template x-for="(aula, idx) in trilhaSelecionadaEstudo.aulas" :key="aula.id">
+                  <button type="button" class="estudo-card-aula card-tema p-3 mb-2 w-100 text-start" @click="selecionarAulaEstudo(aula)">
+                    <div class="d-flex justify-content-between align-items-start gap-2">
+                      <div>
+                        <span class="estudo-num-aula fs-menor texto-primario fw-600" x-text="'Aula ' + (idx + 1)"></span>
+                        <span x-show="aulaConcluidaEstudo(aula)" class="badge bg-primary ms-1">Lida</span>
+                        <span x-show="aulaCompletaEstudo(aula)" class="badge bg-success ms-1"><i class="bi bi-check-circle"></i> Concluída</span>
+                        <div class="fw-600 mt-1" x-text="aula.titulo"></div>
+                        <p class="fs-menor texto-secundario mb-0 mt-1" x-text="(aula.refsBiblicas || []).join(' · ')"></p>
+                      </div>
+                      <i class="bi bi-chevron-right texto-secundario"></i>
+                    </div>
+                  </button>
+                </template>
+              </div>
+              <!-- Quiz do módulo (fim de trilha) para aprovação -->
+              <div class="card-tema p-3 mt-3" x-show="trilhaTemQuizModulo(trilhaSelecionadaEstudo)">
+                <h3 class="subtitulo-secao mb-2">Quiz do módulo</h3>
+                <p class="fs-menor texto-secundario mb-2">Prova sobre todo o conteúdo da trilha. Aprovação a partir de 70%.</p>
+                <template x-if="moduloAprovadoEstudo(trilhaSelecionadaEstudo.id)">
+                  <p class="texto-primario fw-600 mb-0"><i class="bi bi-check-circle-fill me-1"></i> Módulo aprovado</p>
+                </template>
+                <template x-if="!moduloAprovadoEstudo(trilhaSelecionadaEstudo.id)">
+                  <button type="button" class="btn btn-primario w-100" @click="iniciarQuizModuloEstudo()">
+                    <i class="bi bi-patch-question me-1"></i> Fazer quiz do módulo
+                  </button>
+                </template>
+              </div>
+            </div>
+          </template>
+
+          <template x-if="viewEstudo === 'aula' && aulaSelecionadaEstudo">
+            <div>
+              <h2 class="titulo-pagina mb-2" x-text="aulaSelecionadaEstudo.titulo"></h2>
+              <div class="mb-3">
+                <template x-for="ref in (aulaSelecionadaEstudo.refsBiblicas || [])" :key="ref">
+                  <span class="badge bg-secondary me-1 mb-1" x-text="ref"></span>
+                </template>
+              </div>
+              <div class="conteudo-legal card-tema p-3 mb-3">
+                <template x-for="(paragrafo, i) in (aulaSelecionadaEstudo.conteudo || [])" :key="i">
+                  <p class="mb-3" x-text="paragrafo"></p>
+                </template>
+              </div>
+              <!-- Estado: aula concluída (marcada como lida) -->
+              <div class="card-tema p-3 mb-3" x-show="aulaAtualMarcadaLida">
+                <p class="texto-primario fw-600 mb-0"><i class="bi bi-check-circle-fill me-1"></i> Aula concluída</p>
+                <p class="fs-menor texto-secundario mb-0 mt-1" x-show="aulaTemQuiz(aulaSelecionadaEstudo) && !aulaQuizAprovadoEstudo(aulaSelecionadaEstudo.id)">Faça o quiz para consolidar.</p>
+                <p class="fs-menor texto-secundario mb-0 mt-1" x-show="aulaCompletaEstudo(aulaSelecionadaEstudo)">Quiz aprovado.</p>
+              </div>
+              <!-- Fila de ações: Voltar | Toggle Marcar como lida / Lida | Próximo -->
+              <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                <button type="button" class="btn btn-outline-secondary" @click="voltarEstudoAulas()"><i class="bi bi-arrow-left me-1"></i> Voltar</button>
+                <div class="d-flex align-items-center gap-2">
+                  <button type="button"
+                    :class="aulaAtualMarcadaLida ? 'btn btn-outline-primary' : 'btn btn-primario'"
+                    @click="toggleLidaEstudo()">
+                    <i :class="aulaAtualMarcadaLida ? 'bi bi-check-circle-fill me-1' : 'bi bi-check-lg me-1'"></i>
+                    <span x-text="aulaAtualMarcadaLida ? 'Lida' : 'Marcar como lida'"></span>
+                  </button>
+                  <template x-if="aulaAtualMarcadaLida && aulaTemQuiz(aulaSelecionadaEstudo) && !aulaQuizAprovadoEstudo(aulaSelecionadaEstudo.id)">
+                    <button type="button" class="btn btn-outline-primary" @click="iniciarQuizEstudo()"><i class="bi bi-patch-question me-1"></i> Fazer quiz</button>
+                  </template>
+                </div>
+                <template x-if="proximaAulaEstudo()">
+                  <button type="button" class="btn btn-primario" @click="irParaProximaAulaEstudo()"><i class="bi bi-arrow-right-circle me-1"></i> Próximo</button>
+                </template>
+                <template x-if="!proximaAulaEstudo() && trilhaSelecionadaEstudo">
+                  <button type="button" class="btn btn-outline-primary" @click="voltarEstudoAulas()"><i class="bi bi-list-ul me-1"></i> Voltar às aulas</button>
+                </template>
+              </div>
+            </div>
+          </template>
+
+          <!-- Quiz do estudo (aula ou módulo) -->
+          <template x-if="viewEstudo === 'quiz' && (aulaSelecionadaEstudo || (quizEstudoTipo === 'modulo' && trilhaSelecionadaEstudo))">
+            <div>
+              <button type="button" class="btn btn-link btn-sm p-0 mb-2 texto-primario" @click="voltarQuizParaAula()">
+                <i class="bi bi-arrow-left"></i> <span x-text="quizEstudoTipo === 'modulo' ? 'Voltar às aulas' : 'Voltar à aula'"></span>
+              </button>
+              <h2 class="titulo-pagina mb-1" x-text="quizEstudoTipo === 'modulo' ? ('Quiz do módulo: ' + (trilhaSelecionadaEstudo?.titulo || '')) : ('Quiz: ' + (aulaSelecionadaEstudo?.titulo || ''))"></h2>
+              <p class="subtitulo-pagina mb-3">Aprovação a partir de 70%</p>
+              <template x-if="!quizEstudoEnviado">
+                <form @submit.prevent="submitQuizEstudo()" class="card-tema p-3">
+                  <template x-for="(pergunta, idx) in quizEstudoPerguntas" :key="idx">
+                    <div class="mb-3">
+                      <p class="fw-600 mb-2" x-text="(idx + 1) + '. ' + pergunta.pergunta"></p>
+                      <template x-for="(alt, i) in pergunta.alternativas" :key="i">
+                        <div class="form-check">
+                          <input type="radio" :name="'quiz_estudo_' + idx" :id="'quiz_estudo_' + idx + '_' + i" :value="i" x-model="quizEstudoRespostas[idx]" class="form-check-input" />
+                          <label class="form-check-label" :for="'quiz_estudo_' + idx + '_' + i" x-text="alt"></label>
+                        </div>
+                      </template>
+                    </div>
+                  </template>
+                  <button type="submit" class="btn btn-primario w-100">Enviar respostas</button>
+                </form>
+              </template>
+              <template x-if="quizEstudoEnviado">
+                <div class="card-tema p-3" :class="quizEstudoNota >= 70 ? 'border-success' : 'border-warning'">
+                  <p class="fw-600 mb-1" x-text="'Nota: ' + quizEstudoNota + '%'"></p>
+                  <p x-show="quizEstudoNota >= 70" class="texto-primario mb-2" x-text="quizEstudoTipo === 'modulo' ? 'Módulo aprovado! Parabéns.' : 'Aprovado! Aula consolidada no progresso.'"></p>
+                  <p x-show="quizEstudoNota < 70" class="text-warning mb-2">Tente novamente. Revise o conteúdo e refaça o quiz.</p>
+                  <button type="button" class="btn btn-outline-secondary" @click="voltarQuizParaAula()" x-text="quizEstudoTipo === 'modulo' ? 'Voltar às aulas' : 'Voltar à aula'"></button>
+                </div>
+              </template>
+            </div>
+          </template>
+        </div>
+
+        <!-- Conquistas (placeholder) -->
+        <div x-show="pagina === 'conquistas'" style="display: none;">
+          <h2 class="titulo-pagina mb-1">Conquistas</h2>
+          <p class="subtitulo-pagina mb-3">Medalhas e marcos desbloqueados na sua jornada</p>
+          <div class="card-tema p-3">
+            <p class="texto-secundario mb-0">Em breve: lista de conquistas desbloqueadas.</p>
+          </div>
+        </div>
+
+        <!-- Perfil -->
+        <div x-show="pagina === 'perfil'" style="display: none;">
+          <h2 class="titulo-pagina mb-1">Perfil</h2>
+          <p class="subtitulo-pagina mb-3">Seus dados e progresso na jornada</p>
+          <div class="text-center mb-3">
+            <img :src="urlAvatar(perfil?.config_avatar)" alt="Avatar" class="avatar-grande" />
+          </div>
+          <div class="card-tema p-3 mb-3">
+            <p><strong x-text="(perfil?.nome || '') + ' ' + (perfil?.sobrenome || '')"></strong></p>
+            <p class="fs-menor texto-secundario mb-0" x-text="'Nível ' + (nivel?.nivel || 1) + ' · ' + (nivel?.xp_total || 0) + ' XP total · ' + (nivel?.dias_sequencia || 0) + ' dias de sequência'"></p>
+          </div>
+          <!-- Atributos: Obras da carne e Fruto do Espírito (Gl 5) com tooltips -->
+          <h3 class="subtitulo-secao mb-2">
+            <span :title="REFS_BIBLICAS.FRUTO_ESPIRITO">Fruto do Espírito</span>
+            <i class="bi bi-info-circle ms-1 texto-secundario" :title="REFS_BIBLICAS.FRUTO_ESPIRITO"></i>
+          </h3>
+          <div class="card-tema p-3 mb-2">
+            <p class="fs-menor texto-secundario mb-2" :title="REFS_BIBLICAS.FRUTO_ESPIRITO">Gálatas 5.22-23</p>
+            <div class="d-flex flex-wrap gap-1">
+              <template x-for="fruto in FRUTO_DO_ESPIRITO" :key="fruto">
+                <span class="badge bg-success" :title="REFS_BIBLICAS.FRUTO_ESPIRITO" x-text="fruto"></span>
+              </template>
+            </div>
+          </div>
+          <h3 class="subtitulo-secao mb-2">
+            <span :title="REFS_BIBLICAS.OBRAS_CARNE">Obras da carne</span>
+            <i class="bi bi-info-circle ms-1 texto-secundario" :title="REFS_BIBLICAS.OBRAS_CARNE"></i>
+          </h3>
+          <div class="card-tema p-3">
+            <p class="fs-menor texto-secundario mb-2" :title="REFS_BIBLICAS.OBRAS_CARNE">Gálatas 5.19-21</p>
+            <div class="d-flex flex-wrap gap-1">
+              <template x-for="obra in OBRAS_DA_CARNE" :key="obra">
+                <span class="badge bg-secondary" :title="REFS_BIBLICAS.OBRAS_CARNE" x-text="obra"></span>
+              </template>
+            </div>
+          </div>
+        </div>
+
+        <!-- Missões -->
+        <div x-show="pagina === 'missoes'" style="display: none;">
+          <h2 class="titulo-pagina mb-1">Missões</h2>
+          <p class="subtitulo-pagina mb-3">Cumpra missões e ganhe XP e ouro</p>
+          <p class="subtitulo-secao mb-2">Suas missões ativas</p>
+          <template x-for="m in missoesAtivas" :key="m.id">
+            <div class="card-tema p-3 mb-2">
+              <h3 class="fs-6 fw-600" x-text="m.modelos_missao?.titulo"></h3>
+              <p class="fs-menor texto-secundario" x-text="'Tipo: ' + (m.modelos_missao?.tipo || '') + ' · Recompensa: ' + (m.modelos_missao?.recompensa_xp || 0) + ' XP, ' + (m.modelos_missao?.recompensa_ouro || 0) + ' ouro'"></p>
+              <div class="d-flex gap-2">
+                <button class="btn btn-success btn-sm" @click="concluirMissao(m)">Concluir</button>
+                <button class="btn btn-outline-secondary btn-sm" @click="desistirMissao(m)">Desistir</button>
+              </div>
+            </div>
+          </template>
+          <p class="fw-600 mt-3">Iniciar nova missão</p>
+          <template x-for="mod in modelosMissoes" :key="mod.id">
+            <div class="card-tema p-3 mb-2">
+              <h3 class="fs-6" x-text="mod.titulo"></h3>
+              <button class="btn btn-primario btn-sm" @click="iniciarMissao(mod.id)">Iniciar</button>
+            </div>
+          </template>
+        </div>
+
+        <!-- Inventário -->
+        <div x-show="pagina === 'inventario'" style="display: none;">
+          <h2 class="titulo-pagina mb-1">Inventário</h2>
+          <p class="subtitulo-pagina mb-3">Armadura de Deus, efeitos ativos, itens permanentes e bolsa</p>
+
+          <!-- Armadura de Deus (Ef 6.10-18) - 6 slots com tooltip -->
+          <div class="mb-3">
+            <h3 class="subtitulo-secao mb-2">
+              <span title="Efésios 6.10-18">Armadura de Deus</span>
+              <i class="bi bi-info-circle ms-1 texto-secundario" title="Efésios 6.10-18"></i>
+            </h3>
+            <div class="card-tema p-3">
+              <div class="row g-2">
+                <template x-for="slot in ARMADURA_DEUS_SLOTS" :key="slot.id">
+                  <div class="col-6 col-md-4">
+                    <div class="slot-armadura p-2 rounded border" :title="slot.ref + ' — ' + REFS_BIBLICAS.ARMADURA_DEUS">
+                      <span class="fs-menor texto-secundario d-block" x-text="slot.nome"></span>
+                      <span class="fs-mini texto-secundario" x-text="slot.ref"></span>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slots de efeitos ativos (consumíveis em uso) -->
+          <div class="mb-3">
+            <h3 class="subtitulo-secao mb-2">Efeitos ativos (consumíveis)</h3>
+            <div class="card-tema p-3">
+              <template x-if="efeitosAtivos.length === 0">
+                <p class="fs-menor texto-secundario mb-0">Nenhum efeito ativo. Use um consumível na lista abaixo.</p>
+              </template>
+              <template x-for="e in efeitosAtivos" :key="e.id">
+                <div class="d-flex justify-content-between align-items-center py-1 border-bottom border-secondary border-opacity-25">
+                  <span class="efeito-ativo" x-text="(e.itens?.nome || '') + ' – ' + tempoRestante(e.termina_em)"></span>
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <!-- Itens permanentes equipados -->
+          <div class="mb-3" x-show="inventario.filter(l => l.equipado && l.itens?.tipo === 'permanente').length">
+            <h3 class="subtitulo-secao mb-2">Itens permanentes (equipados)</h3>
+            <div class="card-tema p-3">
+              <template x-for="linha in inventario.filter(l => l.equipado && l.itens?.tipo === 'permanente')" :key="linha.id">
+                <div class="d-flex justify-content-between align-items-center py-1">
+                  <span class="fw-600" x-text="linha.itens?.nome"></span>
+                  <button class="btn btn-outline-secondary btn-sm" @click="toggleEquipar(linha)">Desequipar</button>
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <!-- Lista de itens (bolsa) -->
+          <h3 class="subtitulo-secao mb-2">Sua bolsa</h3>
+          <template x-for="linha in inventario" :key="linha.id">
+            <div class="card-tema p-3 mb-2 d-flex justify-content-between align-center">
+              <div>
+                <span class="fw-600" x-text="linha.itens?.nome"></span>
+                <span class="fs-menor texto-secundario" x-text="' · ' + (linha.itens?.tipo || '') + (linha.quantidade > 0 ? ' · ' + linha.quantidade : '')"></span>
+                <span x-show="linha.equipado" class="badge bg-success ms-1">Equipado</span>
+              </div>
+              <div>
+                <template x-if="linha.itens?.tipo === 'consumivel' && linha.quantidade > 0">
+                  <button class="btn btn-primario btn-sm" @click="usarItemConsumivel(linha.item_id)">Usar</button>
+                </template>
+                <template x-if="linha.itens?.tipo === 'armadura' || linha.itens?.tipo === 'permanente'">
+                  <button class="btn btn-outline-secondary btn-sm" @click="toggleEquipar(linha)" x-text="linha.equipado ? 'Desequipar' : 'Equipar'"></button>
+                </template>
+              </div>
+            </div>
+          </template>
+        </div>
+
+        <!-- Leitura Bíblia -->
+        <div x-show="pagina === 'leitura-biblia'" style="display: none;">
+          <!-- Lista de livros (AT / NT em grid ou lista) -->
+          <template x-if="viewBiblia === 'livros'">
+            <div>
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="mb-0 fw-600">Leitura da Bíblia</h2>
+                <div class="btn-group btn-group-sm">
+                  <button type="button" class="btn" :class="gridOuListaBiblia === 'grid' ? 'btn-primario' : 'btn-outline-secondary'" @click="gridOuListaBiblia = 'grid'"><i class="bi bi-grid-3x3-gap"></i></button>
+                  <button type="button" class="btn" :class="gridOuListaBiblia === 'lista' ? 'btn-primario' : 'btn-outline-secondary'" @click="gridOuListaBiblia = 'lista'"><i class="bi bi-list-ul"></i></button>
+                </div>
+              </div>
+              <p class="texto-secundario fs-menor mb-2">Antigo Testamento</p>
+              <div class="mb-4" :class="gridOuListaBiblia === 'grid' ? 'row g-2' : ''">
+                <template x-for="livro in livrosAT" :key="livro.codigo">
+                  <div :class="gridOuListaBiblia === 'grid' ? 'col-4' : 'mb-2'" @click="selecionarLivroParaCapitulos(livro)">
+                    <div class="card-tema p-2 text-center cursor-pointer h-100">
+                      <span class="fw-600 d-block text-truncate" x-text="livro.nome"></span>
+                      <div class="progress progresso-xp mt-1" style="height: 4px;">
+                        <div class="barra" :style="'width:' + percentualLivro(livro.codigo) + '%'"></div>
+                      </div>
+                      <span class="fs-menor texto-secundario" x-text="percentualLivro(livro.codigo) + '%'"></span>
+                    </div>
+                  </div>
+                </template>
+              </div>
+              <p class="texto-secundario fs-menor mb-2">Novo Testamento</p>
+              <div :class="gridOuListaBiblia === 'grid' ? 'row g-2' : ''">
+                <template x-for="livro in livrosNT" :key="livro.codigo">
+                  <div :class="gridOuListaBiblia === 'grid' ? 'col-4' : 'mb-2'" @click="selecionarLivroParaCapitulos(livro)">
+                    <div class="card-tema p-2 text-center cursor-pointer h-100">
+                      <span class="fw-600 d-block text-truncate" x-text="livro.nome"></span>
+                      <div class="progress progresso-xp mt-1" style="height: 4px;">
+                        <div class="barra" :style="'width:' + percentualLivro(livro.codigo) + '%'"></div>
+                      </div>
+                      <span class="fs-menor texto-secundario" x-text="percentualLivro(livro.codigo) + '%'"></span>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </template>
+
+          <!-- Capítulos do livro selecionado -->
+          <template x-if="viewBiblia === 'capitulos' && livroSelecionadoParaCapitulos">
+            <div>
+              <button type="button" class="btn btn-link btn-sm p-0 mb-2 texto-primario" @click="voltarBibliaLivros()"><i class="bi bi-arrow-left"></i> Livros</button>
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="mb-0 fw-600" x-text="livroSelecionadoParaCapitulos.nome"></h2>
+                <div class="btn-group btn-group-sm">
+                  <button type="button" class="btn" :class="gridOuListaBiblia === 'grid' ? 'btn-primario' : 'btn-outline-secondary'" @click="gridOuListaBiblia = 'grid'"><i class="bi bi-grid-3x3-gap"></i></button>
+                  <button type="button" class="btn" :class="gridOuListaBiblia === 'lista' ? 'btn-primario' : 'btn-outline-secondary'" @click="gridOuListaBiblia = 'lista'"><i class="bi bi-list-ul"></i></button>
+                </div>
+              </div>
+              <div class="mb-2 texto-secundario fs-menor" x-text="'Leitura: ' + percentualLivro(livroSelecionadoParaCapitulos.codigo) + '%'"></div>
+              <div :class="gridOuListaBiblia === 'grid' ? 'row g-2' : ''">
+                <template x-for="cap in Array.from({length: livroSelecionadoParaCapitulos.totalCapitulos}, (_, i) => i + 1)" :key="cap">
+                  <div :class="gridOuListaBiblia === 'grid' ? 'col-4' : 'mb-2'" @click="selecionarCapituloParaLeitura(livroSelecionadoParaCapitulos, cap)">
+                    <div class="card-tema p-2 text-center cursor-pointer h-100">
+                      <span class="fw-600" x-text="'Cap. ' + cap"></span>
+                      <div class="progress progresso-xp mt-1" style="height: 4px;">
+                        <div class="barra" :style="'width:' + percentualCapitulo(livroSelecionadoParaCapitulos.codigo, cap) + '%'"></div>
+                      </div>
+                      <span class="fs-menor texto-secundario" x-text="percentualCapitulo(livroSelecionadoParaCapitulos.codigo, cap) + '%'"></span>
+                    </div>
+                  </div>
+                </template>
+              </div>
+              <div class="mt-3" x-show="quizDesbloqueado(livroSelecionadoParaCapitulos.codigo)">
+                <button type="button" class="btn btn-primario w-100" @click="iniciarQuizLivro(livroSelecionadoParaCapitulos)"><i class="bi bi-patch-question me-1"></i> Fazer quiz do livro</button>
+              </div>
+              <div class="mt-2" x-show="livroAprovado(livroSelecionadoParaCapitulos.codigo)">
+                <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i> Quiz aprovado</span>
+              </div>
+            </div>
+          </template>
+
+          <!-- Leitura do capítulo -->
+          <template x-if="viewBiblia === 'leitura'">
+            <div>
+              <button type="button" class="btn btn-link btn-sm p-0 mb-2 texto-primario" @click="voltarParaCapitulosBiblia()"><i class="bi bi-arrow-left"></i> Capítulos</button>
+              <h2 class="mb-2 fw-600" x-text="(livrosBiblia.find(l => l.codigo === livroSelecionado)?.nome || livroSelecionado) + ' ' + capituloSelecionado"></h2>
+              <div x-show="capituloBiblia && !carregandoCapitulo" class="mb-2">
+                <div class="d-flex justify-content-between align-items-center fs-menor texto-secundario mb-1">
+                  <span>Leitura</span>
+                  <span x-text="Math.round(progressoLeituraScroll || 0) + '%'"></span>
+                </div>
+                <div class="progress progresso-xp" style="height: 8px;">
+                  <div class="barra" :style="'width:' + Math.min(100, Math.round(progressoLeituraScroll || 0)) + '%'"></div>
+                </div>
+                <div class="d-flex gap-2 flex-wrap align-items-center mt-2">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" @click="narrando ? pararNarracao() : narrarCapitulo()" :disabled="!(capituloBiblia?.verses?.length)">
+                    <i :class="narrando ? 'bi bi-stop-circle' : 'bi bi-volume-up'"></i> <span x-text="narrando ? 'Parar narração' : 'Narrar capítulo'"></span>
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" @click="modoNota = true; mostrarCoresMarcador = false">
+                    <i class="bi bi-chat-quote"></i> Nova nota
+                  </button>
+                  <span class="fs-menor texto-secundario">Marcar texto:</span>
+                  <div x-show="mostrarCoresMarcador" class="d-flex gap-1 ms-1">
+                    <template x-for="cor in CORES_MARCADOR" :key="cor.valor">
+                      <button type="button" class="btn btn-sm border rounded p-2" :class="{ 'border-primary border-3': corMarcadorAtiva === cor.valor }" :style="'background:' + cor.valor" :title="cor.nome" @click="corMarcadorAtiva = (corMarcadorAtiva === cor.valor ? null : cor.valor)"></button>
+                    </template>
+                  </div>
+                  <span x-show="modoNota" class="fs-menor texto-secundario">Selecione o trecho e solte para abrir o campo da nota.</span>
+                </div>
+              </div>
+              <div x-show="carregandoCapitulo" class="text-center py-4"><div class="spinner-border text-success"></div></div>
+              <div x-show="capituloBiblia && !carregandoCapitulo" class="card-tema p-3">
+                <div class="conteudo-leitura-biblia" @scroll="onScrollLeitura($event)" @mousedown="iniciarLongPressLeitura($event)" @touchstart="iniciarLongPressLeitura($event)" @mouseup="cancelarLongPressLeitura(); onSoltarLeitura($event)" @touchend="cancelarLongPressLeitura(); onSoltarLeitura($event)" @click="onClickConteudoLeitura($event)">
+                  <template x-for="v in (capituloBiblia?.verses || [])" :key="v.verse">
+                    <p class="mb-2 verso-biblia"><span class="texto-primario fw-600" x-text="v.verse + '.'"></span> <span class="verso-texto" :data-verse="v.verse" x-html="renderVersoHtml(v.verse, v.text)"></span></p>
+                  </template>
+                </div>
+                <div x-show="Math.round(progressoLeituraScroll || 0) >= 100" class="d-flex flex-wrap gap-2 mt-3 align-items-center">
+                  <button type="button" class="btn btn-outline-secondary btn-sm" @click="voltarParaCapitulosBiblia()"><i class="bi bi-arrow-left"></i> Voltar</button>
+                  <button type="button" class="btn btn-primario btn-sm" @click="iniciarQuizCapitulo()"><i class="bi bi-patch-question"></i> Quiz do capítulo</button>
+                  <button x-show="quizDesbloqueado(livroSelecionado)" type="button" class="btn btn-outline-primary btn-sm" @click="iniciarQuizLivro(livrosBiblia.find(l => l.codigo === livroSelecionado))"><i class="bi bi-journal-bookmark"></i> Quiz do livro</button>
+                  <button type="button" class="btn btn-primario btn-sm" @click="avancarCapituloBiblia()"><i class="bi bi-arrow-right"></i> Avançar</button>
+                  <span x-show="!livroAprovado(livroSelecionado)" class="fs-menor texto-secundario">Avançar sem aprovar no quiz do livro (≥70%) não contabiliza o progresso do livro.</span>
+                </div>
+              </div>
+            </div>
+          </template>
+
+          <!-- Popup de nota (marca-texto) -->
+          <div x-show="notaPopup.aberto" class="modal-nota-overlay" @click.self="fecharNotaPopup()" x-transition>
+            <div class="modal-nota card-tema p-3" role="dialog" aria-label="Nota">
+              <h3 class="fs-6 fw-600 mb-2" x-text="notaPopup.id ? 'Sua nota' : 'Nova nota'"></h3>
+              <p x-show="notaPopup.textoRef" class="fs-menor texto-secundario mb-2"><em x-text="'Trecho: \"' + (notaPopup.textoRef || '') + '\"'"></em></p>
+              <textarea class="form-control mb-3" rows="4" x-model="notaPopup.conteudo" placeholder="Escreva sua nota..."></textarea>
+              <div class="d-flex gap-2 justify-content-end">
+                <button type="button" class="btn btn-outline-secondary btn-sm" @click="fecharNotaPopup()">Fechar</button>
+                <button x-show="notaPopup.id" type="button" class="btn btn-outline-danger btn-sm" @click="removerNotacao(notaPopup.id)">Excluir</button>
+                <button type="button" class="btn btn-primario btn-sm" @click="salvarEdicaoNota()" x-text="notaPopup.id ? 'Salvar' : 'Criar nota'"></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quiz do livro -->
+          <template x-if="viewBiblia === 'quiz' && quizLivroAtivo">
+            <div>
+              <button type="button" class="btn btn-link btn-sm p-0 mb-2 texto-primario" @click="fecharQuiz()"><i class="bi bi-arrow-left"></i> Voltar</button>
+              <h2 class="mb-3 fw-600"><span x-text="quizTipo === 'capitulo' ? 'Quiz do capítulo' : 'Quiz do livro'"></span>: <span x-text="quizLivroAtivo.nome"></span><span x-show="quizTipo === 'capitulo'" x-text="' ' + capituloSelecionado"></span></h2>
+              <p class="texto-secundario fs-menor mb-3" x-show="quizTipo === 'livro'">Aprovação com nota mínima de 70%. Abaixo disso, o progresso do livro é resetado.</p>
+              <p class="texto-secundario fs-menor mb-3" x-show="quizTipo === 'capitulo'">5 perguntas sobre o texto. Nota mínima 70% para aprovar.</p>
+              <template x-if="!quizEnviado">
+                <div class="card-tema p-3">
+                  <template x-for="(pergunta, idx) in quizPerguntas" :key="idx">
+                    <div class="mb-4">
+                      <p class="fw-600 mb-2" x-text="(idx + 1) + '. ' + pergunta.pergunta"></p>
+                      <div class="d-flex flex-column gap-1">
+                        <template x-for="(op, oi) in pergunta.opcoes" :key="oi">
+                          <label class="d-flex align-items-center gap-2 p-2 rounded cursor-pointer" :class="quizRespostas[idx] === oi ? 'bg-success bg-opacity-25' : ''">
+                            <input type="radio" :name="'quiz_' + idx" :value="oi" x-model="quizRespostas[idx]" />
+                            <span x-text="op"></span>
+                          </label>
+                        </template>
+                      </div>
+                    </div>
+                  </template>
+                  <button type="button" class="btn btn-primario w-100 mt-2" @click="enviarQuizLivro()" :disabled="Object.keys(quizRespostas).length < quizPerguntas.length">Enviar quiz</button>
+                </div>
+              </template>
+              <template x-if="quizEnviado">
+                <div class="card-tema p-3">
+                  <p class="fw-600" x-text="'Sua nota: ' + quizNota + '%'"></p>
+                  <p x-show="quizNota >= 70" class="text-success mb-0">Aprovado! Livro concluído.</p>
+                  <p x-show="quizNota < 70" class="text-danger mb-0">Reprovado. O progresso do livro foi resetado. Leia novamente e refaça o quiz.</p>
+                  <button type="button" class="btn btn-outline-secondary mt-3" @click="fecharQuiz()">Voltar aos capítulos</button>
+                </div>
+              </template>
+            </div>
+          </template>
+        </div>
+
+        <!-- Ranking -->
+        <div x-show="pagina === 'ranking'" style="display: none;">
+          <h2 class="titulo-pagina mb-1">Ranking</h2>
+          <p class="subtitulo-pagina mb-3">Compare seu nível e XP com outros jogadores</p>
+          <template x-for="(r, i) in ranking" :key="r.usuario_id">
+            <div class="card-tema p-3 mb-2 d-flex justify-content-between align-center">
+              <span class="fw-600" x-text="(i + 1) + '. ' + (r.nome_exibicao || 'Anônimo')"></span>
+              <span class="fs-menor" x-text="'Nível ' + r.nivel + ' · ' + r.xp_total + ' XP'"></span>
+            </div>
+          </template>
+        </div>
+
+        <!-- Configurações -->
+        <div x-show="pagina === 'configuracoes'" style="display: none;">
+          <h2 class="titulo-pagina mb-2">Configurações</h2>
+          <p class="subtitulo-pagina mb-3">Aparência e informações do app</p>
+          <div class="card-tema p-3 mb-3">
+            <label class="form-label fw-600">Tema</label>
+            <select class="form-select" :value="temaSalvo || 'sistema'" @change="aplicarTema($event.target.value)">
+              <option value="sistema">Sistema</option>
+              <option value="claro">Claro</option>
+              <option value="escuro">Escuro</option>
+            </select>
+            <p class="fs-menor texto-secundario mt-2 mb-0">Define cores claras, escuras ou segue o do dispositivo.</p>
+          </div>
+          <p class="subtitulo-secao mb-2">Informações legais e sobre o app</p>
+          <a href="#termos" class="config-item">
+            <span class="config-item-icone"><i class="bi bi-file-text"></i></span>
+            <div class="config-item-texto">
+              <span class="config-item-titulo">Termos de Uso</span>
+              <p class="config-item-desc">Política de privacidade e condições de uso</p>
+            </div>
+            <i class="bi bi-chevron-right config-item-seta"></i>
+          </a>
+          <a href="#sobre" class="config-item">
+            <span class="config-item-icone"><i class="bi bi-info-circle"></i></span>
+            <div class="config-item-texto">
+              <span class="config-item-titulo">Sobre o projeto</span>
+              <p class="config-item-desc">Nossa história, missão e créditos</p>
+            </div>
+            <i class="bi bi-chevron-right config-item-seta"></i>
+          </a>
+          <a href="#doacoes" class="config-item">
+            <span class="config-item-icone"><i class="bi bi-heart"></i></span>
+            <div class="config-item-texto">
+              <span class="config-item-titulo">Doações</span>
+              <p class="config-item-desc">Apoiar o projeto com qualquer valor</p>
+            </div>
+            <i class="bi bi-chevron-right config-item-seta"></i>
+          </a>
+          <div class="mt-4 pt-2">
+            <button type="button" class="btn btn-outline-danger w-100" @click="sair()">Sair</button>
+          </div>
+        </div>
+
+        <!-- Termos (dentro do layout: rola entre header e footer) -->
+        <div x-show="pagina === 'termos'" class="pagina-conteudo" style="display: none;">
+          <a href="#configuracoes" class="nav-voltar"><i class="bi bi-arrow-left"></i> Voltar às configurações</a>
+          <h1 class="titulo-pagina">Termos de Uso e Política de Privacidade</h1>
+          <p class="meta-termos">Versão 1.0 · Última atualização: fevereiro de 2025</p>
+          <div class="card-tema conteudo-legal">
+            <p>Ao criar conta, você declara que <strong>leu, entendeu e aceitou</strong> estes Termos de Uso e a Política de Privacidade. O cadastro só é permitido após aceite explícito. Se não concordar, não utilize o serviço.</p>
+            <h2 class="subtitulo-secao">1. O que é o aplicativo</h2>
+            <p>Plataforma de crescimento espiritual e estudo bíblico com gamificação: missões (humanas, espirituais, conhecimento, tarefa, casal), leitura da Bíblia com progresso e quizzes, estudo do evangelho, pontos (XP), ouro, nível, streak, conquistas, itens e loja. O app é <strong>gratuito</strong> e de uso pessoal e não comercial.</p>
+            <h2 class="subtitulo-secao">2. Aceite dos termos</h2>
+            <p>É obrigatório aceitar estes Termos e a Política de Privacidade para criar conta. O aceite é registrado com data e hora. Menores de 18 anos devem ter autorização de responsável legal. Sem aceite, o cadastro não é realizado.</p>
+            <h2 class="subtitulo-secao">3. Dados que coletamos (LGPD)</h2>
+            <p>Em conformidade com a <strong>Lei Geral de Proteção de Dados (LGPD)</strong>:</p>
+            <table>
+              <thead><tr><th>Dado</th><th>Finalidade</th></tr></thead>
+              <tbody>
+                <tr><td>Nome, e-mail, senha</td><td>Identificação, login e segurança</td></tr>
+                <tr><td>Data de nascimento, estado civil</td><td>Personalização e missões de casal</td></tr>
+                <tr><td>Avatar, preferências (tema, notificações)</td><td>Experiência no app</td></tr>
+                <tr><td>Progresso (leitura, missões, quizzes)</td><td>Funcionamento do app (nível, XP, conquistas)</td></tr>
+              </tbody>
+            </table>
+            <p><strong>Não vendemos</strong> seus dados. Podem ser compartilhados apenas com: Supabase (hospedagem), APIs de conteúdo (texto bíblico, avatar) e autoridades quando exigido por lei.</p>
+            <h2 class="subtitulo-secao">4. Armazenamento e segurança</h2>
+            <p>Dados em servidores confiáveis, com criptografia onde aplicável (ex.: senhas). Medidas técnicas e organizacionais para reduzir riscos de acesso não autorizado ou vazamento.</p>
+            <h2 class="subtitulo-secao">5. Seus direitos</h2>
+            <p>Você tem direito a: confirmar e acessar seus dados, corrigir, anonimizar ou excluir, portabilidade e revogar consentimento. Para exercer, entre em contato pelo canal indicado ao final. Pode também recorrer à <strong>ANPD</strong> (Autoridade Nacional de Proteção de Dados).</p>
+            <h2 class="subtitulo-secao">6. Cookies e armazenamento local</h2>
+            <p>Usamos armazenamento local (localStorage/sessionStorage) para preferências e sessão. Não usamos cookies de rastreamento para publicidade de terceiros.</p>
+            <h2 class="subtitulo-secao">7. Retenção</h2>
+            <p>Mantemos os dados enquanto sua conta existir. Após exclusão, removemos ou anonimizamos em prazo compatível com a lei. O registro de aceite dos termos pode ser mantido para comprovação.</p>
+            <h2 class="subtitulo-secao">8. Alterações</h2>
+            <p>Podemos atualizar estes Termos quando necessário. A versão e a data ficam no topo. Alterações relevantes podem ser comunicadas por e-mail ou aviso no app. Recomendamos consultar esta página periodicamente.</p>
+            <h2 class="subtitulo-secao">9. Limitação de responsabilidade</h2>
+            <p>O aplicativo é oferecido "como está". Não nos responsabilizamos por danos indiretos. Conteúdo bíblico vem de APIs de terceiros; não garantimos exatidão teológica ou editorial. Você é responsável por manter sua senha em sigilo.</p>
+            <h2 class="subtitulo-secao">10. Conduta do usuário</h2>
+            <p>Compromete-se a fornecer informações verdadeiras, não usar o serviço para fins ilegais, não acessar dados de outros usuários e não usar bots para burlar regras. Descumprimento pode resultar em suspensão ou exclusão da conta.</p>
+            <h2 class="subtitulo-secao">11. Contato</h2>
+            <p>Para dúvidas, acesso, correção ou exclusão de dados e revogação de consentimento:</p>
+            <p><strong>E-mail:</strong> [inserir e-mail de contato do projeto]</p>
+            <p>O controlador dos dados é a pessoa ou entidade responsável pelo aplicativo (identificada na página Sobre).</p>
+            <h2 class="subtitulo-secao">12. Resumo do aceite</h2>
+            <p>Ao marcar que aceita os Termos no cadastro, você confirma que leu e entendeu este documento, concorda com a coleta e o uso dos dados (LGPD), que o aceite será registrado e que pode exercer seus direitos a qualquer momento. <strong>Sem o aceite, o cadastro não será realizado.</strong></p>
+            <p class="mb-0 mt-3"><a href="#configuracoes" class="texto-primario">Voltar às configurações</a></p>
+          </div>
+        </div>
+
+        <!-- Sobre (dentro do layout) -->
+        <div x-show="pagina === 'sobre'" class="pagina-conteudo" style="display: none;">
+          <a href="#configuracoes" class="nav-voltar"><i class="bi bi-arrow-left"></i> Voltar às configurações</a>
+          <div class="sobre-hero">
+            <div class="sobre-icone-app" aria-hidden="true"><i class="bi bi-book-heart"></i></div>
+            <h1 class="titulo-pagina">Sobre o projeto</h1>
+            <p class="subtitulo-pagina">Nossa história, missão e como nasceu este app de crescimento espiritual.</p>
+          </div>
+          <div class="sobre-secao">
+            <h2 class="subtitulo-secao"><i class="bi bi-heart"></i> Nossa missão</h2>
+            <p class="descricao">Queremos ajudar pessoas a organizar a vida de fé de forma leve e envolvente: leitura da Bíblia, oração, missões do dia a dia e estudo do evangelho. Tudo em português, com acessibilidade e, para quem gosta, uma pitada de gamificação — sem tirar o foco do que realmente importa.</p>
+          </div>
+          <div class="sobre-secao">
+            <h2 class="subtitulo-secao"><i class="bi bi-lightbulb"></i> Como nasceu</h2>
+            <p class="descricao">Este projeto nasceu da vontade de unir tecnologia e fé: um app gratuito onde você pode cumprir missões (humanas, espirituais, de conhecimento e de tarefa), acompanhar sua leitura da Bíblia com progresso e quizzes, ganhar XP e ouro, subir de nível e manter um streak. Para casais, há espaço para missões conjuntas. O objetivo é tornar o crescimento espiritual mais acessível, organizado e, quando fizer sentido, até divertido.</p>
+          </div>
+          <div class="sobre-secao">
+            <h2 class="subtitulo-secao"><i class="bi bi-people"></i> Para quem é</h2>
+            <p class="descricao">Para quem quer organizar a vida de fé (leitura, oração, missões), para casais que desejam missões conjuntas e para quem curte gamificação sem deixar o foco no evangelho. O app é 100% gratuito; há espaço para doações para quem quiser apoiar o projeto.</p>
+          </div>
+          <div class="sobre-secao">
+            <h2 class="subtitulo-secao"><i class="bi bi-tools"></i> Créditos e tecnologia</h2>
+            <p class="descricao mb-2">Este app foi construído com as seguintes ferramentas e fontes de conteúdo:</p>
+            <ul class="mb-0">
+              <li><strong>bible-api.com</strong> — texto bíblico</li>
+              <li><strong>Avataaars</strong> — avatares personalizados</li>
+              <li><strong>Supabase</strong> — banco de dados e autenticação</li>
+              <li><strong>Bootstrap</strong> e <strong>Alpine.js</strong> — interface e interatividade</li>
+            </ul>
+          </div>
+          <div class="card-tema p-3 mt-3">
+            <p class="mb-2"><a href="#termos" class="texto-primario">Termos de Uso e Política de Privacidade</a></p>
+            <p class="mb-0"><a href="#doacoes" class="texto-primario">Apoiar com doação</a></p>
+          </div>
+        </div>
+
+        <!-- Doações (dentro do layout) -->
+        <div x-show="pagina === 'doacoes'" class="pagina-conteudo" style="display: none;">
+          <a href="#configuracoes" class="nav-voltar"><i class="bi bi-arrow-left"></i> Voltar às configurações</a>
+          <div class="sobre-hero">
+            <div class="sobre-icone-app" aria-hidden="true" style="background: linear-gradient(135deg, var(--cor-destaque) 0%, #b8923a 100%);"><i class="bi bi-heart"></i></div>
+            <h1 class="titulo-pagina">Doações</h1>
+            <p class="subtitulo-pagina">O projeto é gratuito. Sua doação ajuda a manter e melhorar o app.</p>
+          </div>
+          <div class="bloco-info">
+            <div class="bloco-info-icone"><i class="bi bi-currency-dollar"></i></div>
+            <div>
+              <div class="bloco-info-titulo">Como apoiar</div>
+              <p class="bloco-info-desc mb-0">Se você quiser apoiar com qualquer valor, em breve disponibilizaremos um link para doação (Pix). Sua contribuição será usada para custos de infraestrutura e melhorias no aplicativo. Obrigado por considerar apoiar!</p>
+            </div>
+          </div>
+          <p class="text-center mt-3"><a href="#sobre" class="texto-primario">Conhecer mais sobre o projeto</a></p>
+        </div>
+      </main>
+
+      <!-- Navegação inferior -->
+      <nav class="nav-inferior" aria-label="Menu principal">
+        <a href="#home" :class="{ ativo: pagina === 'home' }"><i class="bi bi-house"></i> Início</a>
+        <a href="#missoes" :class="{ ativo: pagina === 'missoes' }"><i class="bi bi-flag"></i> Missões</a>
+        <a href="#leitura-biblia" :class="{ ativo: pagina === 'leitura-biblia' }"><i class="bi bi-book"></i> Bíblia</a>
+        <a href="#inventario" :class="{ ativo: pagina === 'inventario' }"><i class="bi bi-backpack"></i> Inventário</a>
+        <a href="#perfil" :class="{ ativo: pagina === 'perfil' }"><i class="bi bi-person"></i> Perfil</a>
+      </nav>
+    </div>
+  </template>
+
+  <!-- Termos (somente quando NÃO logado: tela única, sem header/footer) -->
+  <div x-show="!usuario && pagina === 'termos'" class="pagina-conteudo pagina-standalone" style="display: none;">
+    <a href="#login" class="nav-voltar"><i class="bi bi-arrow-left"></i> Voltar ao login</a>
+    <h1 class="titulo-pagina">Termos de Uso e Política de Privacidade</h1>
+    <p class="meta-termos">Versão 1.0 · Última atualização: fevereiro de 2025</p>
+    <div class="card-tema conteudo-legal">
+      <p>Ao criar conta, você declara que <strong>leu, entendeu e aceitou</strong> estes Termos de Uso e a Política de Privacidade. O cadastro só é permitido após aceite explícito. Se não concordar, não utilize o serviço.</p>
+
+      <h2 class="subtitulo-secao">1. O que é o aplicativo</h2>
+      <p>Plataforma de crescimento espiritual e estudo bíblico com gamificação: missões (humanas, espirituais, conhecimento, tarefa, casal), leitura da Bíblia com progresso e quizzes, estudo do evangelho, pontos (XP), ouro, nível, streak, conquistas, itens e loja. O app é <strong>gratuito</strong> e de uso pessoal e não comercial.</p>
+
+      <h2 class="subtitulo-secao">2. Aceite dos termos</h2>
+      <p>É obrigatório aceitar estes Termos e a Política de Privacidade para criar conta. O aceite é registrado com data e hora. Menores de 18 anos devem ter autorização de responsável legal. Sem aceite, o cadastro não é realizado.</p>
+
+      <h2 class="subtitulo-secao">3. Dados que coletamos (LGPD)</h2>
+      <p>Em conformidade com a <strong>Lei Geral de Proteção de Dados (LGPD)</strong>:</p>
+      <table>
+        <thead><tr><th>Dado</th><th>Finalidade</th></tr></thead>
+        <tbody>
+          <tr><td>Nome, e-mail, senha</td><td>Identificação, login e segurança</td></tr>
+          <tr><td>Data de nascimento, estado civil</td><td>Personalização e missões de casal</td></tr>
+          <tr><td>Avatar, preferências (tema, notificações)</td><td>Experiência no app</td></tr>
+          <tr><td>Progresso (leitura, missões, quizzes)</td><td>Funcionamento do app (nível, XP, conquistas)</td></tr>
+        </tbody>
+      </table>
+      <p><strong>Não vendemos</strong> seus dados. Podem ser compartilhados apenas com: Supabase (hospedagem), APIs de conteúdo (texto bíblico, avatar) e autoridades quando exigido por lei.</p>
+
+      <h2 class="subtitulo-secao">4. Armazenamento e segurança</h2>
+      <p>Dados em servidores confiáveis, com criptografia onde aplicável (ex.: senhas). Medidas técnicas e organizacionais para reduzir riscos de acesso não autorizado ou vazamento.</p>
+
+      <h2 class="subtitulo-secao">5. Seus direitos</h2>
+      <p>Você tem direito a: confirmar e acessar seus dados, corrigir, anonimizar ou excluir, portabilidade e revogar consentimento. Para exercer, entre em contato pelo canal indicado ao final. Pode também recorrer à <strong>ANPD</strong> (Autoridade Nacional de Proteção de Dados).</p>
+
+      <h2 class="subtitulo-secao">6. Cookies e armazenamento local</h2>
+      <p>Usamos armazenamento local (localStorage/sessionStorage) para preferências e sessão. Não usamos cookies de rastreamento para publicidade de terceiros.</p>
+
+      <h2 class="subtitulo-secao">7. Retenção</h2>
+      <p>Mantemos os dados enquanto sua conta existir. Após exclusão, removemos ou anonimizamos em prazo compatível com a lei. O registro de aceite dos termos pode ser mantido para comprovação.</p>
+
+      <h2 class="subtitulo-secao">8. Alterações</h2>
+      <p>Podemos atualizar estes Termos quando necessário. A versão e a data ficam no topo. Alterações relevantes podem ser comunicadas por e-mail ou aviso no app. Recomendamos consultar esta página periodicamente.</p>
+
+      <h2 class="subtitulo-secao">9. Limitação de responsabilidade</h2>
+      <p>O aplicativo é oferecido “como está”. Não nos responsabilizamos por danos indiretos. Conteúdo bíblico vem de APIs de terceiros; não garantimos exatidão teológica ou editorial. Você é responsável por manter sua senha em sigilo.</p>
+
+      <h2 class="subtitulo-secao">10. Conduta do usuário</h2>
+      <p>Compromete-se a fornecer informações verdadeiras, não usar o serviço para fins ilegais, não acessar dados de outros usuários e não usar bots para burlar regras. Descumprimento pode resultar em suspensão ou exclusão da conta.</p>
+
+      <h2 class="subtitulo-secao">11. Contato</h2>
+      <p>Para dúvidas, acesso, correção ou exclusão de dados e revogação de consentimento:</p>
+      <p><strong>E-mail:</strong> [inserir e-mail de contato do projeto]</p>
+      <p>O controlador dos dados é a pessoa ou entidade responsável pelo aplicativo (identificada na página Sobre).</p>
+
+      <h2 class="subtitulo-secao">12. Resumo do aceite</h2>
+      <p>Ao marcar que aceita os Termos no cadastro, você confirma que leu e entendeu este documento, concorda com a coleta e o uso dos dados (LGPD), que o aceite será registrado e que pode exercer seus direitos a qualquer momento. <strong>Sem o aceite, o cadastro não será realizado.</strong></p>
+      <p class="mb-0 mt-3"><a href="#login" class="texto-primario">Voltar ao login</a></p>
+    </div>
+  </div>
+
+  <!-- Sobre (somente quando NÃO logado) -->
+  <div x-show="!usuario && pagina === 'sobre'" class="pagina-conteudo pagina-standalone" style="display: none;">
+    <a href="#login" class="nav-voltar"><i class="bi bi-arrow-left"></i> Voltar ao login</a>
+    <div class="sobre-hero">
+      <div class="sobre-icone-app" aria-hidden="true"><i class="bi bi-book-heart"></i></div>
+      <h1 class="titulo-pagina">Sobre o projeto</h1>
+      <p class="subtitulo-pagina">Nossa história, missão e como nasceu este app de crescimento espiritual.</p>
+    </div>
+
+    <div class="sobre-secao">
+      <h2 class="subtitulo-secao"><i class="bi bi-heart"></i> Nossa missão</h2>
+      <p class="descricao">Queremos ajudar pessoas a organizar a vida de fé de forma leve e envolvente: leitura da Bíblia, oração, missões do dia a dia e estudo do evangelho. Tudo em português, com acessibilidade e, para quem gosta, uma pitada de gamificação — sem tirar o foco do que realmente importa.</p>
+    </div>
+
+    <div class="sobre-secao">
+      <h2 class="subtitulo-secao"><i class="bi bi-lightbulb"></i> Como nasceu</h2>
+      <p class="descricao">Este projeto nasceu da vontade de unir tecnologia e fé: um app gratuito onde você pode cumprir missões (humanas, espirituais, de conhecimento e de tarefa), acompanhar sua leitura da Bíblia com progresso e quizzes, ganhar XP e ouro, subir de nível e manter um streak. Para casais, há espaço para missões conjuntas. O objetivo é tornar o crescimento espiritual mais acessível, organizado e, quando fizer sentido, até divertido.</p>
+    </div>
+
+    <div class="sobre-secao">
+      <h2 class="subtitulo-secao"><i class="bi bi-people"></i> Para quem é</h2>
+      <p class="descricao">Para quem quer organizar a vida de fé (leitura, oração, missões), para casais que desejam missões conjuntas e para quem curte gamificação sem deixar o foco no evangelho. O app é 100% gratuito; há espaço para doações para quem quiser apoiar o projeto.</p>
+    </div>
+
+    <div class="sobre-secao">
+      <h2 class="subtitulo-secao"><i class="bi bi-tools"></i> Créditos e tecnologia</h2>
+      <p class="descricao mb-2">Este app foi construído com as seguintes ferramentas e fontes de conteúdo:</p>
+      <ul class="mb-0">
+        <li><strong>bible-api.com</strong> — texto bíblico</li>
+        <li><strong>Avataaars</strong> — avatares personalizados</li>
+        <li><strong>Supabase</strong> — banco de dados e autenticação</li>
+        <li><strong>Bootstrap</strong> e <strong>Alpine.js</strong> — interface e interatividade</li>
+      </ul>
+    </div>
+
+    <div class="card-tema p-3 mt-3">
+      <p class="mb-2"><a href="#termos" class="texto-primario">Termos de Uso e Política de Privacidade</a></p>
+      <p class="mb-0"><a href="#doacoes" class="texto-primario">Apoiar com doação</a></p>
+    </div>
+  </div>
+
+  <!-- Doações (somente quando NÃO logado) -->
+  <div x-show="!usuario && pagina === 'doacoes'" class="pagina-conteudo pagina-standalone" style="display: none;">
+    <a href="#login" class="nav-voltar"><i class="bi bi-arrow-left"></i> Voltar ao login</a>
+    <div class="sobre-hero">
+      <div class="sobre-icone-app" aria-hidden="true" style="background: linear-gradient(135deg, var(--cor-destaque) 0%, #b8923a 100%);"><i class="bi bi-heart"></i></div>
+      <h1 class="titulo-pagina">Doações</h1>
+      <p class="subtitulo-pagina">O projeto é gratuito. Sua doação ajuda a manter e melhorar o app.</p>
+    </div>
+    <div class="bloco-info">
+      <div class="bloco-info-icone"><i class="bi bi-currency-dollar"></i></div>
+      <div>
+        <div class="bloco-info-titulo">Como apoiar</div>
+        <p class="bloco-info-desc mb-0">Se você quiser apoiar com qualquer valor, em breve disponibilizaremos um link para doação (Pix). Sua contribuição será usada para custos de infraestrutura e melhorias no aplicativo. Obrigado por considerar apoiar!</p>
+      </div>
+    </div>
+    <p class="text-center mt-3"><a href="#sobre" class="texto-primario">Conhecer mais sobre o projeto</a></p>
+  </div>
+
+  <script>
+    window.SUPABASE_URL = ''; // Substitua pela URL do seu projeto Supabase
+    window.SUPABASE_ANON_KEY = ''; // Substitua pela chave anon do Supabase
+  </script>
+  <!-- Supabase UMD: expõe window.supabase (use createClient dele) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <!-- Ordem importante: primeiro o módulo (registra Alpine.data), depois o Alpine -->
+  <script type="module" src="assets/js/app.js"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.13.3/dist/cdn.min.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(function() {});
+    }
+    setTimeout(function() {
+      var body = document.body;
+      var aviso = document.getElementById('aviso-servidor');
+      if (aviso && body && body.hasAttribute('x-cloak')) {
+        aviso.style.display = 'block';
+      }
+    }, 4000);
+  </script>
+  <div id="aviso-servidor" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--cor-fundo, #f5f5f0); padding: 2rem; z-index: 9999; overflow: auto;">
+    <h2>Página não carregou</h2>
+    <p>Abra o projeto com um <strong>servidor local</strong>. Na pasta do projeto, no terminal:</p>
+    <pre style="background: #eee; padding: 1rem; border-radius: 8px;">npx serve .</pre>
+    <p>Depois acesse <strong>http://localhost:3000</strong> (ou a porta que aparecer).</p>
+  </div>
+</body>
+</html>

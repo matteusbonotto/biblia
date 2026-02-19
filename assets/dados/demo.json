@@ -1,0 +1,153 @@
+{
+  "perfil": {
+    "nome": "Demo",
+    "sobrenome": "Usuário",
+    "config_avatar": {
+      "avatarStyle": "Circle",
+      "topType": "LongHairStraight",
+      "accessoriesType": "Blank",
+      "hairColor": "BrownDark",
+      "facialHairType": "Blank",
+      "facialHairColor": "BrownDark",
+      "clotheType": "Hoodie",
+      "clotheColor": "Black",
+      "eyeType": "Default",
+      "eyebrowType": "Default",
+      "mouthType": "Default",
+      "skinColor": "Light"
+    }
+  },
+  "nivel": {
+    "nivel": 3,
+    "xp_total": 185,
+    "dias_sequencia": 7
+  },
+  "moeda": {
+    "ouro": 85
+  },
+  "efeitosAtivos": [
+    {
+      "id": "efeito-demo-1",
+      "termina_em": "2025-12-31T20:00:00.000Z",
+      "itens": { "nome": "Cálice Sagrado", "duracao_minutos": 30 }
+    }
+  ],
+  "inventario": [
+    {
+      "id": "inv-demo-1",
+      "item_id": "item-pao",
+      "quantidade": 2,
+      "equipado": false,
+      "itens": { "nome": "Pão da Vida", "tipo": "consumivel" }
+    },
+    {
+      "id": "inv-demo-2",
+      "item_id": "item-cinto",
+      "quantidade": 1,
+      "equipado": true,
+      "itens": { "nome": "Cinto da Verdade", "tipo": "armadura" }
+    },
+    {
+      "id": "inv-demo-3",
+      "item_id": "item-biblia",
+      "quantidade": 1,
+      "equipado": false,
+      "itens": { "nome": "Bíblia Sagrada", "tipo": "permanente" }
+    }
+  ],
+  "missoesAtivas": [
+    {
+      "id": "missao-demo-1",
+      "status": "ativa",
+      "prazo_em": "2025-12-31T23:59:00.000Z",
+      "modelos_missao": {
+        "id": "mod-1",
+        "titulo": "Não mentir hoje",
+        "descricao": "Comprometa-se a falar a verdade durante o dia.",
+        "tipo": "humana",
+        "recompensa_xp": 10,
+        "recompensa_ouro": 5
+      }
+    },
+    {
+      "id": "missao-demo-2",
+      "status": "ativa",
+      "prazo_em": "2025-12-31T23:59:00.000Z",
+      "modelos_missao": {
+        "id": "mod-2",
+        "titulo": "Ler 1 capítulo da Bíblia",
+        "descricao": "Leia um capítulo completo e marque como lido.",
+        "tipo": "conhecimento",
+        "recompensa_xp": 20,
+        "recompensa_ouro": 10
+      }
+    }
+  ],
+  "modelosMissoes": [
+    {
+      "id": "mod-1",
+      "titulo": "Não mentir hoje",
+      "descricao": "Comprometa-se a falar a verdade durante o dia.",
+      "tipo": "humana",
+      "recompensa_xp": 10,
+      "recompensa_ouro": 5,
+      "ativo": true
+    },
+    {
+      "id": "mod-2",
+      "titulo": "Orar por alguém",
+      "descricao": "Interceda por uma pessoa específica.",
+      "tipo": "espiritual",
+      "recompensa_xp": 15,
+      "recompensa_ouro": 5,
+      "ativo": true
+    },
+    {
+      "id": "mod-3",
+      "titulo": "Ler 1 capítulo da Bíblia",
+      "descricao": "Leia um capítulo completo e marque como lido.",
+      "tipo": "conhecimento",
+      "recompensa_xp": 20,
+      "recompensa_ouro": 10,
+      "ativo": true
+    },
+    {
+      "id": "mod-4",
+      "titulo": "Fazer 3 boas ações",
+      "descricao": "Realize três atos de bondade hoje.",
+      "tipo": "tarefa",
+      "recompensa_xp": 15,
+      "recompensa_ouro": 5,
+      "ativo": true
+    }
+  ],
+  "itensLoja": [
+    {
+      "id": "item-pao",
+      "nome": "Pão da Vida",
+      "descricao": "Recupera resistência.",
+      "preco_ouro": 10,
+      "tipo": "consumivel"
+    },
+    {
+      "id": "item-calice",
+      "nome": "Cálice Sagrado",
+      "descricao": "Bênção por 30 minutos.",
+      "preco_ouro": 5,
+      "tipo": "consumivel"
+    },
+    {
+      "id": "item-cinto",
+      "nome": "Cinto da Verdade",
+      "descricao": "Peça da armadura de Deus (Efésios 6).",
+      "preco_ouro": 20,
+      "tipo": "armadura"
+    }
+  ],
+  "ranking": [
+    { "usuario_id": "demo", "nome_exibicao": "Demo Usuário", "nivel": 3, "xp_total": 185, "dias_sequencia": 7 },
+    { "usuario_id": "u2", "nome_exibicao": "Maria Silva", "nivel": 5, "xp_total": 420, "dias_sequencia": 12 },
+    { "usuario_id": "u3", "nome_exibicao": "João Santos", "nivel": 4, "xp_total": 310, "dias_sequencia": 5 },
+    { "usuario_id": "u4", "nome_exibicao": "Ana Oliveira", "nivel": 3, "xp_total": 200, "dias_sequencia": 3 }
+  ]
+}

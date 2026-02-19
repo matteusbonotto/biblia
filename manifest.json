@@ -1,0 +1,28 @@
+{
+  "name": "App Missões e Estudo Bíblico",
+  "short_name": "Missões Bíblia",
+  "description": "Crescimento espiritual, missões, leitura da Bíblia e estudo do evangelho.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#25633b",
+  "background_color": "#1a4d2e",
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "assets/img/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/img/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["lifestyle", "education"]
+}

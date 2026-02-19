@@ -1,0 +1,528 @@
+/* Componentes reutilizáveis - mobile first */
+.avatar-redondo {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--cor-primaria);
+}
+
+.avatar-grande {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--cor-primaria);
+}
+
+.lista-cards .card-tema {
+  margin-bottom: 12px;
+}
+
+.barra-progresso-tema {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--cor-borda);
+  overflow: hidden;
+}
+
+.barra-progresso-tema .preenchimento {
+  height: 100%;
+  background: var(--cor-primaria);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+/* Steps do cadastro */
+.passo-cadastro {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.passo-cadastro .form-label {
+  font-weight: 600;
+  color: var(--cor-texto);
+}
+
+.indicador-passos {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.indicador-passos span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cor-borda);
+  transition: background 0.2s;
+}
+
+.indicador-passos span.ativo {
+  background: var(--cor-primaria);
+  transform: scale(1.2);
+}
+
+/* Efeitos ativos (consumíveis) */
+.efeito-ativo {
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: var(--cor-primaria-clara);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Botões de ação rápida */
+.acoes-rapidas {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.acoes-rapidas button {
+  padding: 14px;
+  border-radius: var(--raio);
+  border: 1px solid var(--cor-borda);
+  background: var(--cor-fundo-card);
+  color: var(--cor-texto);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.acoes-rapidas button:hover {
+  background: var(--cor-primaria);
+  color: #fff;
+  border-color: var(--cor-primaria);
+}
+
+/* Atalhos da home */
+.atalhos-home {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.atalhos-home a {
+  padding: 20px 16px;
+  border-radius: var(--raio);
+  background: var(--cor-fundo-card);
+  border: 1px solid var(--cor-borda);
+  color: var(--cor-texto);
+  text-decoration: none;
+  font-weight: 600;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  box-shadow: var(--sombra);
+}
+
+.atalhos-home a:hover {
+  border-color: var(--cor-primaria);
+  color: var(--cor-primaria);
+}
+
+.atalhos-home a .bi {
+  font-size: 1.5rem;
+}
+
+/* Editor de personagem (estilo jogo) */
+.editor-personagem {
+  max-width: 420px;
+  margin: 0 auto;
+}
+.editor-personagem .avatar-preview-grande {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid var(--cor-primaria);
+  margin: 0 auto 1.25rem;
+  display: block;
+  background: var(--cor-fundo);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+.editor-personagem .grupo-opcao {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: var(--cor-fundo);
+  border-radius: var(--raio);
+  border: 1px solid var(--cor-borda);
+}
+.editor-personagem .grupo-opcao-titulo {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--cor-texto-secundario);
+  margin-bottom: 0.5rem;
+}
+.seletor-setas {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.seletor-setas .btn-setas {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid var(--cor-borda);
+  background: var(--cor-fundo-card);
+  color: var(--cor-texto);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+.seletor-setas .btn-setas:hover {
+  background: var(--cor-primaria);
+  border-color: var(--cor-primaria);
+  color: #fff;
+}
+.seletor-setas .nome-opcao {
+  flex: 1;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+.swatch {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+.swatch:hover {
+  transform: scale(1.1);
+}
+.swatch.ativo {
+  border-color: var(--cor-texto);
+  box-shadow: 0 0 0 2px var(--cor-fundo-card);
+}
+
+.termos-resumo {
+  max-height: 50vh;
+  overflow-y: auto;
+  padding: 1rem;
+  background: var(--cor-fundo);
+  border-radius: var(--raio);
+  border: 1px solid var(--cor-borda);
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+.termos-resumo h4 { font-size: 0.95rem; margin-top: 1rem; margin-bottom: 0.5rem; }
+.termos-resumo ul { padding-left: 1.25rem; margin-bottom: 0.5rem; }
+.termos-resumo p { margin-bottom: 0.5rem; }
+
+/* ========== Páginas de conteúdo (Termos, Sobre, Doações) – UX/UI profissional ========== */
+.pagina-conteudo {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 1.25rem 1rem 2rem;
+}
+
+/* Quando Termos/Sobre/Doações são a única tela (sem login): ocupa a viewport, scroll próprio */
+.pagina-standalone {
+  min-height: 100dvh;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.pagina-conteudo .nav-voltar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--cor-texto-secundario);
+  text-decoration: none;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+.pagina-conteudo .nav-voltar:hover {
+  color: var(--cor-primaria);
+}
+
+.titulo-pagina {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--cor-texto);
+  margin-bottom: 0.35rem;
+  line-height: 1.25;
+}
+
+.subtitulo-pagina {
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--cor-texto-secundario);
+  margin-bottom: 1.5rem;
+  line-height: 1.45;
+}
+
+.subtitulo-secao {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--cor-texto);
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.descricao {
+  font-size: 0.9375rem;
+  color: var(--cor-texto-secundario);
+  line-height: 1.55;
+  margin-bottom: 1rem;
+}
+
+/* Bloco: ícone + título + descrição (padrão profissional) */
+.bloco-info {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1rem 1.25rem;
+  background: var(--cor-fundo-card);
+  border-radius: var(--raio);
+  border: 1px solid var(--cor-borda);
+  margin-bottom: 0.75rem;
+  box-shadow: var(--sombra);
+}
+
+.bloco-info .bloco-info-icone {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 12px;
+  background: rgba(37, 99, 59, 0.12);
+  color: var(--cor-primaria);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+.bloco-info .bloco-info-titulo {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--cor-texto);
+  margin-bottom: 0.25rem;
+}
+
+.bloco-info .bloco-info-desc {
+  font-size: 0.875rem;
+  color: var(--cor-texto-secundario);
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* Lista de seções (termos) */
+.conteudo-legal .subtitulo-secao {
+  margin-top: 1.75rem;
+  padding-top: 0.25rem;
+}
+
+.conteudo-legal .card-tema {
+  padding: 1.25rem 1.5rem;
+}
+
+.conteudo-legal table {
+  width: 100%;
+  font-size: 0.875rem;
+  border-collapse: collapse;
+  margin: 0.75rem 0 1rem;
+}
+
+.conteudo-legal table th,
+.conteudo-legal table td {
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  border: 1px solid var(--cor-borda);
+}
+
+.conteudo-legal table th {
+  background: var(--cor-fundo);
+  font-weight: 600;
+  color: var(--cor-texto);
+}
+
+.conteudo-legal table td {
+  color: var(--cor-texto-secundario);
+}
+
+.conteudo-legal ul {
+  padding-left: 1.25rem;
+  margin-bottom: 1rem;
+  color: var(--cor-texto-secundario);
+  line-height: 1.55;
+}
+
+.conteudo-legal p {
+  margin-bottom: 0.85rem;
+  color: var(--cor-texto-secundario);
+  line-height: 1.55;
+}
+
+.conteudo-legal .meta-termos {
+  font-size: 0.8125rem;
+  color: var(--cor-texto-secundario);
+  margin-bottom: 1.5rem;
+}
+
+/* Sobre: hero e seções */
+.sobre-hero {
+  text-align: center;
+  padding: 1.5rem 0 2rem;
+}
+
+.sobre-hero .sobre-icone-app {
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, var(--cor-primaria) 0%, var(--cor-primaria-escura) 100%);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  margin: 0 auto 1rem;
+}
+
+.sobre-secao {
+  margin-bottom: 2rem;
+}
+
+.sobre-secao .subtitulo-secao {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0;
+}
+
+.sobre-secao .subtitulo-secao .bi {
+  color: var(--cor-primaria);
+}
+
+/* Configurações: itens com ícone */
+.config-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  text-decoration: none;
+  color: var(--cor-texto);
+  background: var(--cor-fundo-card);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio);
+  margin-bottom: 0.75rem;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.config-item:hover {
+  border-color: var(--cor-primaria);
+  color: var(--cor-primaria);
+}
+
+.config-item .config-item-icone {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 10px;
+  background: rgba(37, 99, 59, 0.12);
+  color: var(--cor-primaria);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+.config-item .config-item-texto {
+  flex: 1;
+}
+
+.config-item .config-item-titulo {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 0.15rem;
+}
+
+.config-item .config-item-desc {
+  font-size: 0.8125rem;
+  color: var(--cor-texto-secundario);
+  margin: 0;
+}
+
+.config-item .config-item-seta {
+  color: var(--cor-texto-secundario);
+  font-size: 0.9rem;
+}
+
+/* Estudo do evangelho */
+.estudo-card-trilha {
+  border: 1px solid var(--cor-borda);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.estudo-card-trilha:hover {
+  border-color: var(--cor-primaria);
+  box-shadow: var(--sombra);
+}
+.estudo-icone-trilha {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  border-radius: 12px;
+  background: rgba(37, 99, 59, 0.12);
+  color: var(--cor-primaria);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+}
+.estudo-card-aula {
+  border: 1px solid var(--cor-borda);
+  transition: border-color 0.2s;
+}
+.estudo-card-aula:hover {
+  border-color: var(--cor-primaria);
+}
+.estudo-num-aula {
+  display: inline-block;
+}
+
+.slot-armadura {
+  background: var(--cor-fundo);
+  border-color: var(--cor-borda) !important;
+}
+
+@media (min-width: 768px) {
+  .atalhos-home {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .acoes-rapidas {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .editor-personagem .avatar-preview-grande {
+    width: 200px;
+    height: 200px;
+  }
+  .pagina-conteudo {
+    padding: 2rem 1.5rem 3rem;
+  }
+  .titulo-pagina {
+    font-size: 2rem;
+  }
+}

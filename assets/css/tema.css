@@ -1,0 +1,352 @@
+/* Alpine: esconder até inicializar */
+[x-cloak] { display: none !important; }
+
+/* Tema - mobile-first, paleta harmoniosa */
+:root {
+  --cor-primaria: #25633b;
+  --cor-primaria-clara: #2e7d4a;
+  --cor-primaria-escura: #1a4d2e;
+  --cor-fundo: #f0f4ef;
+  --cor-fundo-card: #ffffff;
+  --cor-texto: #1f2a1f;
+  --cor-texto-secundario: #4a5d4a;
+  --cor-borda: #c5d4c4;
+  --cor-destaque: #d4a84b;
+  --cor-destaque-hover: #c4993a;
+  --sombra: 0 2px 12px rgba(37, 99, 59, 0.08);
+  --raio: 14px;
+  --safe-top: env(safe-area-inset-top);
+  --safe-bottom: env(safe-area-inset-bottom);
+  --hud-topo-altura: 52px;
+  --nav-inferior-altura: 72px;
+}
+
+/* Tema escuro: nosso palette + Bootstrap 5.3 usa data-bs-theme="dark" para componentes */
+[data-tema="escuro"],
+[data-bs-theme="dark"] {
+  --cor-primaria: #4bad6e;
+  --cor-primaria-clara: #5bc97e;
+  --cor-primaria-escura: #3d9b5c;
+  --cor-fundo: #0d1210;
+  --cor-fundo-card: #161d19;
+  --cor-texto: #e8ede8;
+  --cor-texto-secundario: #a8b5a8;
+  --cor-borda: #2a352e;
+  --cor-destaque: #e0b85c;
+  --cor-destaque-hover: #c9a347;
+  --sombra: 0 2px 16px rgba(0,0,0,0.4);
+}
+
+/* Garantir que Bootstrap dark use fundo/cor legíveis (complementar nosso tema) */
+[data-bs-theme="dark"] {
+  --bs-body-bg: #0d1210;
+  --bs-body-color: #e8ede8;
+  --bs-secondary-color: #a8b5a8;
+  --bs-border-color: #2a352e;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+  margin: 0;
+  min-height: 100dvh;
+  padding-bottom: var(--safe-bottom);
+  padding-top: var(--safe-top);
+}
+
+/* Layout logado: header + área rolável + footer. Scroll APENAS no meio. */
+.layout-logado {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.layout-logado .hud-topo {
+  flex: 0 0 auto;
+  position: relative;
+  top: auto;
+  left: auto;
+  right: auto;
+}
+
+.layout-logado .area-principal {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding: 1rem;
+}
+
+.layout-logado .nav-inferior {
+  flex: 0 0 auto;
+  position: relative;
+  bottom: auto;
+  left: auto;
+  right: auto;
+}
+
+/* Navegação inferior - altura fixa */
+.nav-inferior {
+  height: var(--nav-inferior-altura);
+  min-height: calc(56px + var(--safe-bottom));
+  background: var(--cor-fundo-card);
+  border-top: 1px solid var(--cor-borda);
+  padding: 8px 0 calc(8px + var(--safe-bottom));
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 1000;
+  box-shadow: 0 -2px 10px var(--sombra);
+}
+
+.nav-inferior a {
+  color: var(--cor-texto-secundario);
+  text-decoration: none;
+  font-size: 0.7rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: var(--raio);
+}
+
+.nav-inferior a.ativo,
+.nav-inferior a:hover {
+  color: var(--cor-primaria);
+}
+
+.nav-inferior .bi {
+  font-size: 1.25rem;
+}
+
+/* Área principal (quando não está dentro de .layout-logado) */
+.area-principal {
+  padding-top: calc(var(--hud-topo-altura) + var(--safe-top));
+  padding-bottom: calc(var(--nav-inferior-altura) + 8px);
+  min-height: 100dvh;
+  overflow-y: auto;
+}
+
+/* Botões primários */
+.btn-primario {
+  background: var(--cor-primaria);
+  color: #fff;
+  border: none;
+  border-radius: var(--raio);
+  padding: 12px 24px;
+  font-weight: 600;
+}
+
+.btn-primario:hover {
+  background: var(--cor-primaria-clara);
+  color: #fff;
+}
+
+.btn-primario:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Cards */
+.card-tema {
+  background: var(--cor-fundo-card);
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+  border: 1px solid var(--cor-borda);
+}
+
+/* Inputs */
+.form-control,
+.form-select {
+  border-radius: var(--raio);
+  border: 1px solid var(--cor-borda);
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--cor-primaria);
+  box-shadow: 0 0 0 3px rgba(75, 173, 110, 0.35);
+}
+
+/* HUD compacto no topo */
+.hud-topo {
+  height: var(--hud-topo-altura);
+  min-height: calc(52px + var(--safe-top));
+  background: var(--cor-fundo-card);
+  border-bottom: 1px solid var(--cor-borda);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  padding-top: calc(8px + var(--safe-top));
+  z-index: 999;
+}
+
+
+.hud-topo .nivel-xp {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--cor-primaria);
+}
+
+.hud-topo .ouro-streak {
+  font-size: 0.8rem;
+  color: var(--cor-texto-secundario);
+}
+
+/* Área de scroll da leitura (progresso em tempo real) */
+.conteudo-leitura-biblia {
+  max-height: min(60vh, 400px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* Marca-texto e notas na Bíblia */
+.marca-texto { padding: 0 1px; border-radius: 2px; }
+.nota-link { color: var(--cor-nota-link, #2563eb); text-decoration: underline; cursor: pointer; }
+.nota-link:hover { color: var(--cor-nota-link-hover, #1d4ed8); }
+[data-bs-theme="dark"] .nota-link { --cor-nota-link: #7eb8f5; --cor-nota-link-hover: #a3cdf7; }
+
+
+/* Popup de nota */
+.modal-nota-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  padding: 1rem;
+}
+.modal-nota { max-width: 400px; width: 100%; }
+
+.progresso-xp {
+  height: 6px;
+  width: 80px;
+  border-radius: 3px;
+  background: var(--cor-borda);
+  overflow: hidden;
+}
+
+.progresso-xp .barra {
+  height: 100%;
+  background: var(--cor-primaria);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* Toasts/notificações fixas: ficar acima da nav, nunca por baixo */
+[data-toast-container],
+.toast-container,
+[class*="toast-wrapper"] {
+  bottom: var(--nav-inferior-altura) !important;
+  z-index: 1001;
+}
+
+/* ========== Modo escuro: garantir contraste em todos os elementos ========== */
+[data-bs-theme="dark"] body,
+[data-bs-theme="dark"] .area-principal,
+[data-bs-theme="dark"] .pagina-conteudo {
+  background-color: var(--cor-fundo);
+  color: var(--cor-texto);
+}
+
+[data-bs-theme="dark"] .card-tema,
+[data-bs-theme="dark"] .bloco-info,
+[data-bs-theme="dark"] .config-item {
+  background-color: var(--cor-fundo-card);
+  border-color: var(--cor-borda);
+  color: var(--cor-texto);
+}
+
+[data-bs-theme="dark"] .form-control,
+[data-bs-theme="dark"] .form-select {
+  background-color: var(--cor-fundo-card);
+  border-color: var(--cor-borda);
+  color: var(--cor-texto);
+}
+
+[data-bs-theme="dark"] .form-control::placeholder {
+  color: var(--cor-texto-secundario);
+}
+
+[data-bs-theme="dark"] .form-label,
+[data-bs-theme="dark"] .subtitulo-secao,
+[data-bs-theme="dark"] h1, [data-bs-theme="dark"] h2, [data-bs-theme="dark"] h3 {
+  color: var(--cor-texto);
+}
+
+[data-bs-theme="dark"] .texto-secundario,
+[data-bs-theme="dark"] .descricao,
+[data-bs-theme="dark"] .conteudo-legal p,
+[data-bs-theme="dark"] .conteudo-legal td {
+  color: var(--cor-texto-secundario);
+}
+
+[data-bs-theme="dark"] .conteudo-legal table th {
+  background-color: var(--cor-fundo);
+  color: var(--cor-texto);
+}
+
+[data-bs-theme="dark"] .conteudo-legal table td {
+  background-color: var(--cor-fundo-card);
+}
+
+[data-bs-theme="dark"] .alert-danger {
+  background-color: rgba(220, 53, 69, 0.2);
+  border-color: rgba(220, 53, 69, 0.5);
+  color: #f5b7c2;
+}
+
+[data-bs-theme="dark"] .alert-success {
+  background-color: rgba(25, 135, 84, 0.2);
+  border-color: rgba(25, 135, 84, 0.5);
+  color: #a3cfbb;
+}
+
+[data-bs-theme="dark"] .btn-outline-secondary {
+  border-color: var(--cor-borda);
+  color: var(--cor-texto-secundario);
+}
+
+[data-bs-theme="dark"] .btn-outline-secondary:hover {
+  background-color: var(--cor-borda);
+  color: var(--cor-texto);
+}
+
+[data-bs-theme="dark"] .btn-link {
+  color: var(--cor-primaria);
+}
+
+[data-bs-theme="dark"] .btn-link:hover {
+  color: var(--cor-primaria-clara);
+}
+
+[data-bs-theme="dark"] .bloco-info .bloco-info-icone,
+[data-bs-theme="dark"] .config-item .config-item-icone,
+[data-bs-theme="dark"] .estudo-icone-trilha {
+  background: rgba(75, 173, 110, 0.2);
+}
+
+[data-bs-theme="dark"] .slot-armadura {
+  background: var(--cor-fundo-card);
+}
