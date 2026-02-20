@@ -422,37 +422,46 @@
 
         <!-- Estudo do evangelho (reformado/calvinista, 100% Bíblia) -->
         <div x-show="pagina === 'estudo'" style="display: none;">
-          <!-- Barra de progresso global (trilhas e dentro de aulas) -->
-          <div class="mb-3" x-show="viewEstudo === 'trilhas' || viewEstudo === 'aulas'">
-            <div class="d-flex justify-content-between align-items-center fs-menor texto-secundario mb-1">
-              <span>Progresso do estudo</span>
-              <span x-show="viewEstudo === 'trilhas'" x-text="aulasCompletasEstudo() + ' / ' + totalAulasEstudo() + ' aulas'"></span>
-              <span x-show="viewEstudo === 'aulas' && trilhaSelecionadaEstudo" x-text="aulasCompletasNaTrilha(trilhaSelecionadaEstudo) + ' / ' + totalAulasNaTrilha(trilhaSelecionadaEstudo) + ' aulas desta trilha'"></span>
+          <!-- Barra de progresso global (slim) -->
+          <div class="biblia-prog-wrap mb-3" x-show="viewEstudo === 'trilhas' || viewEstudo === 'aulas'">
+            <div class="biblia-prog-track">
+              <div class="biblia-prog-fill"
+                   :style="'width:' + (viewEstudo === 'aulas' && trilhaSelecionadaEstudo ? percentualTrilhaEstudo(trilhaSelecionadaEstudo) : percentualProgressoEstudo()) + '%'">
+              </div>
             </div>
-            <div class="barra-progresso-tema" style="height: 8px;">
-              <div class="preenchimento" :style="'width:' + (viewEstudo === 'aulas' && trilhaSelecionadaEstudo ? percentualTrilhaEstudo(trilhaSelecionadaEstudo) : percentualProgressoEstudo()) + '%'"></div>
-            </div>
+            <span class="biblia-prog-pct"
+                  x-text="viewEstudo === 'aulas' && trilhaSelecionadaEstudo
+                           ? aulasCompletasNaTrilha(trilhaSelecionadaEstudo) + '/' + totalAulasNaTrilha(trilhaSelecionadaEstudo)
+                           : aulasCompletasEstudo() + '/' + totalAulasEstudo()">
+            </span>
           </div>
 
           <template x-if="viewEstudo === 'trilhas'">
             <div>
-              <h2 class="titulo-pagina mb-1">Estudo do evangelho</h2>
-              <p class="subtitulo-pagina mb-3">Trilhas de doutrina reformada e calvinista presbiteriana, 100% baseadas na Bíblia.</p>
+              <!-- Cabeçalho da página de trilhas -->
+              <div class="estudo-pg-header mb-3">
+                <h2 class="estudo-pg-titulo">Estudo do Evangelho</h2>
+                <p class="estudo-pg-subtitulo">Trilhas de doutrina reformada e calvinista presbiteriana, 100% baseadas na Bíblia.</p>
+              </div>
+
+              <!-- Cards de trilha -->
               <div class="estudo-trilhas">
                 <template x-for="trilha in TRILHAS_ESTUDO" :key="trilha.id">
-                  <button type="button" class="estudo-card-trilha card-tema p-3 mb-2 w-100 text-start d-flex align-items-center gap-3" @click="selecionarTrilhaEstudo(trilha)">
-                    <span class="estudo-icone-trilha"><i :class="trilha.icone"></i></span>
-                    <div class="flex-grow-1">
-                      <div class="d-flex justify-content-between align-items-center gap-2">
-                        <span class="fw-600" x-text="trilha.titulo"></span>
-                        <span class="fs-menor texto-primario fw-600" x-text="aulasCompletasNaTrilha(trilha) + '/' + totalAulasNaTrilha(trilha)"></span>
+                  <button class="estudo-card-trilha card-tema p-3 mb-2 w-100 text-start" @click="selecionarTrilhaEstudo(trilha)">
+                    <div class="estudo-trilha-inner">
+                      <span class="estudo-icone-trilha"><i :class="trilha.icone"></i></span>
+                      <div class="estudo-trilha-body">
+                        <div class="estudo-trilha-cabecalho">
+                          <span class="estudo-trilha-titulo" x-text="trilha.titulo"></span>
+                          <span class="estudo-trilha-contagem" x-text="aulasCompletasNaTrilha(trilha) + '/' + totalAulasNaTrilha(trilha)"></span>
+                        </div>
+                        <p class="estudo-trilha-desc" x-text="trilha.descricao"></p>
+                        <div class="estudo-trilha-prog">
+                          <div class="estudo-trilha-prog-fill" :style="'width:' + percentualTrilhaEstudo(trilha) + '%'"></div>
+                        </div>
                       </div>
-                      <p class="fs-menor texto-secundario mb-1 mt-1" x-text="trilha.descricao"></p>
-                      <div class="barra-progresso-tema" style="height: 4px;">
-                        <div class="preenchimento" :style="'width:' + percentualTrilhaEstudo(trilha) + '%'"></div>
-                      </div>
+                      <i class="bi bi-chevron-right estudo-trilha-seta"></i>
                     </div>
-                    <i class="bi bi-chevron-right texto-secundario"></i>
                   </button>
                 </template>
               </div>
@@ -461,93 +470,171 @@
 
           <template x-if="viewEstudo === 'aulas' && trilhaSelecionadaEstudo">
             <div>
-              <button type="button" class="btn btn-link btn-sm p-0 mb-2 texto-primario" @click="voltarEstudoTrilhas()"><i class="bi bi-arrow-left"></i> Trilhas</button>
-              <h2 class="titulo-pagina mb-1" x-text="trilhaSelecionadaEstudo.titulo"></h2>
-              <p class="subtitulo-pagina mb-2" x-text="trilhaSelecionadaEstudo.descricao"></p>
-              <p class="fs-menor texto-secundario mb-3" x-text="aulasCompletasNaTrilha(trilhaSelecionadaEstudo) + ' de ' + totalAulasNaTrilha(trilhaSelecionadaEstudo) + ' aulas concluídas'"></p>
+              <!-- Cabeçalho da trilha -->
+              <div class="biblia-leitura-topo mb-3">
+                <button class="btopo-voltar" @click="voltarEstudoTrilhas()" title="Voltar para trilhas">
+                  <i class="bi bi-arrow-left"></i>
+                </button>
+                <div class="btopo-info">
+                  <span class="btopo-livro" x-text="trilhaSelecionadaEstudo.titulo"></span>
+                  <span class="btopo-cap" x-text="trilhaSelecionadaEstudo.descricao"></span>
+                </div>
+              </div>
+
+              <!-- Lista de aulas -->
               <div class="estudo-aulas">
                 <template x-for="(aula, idx) in trilhaSelecionadaEstudo.aulas" :key="aula.id">
-                  <button type="button" class="estudo-card-aula card-tema p-3 mb-2 w-100 text-start" @click="selecionarAulaEstudo(aula)">
-                    <div class="d-flex justify-content-between align-items-start gap-2">
-                      <div>
-                        <span class="estudo-num-aula fs-menor texto-primario fw-600" x-text="'Aula ' + (idx + 1)"></span>
-                        <span x-show="aulaConcluidaEstudo(aula)" class="badge bg-primary ms-1">Lida</span>
-                        <span x-show="aulaCompletaEstudo(aula)" class="badge bg-success ms-1"><i class="bi bi-check-circle"></i> Concluída</span>
-                        <div class="fw-600 mt-1" x-text="aula.titulo"></div>
-                        <p class="fs-menor texto-secundario mb-0 mt-1" x-text="(aula.refsBiblicas || []).join(' · ')"></p>
+                  <button class="estudo-card-aula card-tema p-3 mb-2 w-100 text-start" @click="selecionarAulaEstudo(aula)">
+                    <div class="estudo-aula-inner">
+                      <!-- Ícone de status / número -->
+                      <div class="estudo-aula-icone">
+                        <template x-if="aulaCompletaEstudo(aula)">
+                          <i class="bi bi-check-circle-fill estudo-aula-ico-ok"></i>
+                        </template>
+                        <template x-if="aulaConcluidaEstudo(aula) && !aulaCompletaEstudo(aula)">
+                          <i class="bi bi-eye-fill estudo-aula-ico-lida"></i>
+                        </template>
+                        <template x-if="!aulaConcluidaEstudo(aula) && !aulaCompletaEstudo(aula)">
+                          <span class="estudo-aula-num-badge" x-text="idx + 1"></span>
+                        </template>
                       </div>
-                      <i class="bi bi-chevron-right texto-secundario"></i>
+                      <!-- Info -->
+                      <div class="estudo-aula-body">
+                        <span class="estudo-aula-titulo" x-text="aula.titulo"></span>
+                        <span class="estudo-aula-refs"
+                              x-show="(aula.refsBiblicas || []).length"
+                              x-text="(aula.refsBiblicas || []).join(' · ')">
+                        </span>
+                      </div>
+                      <i class="bi bi-chevron-right estudo-aula-seta"></i>
                     </div>
                   </button>
                 </template>
               </div>
-              <!-- Quiz do módulo (fim de trilha) para aprovação -->
-              <div class="card-tema p-3 mt-3" x-show="trilhaTemQuizModulo(trilhaSelecionadaEstudo)">
-                <h3 class="subtitulo-secao mb-2">Quiz do módulo</h3>
-                <p class="fs-menor texto-secundario mb-2">Prova sobre todo o conteúdo da trilha. Aprovação a partir de 70%.</p>
+
+              <!-- Card de quiz do módulo (fim da trilha) -->
+              <div class="estudo-quiz-modulo-card" x-show="trilhaTemQuizModulo(trilhaSelecionadaEstudo)">
+                <div class="estudo-quiz-modulo-info">
+                  <div class="estudo-quiz-modulo-titulo">
+                    <i class="bi bi-patch-question-fill"></i> Quiz do módulo
+                  </div>
+                  <p class="estudo-quiz-modulo-desc">Avaliação completa da trilha · Aprovação ≥ 70%</p>
+                </div>
                 <template x-if="moduloAprovadoEstudo(trilhaSelecionadaEstudo.id)">
-                  <p class="texto-primario fw-600 mb-0"><i class="bi bi-check-circle-fill me-1"></i> Módulo aprovado</p>
+                  <div class="estudo-quiz-modulo-ok">
+                    <i class="bi bi-check-circle-fill"></i> Módulo aprovado
+                  </div>
                 </template>
                 <template x-if="!moduloAprovadoEstudo(trilhaSelecionadaEstudo.id)">
-                  <button type="button" class="btn btn-primario w-100" @click="iniciarQuizModuloEstudo()">
-                    <i class="bi bi-patch-question me-1"></i> Fazer quiz do módulo
+                  <button class="bnav-btn bnav-quiz-cap" style="width:100%" @click="iniciarQuizModuloEstudo()">
+                    <i class="bi bi-play-fill"></i> Fazer quiz do módulo
                   </button>
                 </template>
               </div>
+
             </div>
           </template>
 
           <template x-if="viewEstudo === 'aula' && aulaSelecionadaEstudo">
             <div>
-              <h2 class="titulo-pagina mb-2" x-text="aulaSelecionadaEstudo.titulo"></h2>
-              <div class="mb-3">
+              <!-- Cabeçalho da aula: voltar + título + trilha -->
+              <div class="biblia-leitura-topo mb-2">
+                <button class="btopo-voltar" @click="voltarEstudoAulas()" title="Voltar para aulas">
+                  <i class="bi bi-arrow-left"></i>
+                </button>
+                <div class="btopo-info">
+                  <span class="btopo-livro" x-text="aulaSelecionadaEstudo.titulo"></span>
+                  <span class="btopo-cap" x-text="trilhaSelecionadaEstudo?.titulo || ''"></span>
+                </div>
+              </div>
+
+              <!-- Referências bíblicas -->
+              <div class="mb-3" x-show="(aulaSelecionadaEstudo.refsBiblicas || []).length">
                 <template x-for="ref in (aulaSelecionadaEstudo.refsBiblicas || [])" :key="ref">
-                  <span class="badge bg-secondary me-1 mb-1" x-text="ref"></span>
+                  <span class="estudo-ref-badge me-1 mb-1" x-text="ref"></span>
                 </template>
               </div>
-              <div class="conteudo-legal card-tema p-3 mb-3">
+
+              <!-- Conteúdo da aula -->
+              <div class="estudo-conteudo card-tema p-3 mb-3">
                 <template x-for="(paragrafo, i) in (aulaSelecionadaEstudo.conteudo || [])" :key="i">
                   <p class="mb-3" x-text="paragrafo"></p>
                 </template>
               </div>
-              <!-- Estado: aula concluída (marcada como lida) -->
-              <div class="card-tema p-3 mb-3" x-show="aulaAtualMarcadaLida">
-                <p class="texto-primario fw-600 mb-0"><i class="bi bi-check-circle-fill me-1"></i> Aula concluída</p>
-                <p class="fs-menor texto-secundario mb-0 mt-1" x-show="aulaTemQuiz(aulaSelecionadaEstudo) && !aulaQuizAprovadoEstudo(aulaSelecionadaEstudo.id)">Faça o quiz para consolidar.</p>
-                <p class="fs-menor texto-secundario mb-0 mt-1" x-show="aulaCompletaEstudo(aulaSelecionadaEstudo)">Quiz aprovado.</p>
-              </div>
-              <!-- Fila de ações: Voltar | Toggle Marcar como lida / Lida | Próximo -->
-              <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
-                <button type="button" class="btn btn-outline-secondary" @click="voltarEstudoAulas()"><i class="bi bi-arrow-left me-1"></i> Voltar</button>
-                <div class="d-flex align-items-center gap-2">
-                  <button type="button"
-                    :class="aulaAtualMarcadaLida ? 'btn btn-outline-primary' : 'btn btn-primario'"
-                    @click="toggleLidaEstudo()">
-                    <i :class="aulaAtualMarcadaLida ? 'bi bi-check-circle-fill me-1' : 'bi bi-check-lg me-1'"></i>
-                    <span x-text="aulaAtualMarcadaLida ? 'Lida' : 'Marcar como lida'"></span>
+
+              <!-- Nav footer da aula -->
+              <div class="biblia-nav-footer">
+
+                <!-- Linha principal: Voltar ←  →  Marcar/Lida -->
+                <div class="bnav-row-main">
+                  <button class="bnav-btn bnav-caps" @click="voltarEstudoAulas()">
+                    <i class="bi bi-arrow-left"></i>
+                    <span>Voltar</span>
                   </button>
-                  <template x-if="aulaAtualMarcadaLida && aulaTemQuiz(aulaSelecionadaEstudo) && !aulaQuizAprovadoEstudo(aulaSelecionadaEstudo.id)">
-                    <button type="button" class="btn btn-outline-primary" @click="iniciarQuizEstudo()"><i class="bi bi-patch-question me-1"></i> Fazer quiz</button>
+                  <button class="bnav-btn"
+                          :class="aulaAtualMarcadaLida ? 'bnav-quiz-livro' : 'bnav-prox'"
+                          @click="toggleLidaEstudo()">
+                    <i :class="aulaAtualMarcadaLida ? 'bi bi-check-circle-fill' : 'bi bi-check-lg'"></i>
+                    <span x-text="aulaAtualMarcadaLida ? 'Lida ✓' : 'Marcar como lida'"></span>
+                  </button>
+                </div>
+
+                <!-- Linha de ações (aparece quando aula está lida) -->
+                <div x-show="aulaAtualMarcadaLida" class="bnav-row-quiz" x-transition>
+                  <template x-if="aulaTemQuiz(aulaSelecionadaEstudo) && !aulaQuizAprovadoEstudo(aulaSelecionadaEstudo.id)">
+                    <button class="bnav-btn bnav-quiz-cap" style="flex:1" @click="iniciarQuizEstudo()">
+                      <i class="bi bi-patch-question-fill"></i>
+                      <span>Fazer quiz</span>
+                    </button>
+                  </template>
+                  <template x-if="proximaAulaEstudo()">
+                    <button class="bnav-btn bnav-prox" style="flex:1" @click="irParaProximaAulaEstudo()">
+                      <span>Próxima aula</span>
+                      <i class="bi bi-arrow-right"></i>
+                    </button>
+                  </template>
+                  <template x-if="!proximaAulaEstudo() && trilhaSelecionadaEstudo">
+                    <button class="bnav-btn bnav-caps" style="flex:1" @click="voltarEstudoAulas()">
+                      <i class="bi bi-list-ul"></i>
+                      <span>Ver todas as aulas</span>
+                    </button>
                   </template>
                 </div>
-                <template x-if="proximaAulaEstudo()">
-                  <button type="button" class="btn btn-primario" @click="irParaProximaAulaEstudo()"><i class="bi bi-arrow-right-circle me-1"></i> Próximo</button>
-                </template>
-                <template x-if="!proximaAulaEstudo() && trilhaSelecionadaEstudo">
-                  <button type="button" class="btn btn-outline-primary" @click="voltarEstudoAulas()"><i class="bi bi-list-ul me-1"></i> Voltar às aulas</button>
-                </template>
-              </div>
+
+                <!-- Aviso / status -->
+                <p x-show="aulaAtualMarcadaLida" class="bnav-aviso">
+                  <i :class="aulaCompletaEstudo(aulaSelecionadaEstudo) ? 'bi bi-star-fill' : 'bi bi-info-circle'"></i>
+                  <span x-text="aulaCompletaEstudo(aulaSelecionadaEstudo)
+                    ? 'Quiz aprovado! Aula completa.'
+                    : (aulaTemQuiz(aulaSelecionadaEstudo)
+                      ? 'Faça o quiz para consolidar o aprendizado.'
+                      : 'Aula marcada como lida.')">
+                  </span>
+                </p>
+
+              </div><!-- /biblia-nav-footer -->
             </div>
           </template>
 
           <!-- Quiz do estudo (aula ou módulo) -->
           <template x-if="viewEstudo === 'quiz' && (aulaSelecionadaEstudo || (quizEstudoTipo === 'modulo' && trilhaSelecionadaEstudo))">
             <div>
-              <button type="button" class="btn btn-link btn-sm p-0 mb-2 texto-primario" @click="voltarQuizParaAula()">
-                <i class="bi bi-arrow-left"></i> <span x-text="quizEstudoTipo === 'modulo' ? 'Voltar às aulas' : 'Voltar à aula'"></span>
-              </button>
-              <h2 class="titulo-pagina mb-1" x-text="quizEstudoTipo === 'modulo' ? ('Quiz do módulo: ' + (trilhaSelecionadaEstudo?.titulo || '')) : ('Quiz: ' + (aulaSelecionadaEstudo?.titulo || ''))"></h2>
-              <p class="subtitulo-pagina mb-3">Aprovação a partir de 70%</p>
+              <!-- Cabeçalho do quiz -->
+              <div class="biblia-leitura-topo mb-2">
+                <button class="btopo-voltar" @click="voltarQuizParaAula()"
+                        :title="quizEstudoTipo === 'modulo' ? 'Voltar às aulas' : 'Voltar à aula'">
+                  <i class="bi bi-arrow-left"></i>
+                </button>
+                <div class="btopo-info">
+                  <span class="btopo-livro"
+                        x-text="quizEstudoTipo === 'modulo' ? 'Quiz do módulo' : 'Quiz da aula'">
+                  </span>
+                  <span class="btopo-cap"
+                        x-text="quizEstudoTipo === 'modulo' ? (trilhaSelecionadaEstudo?.titulo || '') : (aulaSelecionadaEstudo?.titulo || '')">
+                  </span>
+                </div>
+              </div>
+              <p class="bnav-aviso mb-3"><i class="bi bi-info-circle"></i> Aprovação a partir de 70%</p>
               
               <!-- Aviso de corações insuficientes -->
               <div class="alert alert-warning mb-3" x-show="!temCoracoesSuficientes()">
@@ -1395,80 +1482,223 @@
           <!-- Leitura do capítulo -->
           <template x-if="viewBiblia === 'leitura'">
             <div>
-              <button type="button" class="btn btn-link btn-sm p-0 mb-2 texto-primario" @click="voltarParaCapitulosBiblia()"><i class="bi bi-arrow-left"></i> Capítulos</button>
-              <h2 class="mb-2 fw-600" x-text="(livrosBiblia.find(l => l.codigo === livroSelecionado)?.nome || livroSelecionado) + ' ' + capituloSelecionado"></h2>
-              <div x-show="capituloBiblia && !carregandoCapitulo" class="mb-2">
-                <div class="d-flex justify-content-between align-items-center fs-menor texto-secundario mb-1">
-                  <span>Leitura</span>
-                  <span x-text="Math.round(progressoLeituraScroll || 0) + '%'"></span>
-                </div>
-                <div class="progress progresso-xp" style="height: 8px;">
-                  <div class="barra" :style="'width:' + Math.min(100, Math.round(progressoLeituraScroll || 0)) + '%'"></div>
-                </div>
-                <div class="d-flex gap-2 flex-wrap align-items-center mt-2">
-                  <button type="button" class="btn btn-sm btn-outline-secondary" @click="narrando ? pararNarracao() : narrarCapitulo()" :disabled="!(capituloBiblia?.verses?.length)">
-                    <i :class="narrando ? 'bi bi-stop-circle' : 'bi bi-volume-up'"></i> <span x-text="narrando ? 'Parar narração' : 'Narrar capítulo'"></span>
-                  </button>
-                  <button type="button" class="btn btn-sm btn-outline-secondary" @click="modoNota = true; mostrarCoresMarcador = false">
-                    <i class="bi bi-chat-quote"></i> Nova nota
-                  </button>
-                  <span class="fs-menor texto-secundario">Marcar texto:</span>
-                  <div x-show="mostrarCoresMarcador" class="d-flex gap-1 ms-1">
-                    <template x-for="cor in CORES_MARCADOR" :key="cor.valor">
-                      <button type="button" class="btn btn-sm border rounded p-2" :class="{ 'border-primary border-3': corMarcadorAtiva === cor.valor }" :style="'background:' + cor.valor" :title="cor.nome" @click="corMarcadorAtiva = (corMarcadorAtiva === cor.valor ? null : cor.valor)"></button>
-                    </template>
-                  </div>
-                  <span x-show="modoNota" class="fs-menor texto-secundario">Selecione o trecho e solte para abrir o campo da nota.</span>
+
+              <!-- ── Cabeçalho: voltar + livro/capítulo ── -->
+              <div class="biblia-leitura-topo">
+                <button class="btopo-voltar" @click="voltarParaCapitulosBiblia()" title="Voltar para capítulos">
+                  <i class="bi bi-arrow-left"></i>
+                </button>
+                <div class="btopo-info">
+                  <span class="btopo-livro" x-text="livrosBiblia.find(l => l.codigo === livroSelecionado)?.nome || livroSelecionado"></span>
+                  <span class="btopo-cap" x-text="'Capítulo ' + capituloSelecionado"></span>
                 </div>
               </div>
+              <!-- Toolbar de leitura -->
+              <div x-show="capituloBiblia && !carregandoCapitulo" class="biblia-leitura-controles">
+
+                <!-- Barra de progresso slim -->
+                <div class="biblia-prog-wrap">
+                  <div class="biblia-prog-track">
+                    <div class="biblia-prog-fill" :style="'width:' + Math.min(100, Math.round(progressoLeituraScroll || 0)) + '%'"></div>
+                  </div>
+                  <span class="biblia-prog-pct" x-text="Math.round(progressoLeituraScroll || 0) + '%'"></span>
+                </div>
+
+                <!-- Controles agrupados -->
+                <div class="biblia-toolbar">
+
+                  <!-- Grupo: Narrar + Velocidade -->
+                  <div class="bctrl-group">
+                    <button class="bctrl-btn" :class="{ 'bctrl-btn--on': narrando }"
+                            @click="narrando ? pararNarracao() : narrarCapitulo()"
+                            :disabled="!capituloBiblia?.verses?.length"
+                            :title="narrando ? 'Parar narração' : 'Narrar capítulo'">
+                      <i :class="narrando ? 'bi bi-stop-fill' : 'bi bi-play-fill'"></i>
+                      <span x-text="narrando ? 'Parar' : 'Narrar'"></span>
+                    </button>
+                    <div x-show="narrando" class="bctrl-speed" x-transition>
+                      <button class="bctrl-speed-btn" @click="diminuirVelocidade()" title="Mais lento"><i class="bi bi-dash-lg"></i></button>
+                      <span class="bctrl-speed-val" x-text="velocidadeNarracao + 'x'"></span>
+                      <button class="bctrl-speed-btn" @click="aumentarVelocidade()" title="Mais rápido"><i class="bi bi-plus-lg"></i></button>
+                    </div>
+                  </div>
+
+                  <div class="bctrl-sep"></div>
+
+                  <!-- Grupo: Tamanho da fonte -->
+                  <div class="bctrl-group">
+                    <button class="bctrl-btn bctrl-fonte-sm" @click="diminuirFonte()" title="Diminuir texto">A</button>
+                    <button class="bctrl-btn bctrl-fonte-lg" @click="aumentarFonte()" title="Aumentar texto">A</button>
+                  </div>
+
+                  <div class="bctrl-sep"></div>
+
+                  <!-- LIBRAS -->
+                  <button class="bctrl-btn bctrl-libras" @click="ativarVLibras()" title="Traduzir para Libras (VLibras)">
+                    <i class="bi bi-hand-index-thumb"></i>
+                    <span>LIBRAS</span>
+                  </button>
+
+                </div><!-- /biblia-toolbar -->
+
+                <!-- Dica de uso (some ao selecionar) -->
+                <p class="biblia-tip" x-show="!bibleSelecaoCustom.ativo && !bibleContextMenu.aberto" x-transition>
+                  <i class="bi bi-cursor-text"></i>
+                  Toque em qualquer palavra · arraste os pinos · pressione <strong>OK</strong>
+                </p>
+
+              </div><!-- /biblia-leitura-controles -->
               <div x-show="carregandoCapitulo" class="text-center py-4"><div class="spinner-border text-success"></div></div>
               <div x-show="capituloBiblia && !carregandoCapitulo" class="card-tema p-3">
                 <div class="conteudo-leitura-biblia"
+                     :style="`font-size:${fonteTamanhoBiblia}rem`"
                      @scroll="onScrollLeitura($event)"
-                     @touchstart="iniciarLongPressLeitura($event)"
-                     @touchmove="cancelarLongPressLeitura()"
-                     @mouseup="onSoltarLeitura($event)"
-                     @touchend="cancelarLongPressLeitura(); onSoltarLeitura($event)"
-                     @contextmenu.prevent="abrirMenuContextoBiblia($event)"
-                     @click="onClickConteudoLeitura($event)">
+                     @click="iniciarSelecaoBiblia($event)"
+                     @contextmenu.prevent="iniciarSelecaoBiblia($event)">
+
+                  <!-- Pin esquerdo — início da seleção (dot acima, barra para baixo) -->
+                  <div x-show="bibleSelecaoCustom.ativo"
+                       class="biblia-pin biblia-pin-esq"
+                       :style="`left:${bibleSelecaoCustom.pinE.x}px;top:${bibleSelecaoCustom.pinE.y}px`"
+                       @touchstart.stop.prevent="onArrastePinStart('E',$event)"
+                       @mousedown.stop.prevent="onArrastePinStart('E',$event)">
+                    <div class="biblia-pin-dot"></div>
+                    <div class="biblia-pin-bar" :style="`height:${bibleSelecaoCustom.pinE.h}px`"></div>
+                  </div>
+
+                  <!-- Pin direito — fim da seleção (barra para cima, dot abaixo) -->
+                  <div x-show="bibleSelecaoCustom.ativo"
+                       class="biblia-pin biblia-pin-dir"
+                       :style="`left:${bibleSelecaoCustom.pinD.x}px;top:${bibleSelecaoCustom.pinD.y}px`"
+                       @touchstart.stop.prevent="onArrastePinStart('D',$event)"
+                       @mousedown.stop.prevent="onArrastePinStart('D',$event)">
+                    <div class="biblia-pin-bar" :style="`height:${bibleSelecaoCustom.pinD.h}px`"></div>
+                    <div class="biblia-pin-dot"></div>
+                  </div>
+
                   <template x-for="v in (capituloBiblia?.verses || [])" :key="v.verse">
                     <p class="mb-2 verso-biblia"><span class="texto-primario fw-600" x-text="v.verse + '.'"></span> <span class="verso-texto" :data-verse="v.verse" x-html="renderVersoHtml(v.verse, v.text)"></span></p>
                   </template>
                 </div>
-                <div x-show="Math.round(progressoLeituraScroll || 0) >= 100" class="d-flex flex-wrap gap-2 mt-3 align-items-center">
-                  <button type="button" class="btn btn-outline-secondary btn-sm" @click="voltarParaCapitulosBiblia()"><i class="bi bi-arrow-left"></i> Voltar</button>
-                  <button type="button" class="btn btn-primario btn-sm" @click="iniciarQuizCapitulo()"><i class="bi bi-patch-question"></i> Quiz do capítulo</button>
-                  <button x-show="quizDesbloqueado(livroSelecionado)" type="button" class="btn btn-outline-primary btn-sm" @click="iniciarQuizLivro(livrosBiblia.find(l => l.codigo === livroSelecionado))"><i class="bi bi-journal-bookmark"></i> Quiz do livro</button>
-                  <button type="button" class="btn btn-primario btn-sm" @click="avancarCapituloBiblia()"><i class="bi bi-arrow-right"></i> Avançar</button>
-                  <span x-show="!livroAprovado(livroSelecionado)" class="fs-menor texto-secundario">Avançar sem aprovar no quiz do livro (≥70%) não contabiliza o progresso do livro.</span>
-                </div>
+                <!-- ── Navegação do capítulo (sempre visível) ── -->
+                <div class="biblia-nav-footer">
+
+                  <!-- Linha principal: Capítulos ←→ Avançar -->
+                  <div class="bnav-row-main">
+                    <button class="bnav-btn bnav-caps" @click="voltarParaCapitulosBiblia()">
+                      <i class="bi bi-grid-3x3-gap-fill"></i>
+                      <span>Capítulos</span>
+                    </button>
+                    <button class="bnav-btn bnav-prox" @click="avancarCapituloBiblia()">
+                      <span>Avançar</span>
+                      <i class="bi bi-arrow-right"></i>
+                    </button>
+                  </div>
+
+                  <!-- Linha de quiz: aparece ao concluir a leitura -->
+                  <div x-show="Math.round(progressoLeituraScroll || 0) >= 100"
+                       class="bnav-row-quiz"
+                       x-transition>
+                    <button class="bnav-btn bnav-quiz-cap" @click="iniciarQuizCapitulo()">
+                      <i class="bi bi-patch-question-fill"></i>
+                      <span>Quiz do Capítulo</span>
+                    </button>
+                    <button x-show="quizDesbloqueado(livroSelecionado)"
+                            class="bnav-btn bnav-quiz-livro"
+                            @click="iniciarQuizLivro(livrosBiblia.find(l => l.codigo === livroSelecionado))">
+                      <i class="bi bi-journal-bookmark-fill"></i>
+                      <span>Quiz do Livro</span>
+                    </button>
+                  </div>
+
+                  <!-- Aviso de progresso do livro (sutil) -->
+                  <p x-show="!livroAprovado(livroSelecionado)" class="bnav-aviso">
+                    <i class="bi bi-info-circle"></i>
+                    Complete o quiz do livro com ≥70% para registrar o progresso
+                  </p>
+
+                </div><!-- /biblia-nav-footer -->
               </div>
             </div>
           </template>
 
-          <!-- Menu de contexto da Bíblia (selecionar texto → marcar / nota) -->
-          <template x-if="bibleContextMenu.aberto">
-            <!-- Overlay transparente fecha ao clicar fora -->
-            <div style="position:fixed;inset:0;z-index:1199;" @click="fecharMenuBiblia()" @touchstart="fecharMenuBiblia()"></div>
-          </template>
-          <div x-show="bibleContextMenu.aberto"
+          <!-- Barra de ação de seleção (fixa na tela, acima da nav) -->
+          <div x-show="bibleSelecaoCustom.ativo && !bibleContextMenu.aberto"
                x-transition
-               class="bible-ctx-menu"
-               :style="'position:fixed;z-index:1200;top:'+bibleContextMenu.y+'px;left:'+bibleContextMenu.x+'px;'"
+               class="biblia-selecao-barra">
+            <button class="bsel-btn bsel-cancelar" @click.stop="cancelarSelecaoBiblia()">
+              <i class="bi bi-x-lg"></i><span>Cancelar</span>
+            </button>
+            <div class="bsel-divider"></div>
+            <button class="bsel-btn bsel-tudo" @click.stop="selecionarTudoBiblia()">
+              <i class="bi bi-text-paragraph"></i><span>Tudo</span>
+            </button>
+            <button class="bsel-btn bsel-ok" @click.stop="confirmarSelecaoBiblia()">
+              <i class="bi bi-check-lg"></i><span>OK</span>
+            </button>
+          </div>
+
+          <!-- Backdrop do menu de contexto -->
+          <div x-show="bibleContextMenu.aberto"
+               x-transition.opacity.duration.200ms
+               style="position:fixed;inset:0;z-index:1190;background:rgba(0,0,0,0.45);"
+               @click="fecharMenuBiblia()"></div>
+
+          <!-- Menu de contexto: bottom sheet (mobile) ou popup (desktop) -->
+          <div x-show="bibleContextMenu.aberto"
+               class="bctx-container"
+               :class="bibleContextMenu.modoSheet ? 'bctx-sheet' : 'bctx-popup'"
+               :style="!bibleContextMenu.modoSheet ? 'top:'+bibleContextMenu.y+'px;left:'+bibleContextMenu.x+'px;' : ''"
+               x-transition:enter="bctx-enter"
+               x-transition:enter-start="bctx-enter-from"
+               x-transition:enter-end="bctx-enter-to"
+               x-transition:leave="bctx-leave"
+               x-transition:leave-start="bctx-leave-from"
+               x-transition:leave-end="bctx-leave-to"
                @click.stop>
-            <p class="bible-ctx-titulo"><i class="bi bi-pencil-fill me-1"></i>O que deseja fazer?</p>
-            <div class="bible-ctx-cores">
+
+            <!-- Handle (só no sheet) -->
+            <div class="bctx-handle" x-show="bibleContextMenu.modoSheet"></div>
+
+            <!-- Preview do trecho selecionado -->
+            <p class="bctx-preview"
+               x-show="bibleContextMenu.pendente?.text"
+               x-text="'«\u00a0' + (bibleContextMenu.pendente?.text?.substring(0,70) || '') + (bibleContextMenu.pendente?.text?.length > 70 ? '…' : '') + '\u00a0»'">
+            </p>
+
+            <!-- Cores de marcação -->
+            <div class="bctx-section-label">Marcar com cor</div>
+            <div class="bctx-cores">
               <template x-for="cor in CORES_MARCADOR" :key="cor.valor">
-                <button class="bible-ctx-cor-btn" :style="'background:'+cor.valor" :title="'Marcar em '+cor.nome" @click.stop="aplicarMarcadorDoMenu(cor.valor)">
-                  <i class="bi bi-highlighter"></i>
+                <button class="bctx-cor-btn" :style="'background:'+cor.valor" @click.stop="aplicarMarcadorDoMenu(cor.valor)">
+                  <span class="bctx-cor-nome" x-text="cor.nome"></span>
                 </button>
               </template>
             </div>
-            <button class="bible-ctx-nota-btn" @click.stop="abrirNotaDoMenu()">
-              <i class="bi bi-sticky-fill me-2"></i>Inserir nota
-            </button>
-            <button class="bible-ctx-fechar-btn" @click.stop="fecharMenuBiblia()" title="Fechar"><i class="bi bi-x-lg"></i></button>
-          </div>
+
+            <!-- Ações -->
+            <div class="bctx-acoes">
+              <button class="bctx-acao" @click.stop="abrirNotaDoMenu()">
+                <span class="bctx-acao-ico bctx-ico-nota"><i class="bi bi-sticky-fill"></i></span>
+                <span class="bctx-acao-txt">Inserir nota</span>
+                <i class="bi bi-chevron-right bctx-acao-seta"></i>
+              </button>
+              <button class="bctx-acao" @click.stop="copiarSelecao()">
+                <span class="bctx-acao-ico bctx-ico-copiar"><i class="bi bi-clipboard"></i></span>
+                <span class="bctx-acao-txt">Copiar texto</span>
+                <i class="bi bi-chevron-right bctx-acao-seta"></i>
+              </button>
+              <button class="bctx-acao" @click.stop="selecionarTudoBiblia()">
+                <span class="bctx-acao-ico bctx-ico-tudo"><i class="bi bi-text-paragraph"></i></span>
+                <span class="bctx-acao-txt">Selecionar tudo</span>
+                <i class="bi bi-chevron-right bctx-acao-seta"></i>
+              </button>
+            </div>
+
+            <!-- Botão fechar -->
+            <button class="bctx-btn-fechar" @click.stop="fecharMenuBiblia()">Fechar</button>
+
+          </div><!-- /bctx-container -->
 
           <!-- Popup de nota (marca-texto) -->
           <div x-show="notaPopup.aberto" class="modal-nota-overlay" @click.self="fecharNotaPopup()" x-transition>
@@ -1865,5 +2095,19 @@
     <pre style="background: #eee; padding: 1rem; border-radius: 8px;">npx serve .</pre>
     <p>Depois acesse <strong>http://localhost:3000</strong> (ou a porta que aparecer).</p>
   </div>
+
+  <!-- VLibras — Tradução para Libras (Acessibilidade) -->
+  <div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper>
+      <div class="vw-plugin-top-wrapper"></div>
+    </div>
+  </div>
+  <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.VLibras) new window.VLibras.Widget('https://vlibras.gov.br/app');
+    });
+  </script>
 </body>
 </html>

@@ -111,7 +111,22 @@ document.addEventListener('alpine:init', () => {
     _longPressTimer: null,
     _longPressAcionado: false,
     notaPopup: { aberto: false, id: null, conteudo: '', textoRef: '' },
-    bibleContextMenu: { aberto: false, x: 0, y: 0, pendente: null },
+    bibleContextMenu: { aberto: false, x: 0, y: 0, pendente: null, modoSheet: true },
+    // Seleção customizada com pinos arrastáveis
+    bibleSelecaoCustom: {
+      ativo: false,
+      // Endpoints armazenados INDEPENDENTEMENTE do estado do browser
+      // → mover pin D nunca precisa consultar o estado do pin E, e vice-versa
+      sNode: null, sOff: 0,  // nó/offset do início (pin E)
+      eNode: null, eOff: 0,  // nó/offset do fim    (pin D)
+      pinE: { x: 0, y: 0, h: 20 },
+      pinD: { x: 0, y: 0, h: 20 },
+      arrastando: null,  // 'E' | 'D' | null
+    },
+    // Preferências de leitura (persistidas)
+    fonteTamanhoBiblia: parseFloat(localStorage.getItem('biblia_fonte') || '1.0'),
+    velocidadeNarracao: parseFloat(localStorage.getItem('biblia_velocidade') || '1.0'),
+    _narracaoIdx: 0,
     narrando: false,
 
     CORES_MARCADOR: [
@@ -1382,6 +1397,10 @@ document.addEventListener('alpine:init', () => {
       this.carregandoCapitulo = true;
       this.capituloBiblia = null;
       this.erro = '';
+      // Limpa seleção/pinos ao trocar de capítulo
+      window.getSelection()?.removeAllRanges();
+      this.bibleSelecaoCustom.ativo = false;
+      this.bibleContextMenu.aberto = false;
       const dados = await obterCapitulo(this.livroSelecionado, this.capituloSelecionado, 'almeida');
       this.capituloBiblia = dados;
       this.carregandoCapitulo = false;
@@ -1389,7 +1408,7 @@ document.addEventListener('alpine:init', () => {
       this.carregarNotacoesCapitulo();
     },
 
-    narrarCapitulo() {
+    narrarCapitulo(fromIdx = 0) {
       const verses = (this.capituloBiblia && this.capituloBiblia.verses) || [];
       if (!verses.length || !window.speechSynthesis) return;
       this.narrando = true;
@@ -1399,16 +1418,16 @@ document.addEventListener('alpine:init', () => {
         `${nomeLivro} capítulo ${this.capituloSelecionado}.`,
         ...verses.map((v) => `Versículo ${v.verse}. ${v.text || ''}`)
       ];
-      let idx = 0;
+      this._narracaoIdx = fromIdx;
       const falar = () => {
-        if (idx >= fila.length) {
+        if (this._narracaoIdx >= fila.length) {
           this.narrando = false;
           return;
         }
-        const u = new SpeechSynthesisUtterance(fila[idx]);
+        const u = new SpeechSynthesisUtterance(fila[this._narracaoIdx]);
         u.lang = 'pt-BR';
-        u.rate = 0.9;
-        u.onend = () => { idx++; falar(); };
+        u.rate = this.velocidadeNarracao;
+        u.onend = () => { this._narracaoIdx++; falar(); };
         window.speechSynthesis.speak(u);
       };
       window.speechSynthesis.cancel();
@@ -1505,33 +1524,60 @@ document.addEventListener('alpine:init', () => {
       return { verse: verseNum, start: s, end: e, text: selectedText };
     },
 
-    // Posiciona e abre o menu de contexto da Bíblia
-    _mostrarMenuBiblia(x, y) {
-      const menuW = 210, menuH = 150;
-      const vw = window.innerWidth, vh = window.innerHeight;
-      const cx = Math.min(x, vw - menuW - 10);
-      const cy = (y + 16 + menuH < vh) ? y + 16 : y - menuH - 8;
-      this.bibleContextMenu.x = Math.max(8, cx);
-      this.bibleContextMenu.y = Math.max(8, cy);
+    // Posiciona e abre o menu de contexto da Bíblia.
+    // isTouch=true  → bottom sheet (CSS cuida da posição, sem coordenadas JS)
+    // isTouch=false → popup próximo ao cursor (desktop)
+    _mostrarMenuBiblia(x, y, isTouch) {
+      this.bibleContextMenu.modoSheet = isTouch;
+      if (!isTouch) {
+        const menuW = 260, menuH = 240;
+        const vw = window.innerWidth, vh = window.innerHeight;
+        const cx = Math.min(x, vw - menuW - 10);
+        const cy = (y + 18 + menuH < vh) ? y + 18 : y - menuH - 8;
+        this.bibleContextMenu.x = Math.max(8, cx);
+        this.bibleContextMenu.y = Math.max(8, cy);
+      }
       this.bibleContextMenu.aberto = true;
     },
 
     onSoltarLeitura(ev) {
       if (this._longPressAcionado) return;
       if (this._longPressTimer) { clearTimeout(this._longPressTimer); this._longPressTimer = null; }
-      const pendente = this._extrairSelecaoBiblia();
-      if (!pendente) return;
-      this.bibleContextMenu.pendente = pendente;
-      const cx = ev.changedTouches ? ev.changedTouches[0].clientX : ev.clientX;
-      const cy = ev.changedTouches ? ev.changedTouches[0].clientY : ev.clientY;
-      this._mostrarMenuBiblia(cx, cy);
+
+      const isTouch = !!ev.changedTouches;
+      const cx = isTouch ? ev.changedTouches[0].clientX : ev.clientX;
+      const cy = isTouch ? ev.changedTouches[0].clientY : ev.clientY;
+
+      const processar = () => {
+        const pendente = this._extrairSelecaoBiblia();
+        if (!pendente) {
+          // Seleção foi perdida: fecha o menu
+          this.fecharMenuBiblia();
+          return;
+        }
+        // Atualiza a seleção pendente
+        this.bibleContextMenu.pendente = pendente;
+        if (!this.bibleContextMenu.aberto) {
+          // Primeira vez: posiciona e abre o menu
+          this._mostrarMenuBiblia(cx, cy, isTouch);
+        }
+        // Se já está aberto: apenas atualiza o pendente (não reposiciona)
+        // O usuário estendeu a seleção — o menu fica onde está, pronto para aplicar
+      };
+
+      // Pequeno delay no touch para o browser terminar de atualizar a seleção
+      if (isTouch) {
+        setTimeout(processar, 120);
+      } else {
+        processar();
+      }
     },
 
     abrirMenuContextoBiblia(ev) {
       const pendente = this._extrairSelecaoBiblia();
       if (!pendente) return;
       this.bibleContextMenu.pendente = pendente;
-      this._mostrarMenuBiblia(ev.clientX, ev.clientY);
+      this._mostrarMenuBiblia(ev.clientX, ev.clientY, false);
     },
 
     fecharMenuBiblia() {
@@ -1545,6 +1591,7 @@ document.addEventListener('alpine:init', () => {
       window.getSelection()?.removeAllRanges();
       this.bibleContextMenu.aberto = false;
       this.bibleContextMenu.pendente = null;
+      this.bibleSelecaoCustom.ativo = false;
     },
 
     abrirNotaDoMenu() {
@@ -1558,6 +1605,7 @@ document.addEventListener('alpine:init', () => {
       window.getSelection()?.removeAllRanges();
       this.bibleContextMenu.aberto = false;
       this.bibleContextMenu.pendente = null;
+      this.bibleSelecaoCustom.ativo = false;
     },
 
     offsetEmTexto(containerEl, node, offset) {
@@ -1583,7 +1631,7 @@ document.addEventListener('alpine:init', () => {
         const pendente = this._extrairSelecaoBiblia();
         if (!pendente) return;
         this.bibleContextMenu.pendente = pendente;
-        this._mostrarMenuBiblia(touch.clientX, touch.clientY);
+        this._mostrarMenuBiblia(touch.clientX, touch.clientY, true);
       }, 650);
     },
 
@@ -2441,6 +2489,275 @@ document.addEventListener('alpine:init', () => {
       const ativa = this.isObraAtiva(index);
       console.log(`${obra} - ${ativa ? 'Ativa' : 'Inativa'}`);
     },
+
+    // ── Seleção customizada com pinos arrastáveis ─────────────────────────
+
+    // Retorna um Range no caret a partir das coordenadas de viewport
+    _caretRangeFromXY(x, y) {
+      if (document.caretRangeFromPoint) return document.caretRangeFromPoint(x, y);
+      if (document.caretPositionFromPoint) {
+        const pos = document.caretPositionFromPoint(x, y);
+        if (!pos) return null;
+        const r = document.createRange();
+        r.setStart(pos.offsetNode, pos.offset);
+        r.collapse(true);
+        return r;
+      }
+      return null;
+    },
+
+    // Aplica os endpoints armazenados ao browser e recalcula posições dos pinos.
+    // Esta é a única função que constrói a seleção — nunca lê a seleção atual
+    // para descobrir o "outro" endpoint.
+    _aplicarEAtualizar() {
+      const s = this.bibleSelecaoCustom;
+      if (!s.sNode || !s.eNode) return;
+      try {
+        const range = document.createRange();
+        // Tenta ordem normal; se eNode vier antes de sNode (pinos cruzados), inverte
+        try {
+          range.setStart(s.sNode, s.sOff);
+          range.setEnd(s.eNode, s.eOff);
+        } catch (_) {
+          range.setStart(s.eNode, s.eOff);
+          range.setEnd(s.sNode, s.sOff);
+        }
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+      } catch (_) { /* nó pode ter sido removido do DOM */ }
+      this._recalcularPins();
+    },
+
+    // Recalcula apenas as posições visuais dos pinos (lê rects da seleção atual)
+    _recalcularPins() {
+      const sel = window.getSelection();
+      if (!sel || sel.isCollapsed) return;
+      const range = sel.getRangeAt(0);
+      const rects = Array.from(range.getClientRects()).filter(r => r.width > 0);
+      if (!rects.length) return;
+
+      const container = document.querySelector('.conteudo-leitura-biblia');
+      if (!container) return;
+      const cRect = container.getBoundingClientRect();
+      const st    = container.scrollTop;
+      const first = rects[0];
+      const last  = rects[rects.length - 1];
+
+      this.bibleSelecaoCustom.pinE.x = first.left - cRect.left;
+      this.bibleSelecaoCustom.pinE.y = first.top  - cRect.top + st - 22;
+      this.bibleSelecaoCustom.pinE.h = first.height;
+
+      this.bibleSelecaoCustom.pinD.x = last.right - cRect.left;
+      this.bibleSelecaoCustom.pinD.y = last.top   - cRect.top + st;
+      this.bibleSelecaoCustom.pinD.h = last.height;
+
+      this.bibleSelecaoCustom.ativo = true;
+      const pendente = this._extrairSelecaoBiblia();
+      if (pendente) this.bibleContextMenu.pendente = pendente;
+    },
+
+    // Mantido para compatibilidade com outros fluxos (long-press, right-click)
+    _atualizarPinsFromSelection() {
+      const sel = window.getSelection();
+      if (!sel || sel.isCollapsed) {
+        // Não desativa durante arraste — o endpoint está armazenado
+        if (!this.bibleSelecaoCustom.arrastando) this.bibleSelecaoCustom.ativo = false;
+        return;
+      }
+      const range = sel.getRangeAt(0);
+      // Armazena os endpoints para uso futuro nos drags
+      this.bibleSelecaoCustom.sNode = range.startContainer;
+      this.bibleSelecaoCustom.sOff  = range.startOffset;
+      this.bibleSelecaoCustom.eNode = range.endContainer;
+      this.bibleSelecaoCustom.eOff  = range.endOffset;
+      this._recalcularPins();
+    },
+
+    // Toque/clique no texto → seleciona a palavra e exibe pinos
+    iniciarSelecaoBiblia(ev) {
+      if (ev.target.closest?.('.nota-link')) { this.onClickConteudoLeitura(ev); return; }
+
+      const point = ev.touches ? ev.touches[0] : ev;
+      const cr = this._caretRangeFromXY(point.clientX, point.clientY);
+      if (!cr) return;
+
+      const node = cr.startContainer;
+      const el = node.nodeType === Node.TEXT_NODE ? node.parentElement : node;
+      if (!el?.closest?.('.verso-texto')) { this.cancelarSelecaoBiblia(); return; }
+
+      // Expande para a palavra inteira
+      const txt = cr.startContainer.textContent || '';
+      let s = cr.startOffset, e = cr.startOffset;
+      while (s > 0 && !/[\s,.;:!?()"""'']/u.test(txt[s - 1])) s--;
+      while (e < txt.length && !/[\s,.;:!?()"""'']/u.test(txt[e])) e++;
+      if (s >= e) e = Math.min(s + 1, txt.length);
+
+      // Armazena endpoints ANTES de criar a seleção no browser
+      const sc = this.bibleSelecaoCustom;
+      sc.sNode = cr.startContainer; sc.sOff = s;
+      sc.eNode = cr.startContainer; sc.eOff = e;
+      this._aplicarEAtualizar();
+    },
+
+    // Inicia o arraste de um pino.
+    // Usa window-level listeners (não perde evento fora do elemento transformado).
+    // Reaplica imediatamente a seleção armazenada, pois o touchstart pode tê-la limpo.
+    onArrastePinStart(tipo, ev) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      this.bibleSelecaoCustom.arrastando = tipo;
+
+      // Garante que a seleção visual ainda aparece mesmo se o browser a limpou no touchstart
+      this._aplicarEAtualizar();
+
+      const onMove = (e) => {
+        e.preventDefault();
+        const p = e.touches ? e.touches[0] : e;
+        this._moverPin(tipo, p.clientX, p.clientY);
+      };
+      const onEnd = () => {
+        this.bibleSelecaoCustom.arrastando = null;
+        window.removeEventListener('touchmove', onMove, { capture: true });
+        window.removeEventListener('touchend',  onEnd);
+        window.removeEventListener('mousemove', onMove);
+        window.removeEventListener('mouseup',   onEnd);
+      };
+      window.addEventListener('touchmove', onMove, { passive: false, capture: true });
+      window.addEventListener('touchend',  onEnd);
+      window.addEventListener('mousemove', onMove);
+      window.addEventListener('mouseup',   onEnd);
+    },
+
+    // Move um pino usando os endpoints ARMAZENADOS — nunca consulta o outro endpoint via browser.
+    _moverPin(tipo, clientX, clientY) {
+      const cr = this._caretRangeFromXY(clientX, clientY);
+      if (!cr) return;
+
+      const node = cr.startContainer;
+      const el = node.nodeType === Node.TEXT_NODE ? node.parentElement : node;
+      if (!el?.closest?.('.conteudo-leitura-biblia')) return;
+
+      const sc = this.bibleSelecaoCustom;
+      if (tipo === 'E') {
+        sc.sNode = cr.startContainer;
+        sc.sOff  = cr.startOffset;
+      } else {
+        sc.eNode = cr.startContainer;
+        sc.eOff  = cr.startOffset;
+      }
+      // Aplica a seleção com ambos os endpoints (o que foi movido + o que ficou parado)
+      this._aplicarEAtualizar();
+    },
+
+    // Confirma a seleção e abre o menu de anotação.
+    // Usa o `pendente` já armazenado (setado a cada _recalcularPins) para não
+    // depender do window.getSelection que pode ter sido limpo ao tocar no botão OK.
+    confirmarSelecaoBiblia() {
+      // 1) Tenta usar o pendente já armazenado durante o drag/seleção
+      let pendente = this.bibleContextMenu.pendente;
+
+      // 2) Fallback: reaplica a seleção dos endpoints armazenados e extrai
+      if (!pendente) {
+        this._aplicarEAtualizar();
+        pendente = this._extrairSelecaoBiblia();
+      }
+
+      if (!pendente) { this.cancelarSelecaoBiblia(); return; }
+      this.bibleContextMenu.pendente = pendente;
+
+      const isMobile = window.innerWidth <= 768;
+      if (isMobile) {
+        this._mostrarMenuBiblia(0, 0, true);
+      } else {
+        // Desktop: posiciona próximo ao pin direito
+        const container = document.querySelector('.conteudo-leitura-biblia');
+        if (container) {
+          const cRect = container.getBoundingClientRect();
+          const px = cRect.left + this.bibleSelecaoCustom.pinD.x;
+          const py = cRect.top  + this.bibleSelecaoCustom.pinD.y
+                     - container.scrollTop + this.bibleSelecaoCustom.pinD.h + 8;
+          this._mostrarMenuBiblia(px, py, false);
+        } else {
+          this._mostrarMenuBiblia(window.innerWidth / 2, window.innerHeight / 2, false);
+        }
+      }
+    },
+
+    // Cancela a seleção e fecha tudo
+    cancelarSelecaoBiblia() {
+      window.getSelection()?.removeAllRanges();
+      const sc = this.bibleSelecaoCustom;
+      sc.ativo = false; sc.arrastando = null;
+      sc.sNode = null;  sc.sOff = 0;
+      sc.eNode = null;  sc.eOff = 0;
+      this.fecharMenuBiblia();
+    },
+
+    // Seleciona todo o texto do capítulo carregado
+    selecionarTudoBiblia() {
+      const container = document.querySelector('.conteudo-leitura-biblia');
+      if (!container) return;
+      const range = document.createRange();
+      range.selectNodeContents(container);
+      // Armazena endpoints independentes
+      const sc = this.bibleSelecaoCustom;
+      sc.sNode = range.startContainer; sc.sOff = range.startOffset;
+      sc.eNode = range.endContainer;   sc.eOff = range.endOffset;
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      this._atualizarPinsFromSelection();
+      if (this.bibleContextMenu.aberto) {
+        const p = this._extrairSelecaoBiblia();
+        if (p) this.bibleContextMenu.pendente = p;
+      }
+    },
+
+    // Copia o texto selecionado para a área de transferência
+    copiarSelecao() {
+      const p = this.bibleContextMenu.pendente;
+      if (!p) return;
+      navigator.clipboard?.writeText(p.text).catch(() => {
+        const ta = document.createElement('textarea');
+        ta.value = p.text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      });
+      this.fecharMenuBiblia();
+      this.cancelarSelecaoBiblia();
+    },
+
+    // ── Tamanho da fonte da Bíblia ────────────────────────────────────────
+    aumentarFonte() {
+      this.fonteTamanhoBiblia = Math.min(2.0, parseFloat((this.fonteTamanhoBiblia + 0.15).toFixed(2)));
+      localStorage.setItem('biblia_fonte', this.fonteTamanhoBiblia);
+    },
+    diminuirFonte() {
+      this.fonteTamanhoBiblia = Math.max(0.7, parseFloat((this.fonteTamanhoBiblia - 0.15).toFixed(2)));
+      localStorage.setItem('biblia_fonte', this.fonteTamanhoBiblia);
+    },
+
+    // ── Velocidade de narração ────────────────────────────────────────────
+    aumentarVelocidade() {
+      this.velocidadeNarracao = Math.min(3.0, parseFloat((this.velocidadeNarracao + 0.25).toFixed(2)));
+      localStorage.setItem('biblia_velocidade', this.velocidadeNarracao);
+      if (this.narrando) { const i = this._narracaoIdx; this.pararNarracao(); this.narrarCapitulo(i); }
+    },
+    diminuirVelocidade() {
+      this.velocidadeNarracao = Math.max(0.25, parseFloat((this.velocidadeNarracao - 0.25).toFixed(2)));
+      localStorage.setItem('biblia_velocidade', this.velocidadeNarracao);
+      if (this.narrando) { const i = this._narracaoIdx; this.pararNarracao(); this.narrarCapitulo(i); }
+    },
+
+    // ── VLibras ───────────────────────────────────────────────────────────
+    ativarVLibras() {
+      const btn = document.querySelector('[vw-access-button]');
+      if (btn) btn.click();
+    },
+    // ─────────────────────────────────────────────────────────────────────
 
     // ── Zoom / Pan ─────────────────────────────────────────────────────────
     _z(tipo) { return tipo === 'obras' ? this.obrasZoom : this.frutoZoom; },
