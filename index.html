@@ -707,40 +707,517 @@
 
         <!-- Perfil -->
         <div x-show="pagina === 'perfil'" style="display: none;">
-          <h2 class="titulo-pagina mb-1">Perfil</h2>
-          <p class="subtitulo-pagina mb-3">Seus dados e progresso na jornada</p>
-          <div class="text-center mb-3">
-            <img :src="urlAvatar(perfil?.config_avatar)" alt="Avatar" class="avatar-grande" />
-          </div>
-          <div class="card-tema p-3 mb-3">
-            <p><strong x-text="(perfil?.nome || '') + ' ' + (perfil?.sobrenome || '')"></strong></p>
-            <p class="fs-menor texto-secundario mb-0" x-text="'Nível ' + (nivel?.nivel || 1) + ' · ' + (nivel?.xp_total || 0) + ' XP total · ' + (nivel?.dias_sequencia || 0) + ' dias de sequência'"></p>
-          </div>
-          <!-- Atributos: Obras da carne e Fruto do Espírito (Gl 5) com tooltips -->
-          <h3 class="subtitulo-secao mb-2">
-            <span :title="REFS_BIBLICAS.FRUTO_ESPIRITO">Fruto do Espírito</span>
-            <i class="bi bi-info-circle ms-1 texto-secundario" :title="REFS_BIBLICAS.FRUTO_ESPIRITO"></i>
-          </h3>
-          <div class="card-tema p-3 mb-2">
-            <p class="fs-menor texto-secundario mb-2" :title="REFS_BIBLICAS.FRUTO_ESPIRITO">Gálatas 5.22-23</p>
-            <div class="d-flex flex-wrap gap-1">
-              <template x-for="fruto in FRUTO_DO_ESPIRITO" :key="fruto">
-                <span class="badge bg-success" :title="REFS_BIBLICAS.FRUTO_ESPIRITO" x-text="fruto"></span>
+
+          <!-- ===== VIEW: PERFIL ===== -->
+          <div x-show="viewPerfil === 'ver'">
+
+            <!-- Hero do perfil -->
+            <div class="perfil-hero">
+              <div class="perfil-hero-avatar-outer">
+                <div class="perfil-hero-avatar-wrap" :style="cssBgAvatarPerfil() ? 'background:' + cssBgAvatarPerfil() : ''">
+                  <img :src="urlAvatar(perfil?.config_avatar)" alt="Avatar" class="perfil-hero-avatar" />
+                </div>
+                <button class="perfil-hero-edit-avatar" @click="abrirEditarPerfil(); abaEditarPerfil='personagem'" title="Editar personagem">
+                  <i class="bi bi-pencil-fill"></i>
+                </button>
+              </div>
+              <div class="perfil-hero-info">
+                <h2 class="perfil-hero-nome" x-text="(perfil?.nome || 'Demo') + ' ' + (perfil?.sobrenome || '')"></h2>
+                <div class="perfil-hero-badges">
+                  <span class="perfil-badge perfil-badge--nivel">
+                    <i class="bi bi-star-fill"></i>
+                    <span x-text="'Nível ' + (nivel?.nivel || 1)"></span>
+                  </span>
+                  <span class="perfil-badge perfil-badge--xp">
+                    <i class="bi bi-lightning-fill"></i>
+                    <span x-text="(nivel?.xp_total || 0) + ' XP'"></span>
+                  </span>
+                  <span class="perfil-badge perfil-badge--seq" x-show="(nivel?.dias_sequencia || 0) > 0">
+                    <i class="bi bi-fire"></i>
+                    <span x-text="(nivel?.dias_sequencia || 0) + ' dias'"></span>
+                  </span>
+                </div>
+              </div>
+              <button class="perfil-hero-btn-editar" @click="abrirEditarPerfil()">
+                <i class="bi bi-pencil"></i>
+                <span>Editar</span>
+              </button>
+            </div>
+
+            <!-- Estatísticas de quizes -->
+            <div class="perfil-secao-titulo">
+              <i class="bi bi-patch-question-fill"></i> Quizes
+            </div>
+            <div class="card-tema p-3 mb-3">
+              <div class="perfil-quiz-stat">
+                <div class="perfil-quiz-icone">
+                  <i class="bi bi-patch-question-fill"></i>
+                </div>
+                <div class="perfil-quiz-info">
+                  <span class="perfil-quiz-contagem">
+                    <span class="perfil-quiz-feitos" x-text="quizesConcluidos()"></span>
+                    <span class="perfil-quiz-sep">/</span>
+                    <span class="perfil-quiz-total" x-text="totalQuizesDisponiveis()"></span>
+                  </span>
+                  <span class="perfil-quiz-label">concluídos com nota ≥ 70%</span>
+                </div>
+                <div class="perfil-quiz-pct-wrap">
+                  <svg viewBox="0 0 36 36" class="perfil-quiz-ring">
+                    <circle class="perfil-quiz-ring-bg" cx="18" cy="18" r="15.9" fill="none" stroke-width="3"/>
+                    <circle class="perfil-quiz-ring-fill" cx="18" cy="18" r="15.9" fill="none" stroke-width="3"
+                      :stroke-dasharray="(totalQuizesDisponiveis() > 0 ? Math.round(quizesConcluidos() / totalQuizesDisponiveis() * 100) : 0) + ' 100'"
+                      stroke-linecap="round"/>
+                  </svg>
+                  <span class="perfil-quiz-pct-num"
+                        x-text="(totalQuizesDisponiveis() > 0 ? Math.round(quizesConcluidos() / totalQuizesDisponiveis() * 100) : 0) + '%'">
+                  </span>
+                </div>
+              </div>
+              <div class="perfil-quiz-barra-wrap mt-2">
+                <div class="perfil-quiz-barra-track">
+                  <div class="perfil-quiz-barra-fill"
+                       :style="'width:' + (totalQuizesDisponiveis() > 0 ? Math.round(quizesConcluidos() / totalQuizesDisponiveis() * 100) : 0) + '%'">
+                  </div>
+                </div>
+              </div>
+              <div class="perfil-quiz-breakdown mt-3">
+                <div class="perfil-quiz-item">
+                  <i class="bi bi-book"></i>
+                  <span>Livros bíblicos</span>
+                  <span class="perfil-quiz-item-val">
+                    <b x-text="(livrosAprovadosQuiz || []).length"></b>
+                    <span class="texto-secundario" x-text="'/ ' + livrosBiblia.length"></span>
+                  </span>
+                </div>
+                <div class="perfil-quiz-item">
+                  <i class="bi bi-journal-bookmark-fill"></i>
+                  <span>Aulas do Estudo</span>
+                  <span class="perfil-quiz-item-val">
+                    <b x-text="Object.entries(progressoEstudo || {}).filter(([k,p]) => k !== 'modulos' && p?.quizAprovado).length"></b>
+                    <span class="texto-secundario" x-text="'/ ' + TRILHAS_ESTUDO.reduce((s,t) => s + (t.aulas||[]).filter(a => (a.quiz?.length||0)>0).length, 0)"></span>
+                  </span>
+                </div>
+                <div class="perfil-quiz-item">
+                  <i class="bi bi-layers-fill"></i>
+                  <span>Módulos do Estudo</span>
+                  <span class="perfil-quiz-item-val">
+                    <b x-text="Object.keys(progressoEstudo?.modulos || {}).length"></b>
+                    <span class="texto-secundario" x-text="'/ ' + TRILHAS_ESTUDO.filter(t => (t.quizModulo?.length||0)>0).length"></span>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- ── Ranking ── -->
+            <div class="perfil-secao-titulo">
+              <i class="bi bi-bar-chart-fill"></i> Ranking
+            </div>
+            <div class="card-tema perfil-ranking-card mb-3">
+              <div class="perfil-ranking-pos">
+                <span class="perfil-ranking-num" x-text="'#' + (posicaoRanking() || '—')"></span>
+                <span class="perfil-ranking-label">sua posição</span>
+              </div>
+              <div class="perfil-ranking-info">
+                <div class="perfil-ranking-row">
+                  <i class="bi bi-lightning-fill"></i>
+                  <span x-text="(nivel?.xp_total || 0) + ' XP acumulados'"></span>
+                </div>
+                <div class="perfil-ranking-row">
+                  <i class="bi bi-fire"></i>
+                  <span x-text="(nivel?.dias_sequencia || 0) + ' dias de sequência'"></span>
+                </div>
+                <div class="perfil-ranking-row">
+                  <i class="bi bi-people-fill"></i>
+                  <span x-text="(ranking?.length || 0) + ' participantes'"></span>
+                </div>
+              </div>
+              <button class="perfil-ranking-btn" @click="pagina = 'ranking'">
+                <i class="bi bi-bar-chart-steps"></i>
+                <span>Ver ranking</span>
+              </button>
+            </div>
+
+            <!-- ── Conquistas ── -->
+            <div class="perfil-secao-titulo">
+              <i class="bi bi-trophy-fill"></i> Conquistas
+              <span class="perfil-secao-badge"
+                    x-text="conquistas().filter(c=>c.conquistado).length + '/' + conquistas().length">
+              </span>
+            </div>
+            <div class="perfil-conquistas-grid mb-3">
+              <template x-for="c in conquistas()" :key="c.titulo">
+                <div class="perfil-conquista" :class="c.conquistado ? 'perfil-conquista--ok' : 'perfil-conquista--lock'">
+                  <div class="perfil-conquista-icone" :class="c.conquistado ? 'text-' + c.cor : ''">
+                    <i :class="c.conquistado ? 'bi ' + c.icone : 'bi bi-lock-fill'"></i>
+                  </div>
+                  <div class="perfil-conquista-info">
+                    <span class="perfil-conquista-titulo" x-text="c.titulo"></span>
+                    <span class="perfil-conquista-desc" x-text="c.desc"></span>
+                  </div>
+                  <i x-show="c.conquistado" class="bi bi-check-circle-fill perfil-conquista-check"></i>
+                </div>
               </template>
             </div>
-          </div>
-          <h3 class="subtitulo-secao mb-2">
-            <span :title="REFS_BIBLICAS.OBRAS_CARNE">Obras da carne</span>
-            <i class="bi bi-info-circle ms-1 texto-secundario" :title="REFS_BIBLICAS.OBRAS_CARNE"></i>
-          </h3>
-          <div class="card-tema p-3">
-            <p class="fs-menor texto-secundario mb-2" :title="REFS_BIBLICAS.OBRAS_CARNE">Gálatas 5.19-21</p>
-            <div class="d-flex flex-wrap gap-1">
-              <template x-for="obra in OBRAS_DA_CARNE" :key="obra">
-                <span class="badge bg-secondary" :title="REFS_BIBLICAS.OBRAS_CARNE" x-text="obra"></span>
+
+            <!-- ── Botão Ver Status ── -->
+            <button class="perfil-btn-status mb-3" @click="pagina = 'ranking'">
+              <i class="bi bi-graph-up-arrow"></i>
+              <span>Ver meu status completo</span>
+              <i class="bi bi-chevron-right"></i>
+            </button>
+
+          </div><!-- /viewPerfil === 'ver' -->
+
+
+          <!-- ===== VIEW: EDITAR PERFIL ===== -->
+          <div x-show="viewPerfil === 'editar'" x-cloak>
+
+            <!-- Header do editor -->
+            <div class="pedit-header">
+              <button class="pedit-voltar" @click="cancelarEditarPerfil()">
+                <i class="bi bi-arrow-left"></i>
+              </button>
+              <div class="pedit-header-info">
+                <span class="pedit-header-titulo">Editar perfil</span>
+                <span class="pedit-header-sub" x-text="abaEditarPerfil === 'dados' ? 'Dados pessoais' : 'Personagem'"></span>
+              </div>
+              <button class="pedit-salvar" @click="salvarEditarPerfil()">
+                <i class="bi bi-check-lg"></i>
+                <span>Salvar</span>
+              </button>
+            </div>
+
+            <!-- Tabs: Dados · Personagem -->
+            <div class="pedit-tabs">
+              <button class="pedit-tab" :class="abaEditarPerfil === 'dados' ? 'pedit-tab--ativa' : ''" @click="abaEditarPerfil = 'dados'">
+                <i class="bi bi-person-lines-fill"></i> Dados
+              </button>
+              <button class="pedit-tab" :class="abaEditarPerfil === 'personagem' ? 'pedit-tab--ativa' : ''" @click="abaEditarPerfil = 'personagem'">
+                <i class="bi bi-palette-fill"></i> Personagem
+              </button>
+            </div>
+
+            <!-- ── ABA: DADOS PESSOAIS ── -->
+            <div x-show="abaEditarPerfil === 'dados'" x-cloak>
+              <template x-if="perfilEditando">
+                <div>
+
+                  <!-- Preview do avatar pequeno -->
+                  <div class="pedit-dados-top">
+                    <img :src="urlAvatarEditando()" alt="Avatar" class="pedit-dados-avatar" />
+                    <div>
+                      <p class="pedit-dados-nome" x-text="(perfilEditando.nome || 'Nome') + ' ' + (perfilEditando.sobrenome || '')"></p>
+                      <button class="pedit-link-personagem" @click="abaEditarPerfil = 'personagem'">
+                        <i class="bi bi-palette"></i> Personalizar personagem
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Grupo: Nome -->
+                  <div class="pedit-grupo">
+                    <div class="pedit-grupo-titulo">
+                      <i class="bi bi-person"></i> Nome
+                    </div>
+                    <div class="pedit-campos">
+                      <div class="pedit-campo">
+                        <label class="pedit-label">Primeiro nome</label>
+                        <input class="pedit-input" type="text" x-model="perfilEditando.nome" placeholder="Seu nome" maxlength="50" />
+                      </div>
+                      <div class="pedit-campo">
+                        <label class="pedit-label">Sobrenome</label>
+                        <input class="pedit-input" type="text" x-model="perfilEditando.sobrenome" placeholder="Seu sobrenome" maxlength="80" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Grupo: Informações pessoais -->
+                  <div class="pedit-grupo">
+                    <div class="pedit-grupo-titulo">
+                      <i class="bi bi-info-circle"></i> Informações pessoais
+                    </div>
+                    <div class="pedit-campos">
+                      <div class="pedit-campo">
+                        <label class="pedit-label">Data de nascimento</label>
+                        <input class="pedit-input" type="date" x-model="perfilEditando.dataNascimento" />
+                      </div>
+                      <div class="pedit-campo">
+                        <label class="pedit-label">Estado civil</label>
+                        <select class="pedit-select" x-model="perfilEditando.estadoCivil">
+                          <option value="">Prefiro não informar</option>
+                          <option value="solteiro">Solteiro(a)</option>
+                          <option value="casado">Casado(a)</option>
+                          <option value="divorciado">Divorciado(a)</option>
+                          <option value="viuvo">Viúvo(a)</option>
+                          <option value="uniao_estavel">União estável</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Dica Demo -->
+                  <div class="pedit-dica-demo">
+                    <i class="bi bi-info-circle"></i>
+                    <span>Modo demo — dados salvos localmente no navegador.</span>
+                  </div>
+
+                </div>
               </template>
             </div>
-          </div>
+
+            <!-- ── ABA: PERSONAGEM ── -->
+            <div x-show="abaEditarPerfil === 'personagem'" x-cloak>
+              <template x-if="configAvatarEditando">
+                <div>
+
+                  <!-- Preview fixado no topo ao scrollar -->
+                  <div class="pedit-avatar-stage">
+                    <div class="pedit-avatar-bg" :style="cssBackgroundAvatarAtual() ? 'background:' + cssBackgroundAvatarAtual() : ''">
+                      <img :src="urlAvatarEditando()" alt="Avatar preview" class="pedit-avatar-preview" />
+                    </div>
+                    <p class="pedit-avatar-hint">
+                      <strong x-text="(perfilEditando?.nome || 'Seu') + ' personagem'"></strong>
+                      Alterações aparecem aqui em tempo real ✨
+                    </p>
+                  </div>
+
+                  <!-- ── Grupo: Aparência ── -->
+                  <div class="pedit-grupo">
+                    <div class="pedit-grupo-titulo"><i class="bi bi-person-bounding-box"></i> Aparência</div>
+
+                    <!-- Tom de pele -->
+                    <div class="pedit-opcao-row">
+                      <span class="pedit-opcao-label">Tom de pele</span>
+                      <div class="pedit-swatches">
+                        <template x-for="op in opcoesAvataaars.skinColor" :key="op.valor">
+                          <button class="pedit-swatch"
+                                  :style="'background:' + op.hex"
+                                  :class="configAvatarEditando.skinColor === op.valor ? 'pedit-swatch--ativa' : ''"
+                                  :title="op.label"
+                                  @click="selecionarOpcaoAvatarEdit('skinColor', op.valor)">
+                          </button>
+                        </template>
+                      </div>
+                    </div>
+
+                    <!-- Fundo do personagem -->
+                    <div class="pedit-opcao-row pedit-opcao-row--col">
+                      <span class="pedit-opcao-label">Fundo do personagem</span>
+                      <div class="pedit-bg-swatches">
+                        <template x-for="bg in backgroundsAvatar" :key="bg.valor">
+                          <div class="pedit-bg-swatch-wrap">
+                            <button class="pedit-bg-swatch"
+                                    :style="bg.gradient ? 'background:' + bg.gradient : 'background:#65c9ff'"
+                                    :class="configAvatarEditando.bgAvatar === bg.valor ? 'pedit-bg-swatch--ativo' : ''"
+                                    :title="bg.label"
+                                    @click="selecionarOpcaoAvatarEdit('bgAvatar', bg.valor); if(bg.valor !== 'nenhum') selecionarOpcaoAvatarEdit('avatarStyle', 'Transparent'); else selecionarOpcaoAvatarEdit('avatarStyle', 'Circle')">
+                              <i x-show="configAvatarEditando.bgAvatar === bg.valor" class="bi bi-check-lg pedit-bg-check"></i>
+                            </button>
+                            <span class="pedit-bg-swatch-label" x-text="bg.label"></span>
+                          </div>
+                        </template>
+                      </div>
+                    </div>
+
+                    <!-- Estilo do avatar -->
+                    <div class="pedit-opcao-row pedit-opcao-row--col">
+                      <span class="pedit-opcao-label">Estilo</span>
+                      <div class="pedit-chips-av">
+                        <template x-for="op in opcoesAvataaars.avatarStyle" :key="op.valor">
+                          <button class="pedit-chip-av"
+                                  :class="configAvatarEditando.avatarStyle === op.valor ? 'pedit-chip-av--ativo' : ''"
+                                  @click="selecionarOpcaoAvatarEdit('avatarStyle', op.valor)"
+                                  :title="op.label">
+                            <img :src="urlAvatarBaseComOpcao('avatarStyle', op.valor)" alt="" class="pedit-chip-av-img" loading="lazy" />
+                            <span class="pedit-chip-av-label" x-text="op.label"></span>
+                          </button>
+                        </template>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- ── Grupo: Cabelo ── -->
+                  <div class="pedit-grupo">
+                    <div class="pedit-grupo-titulo"><i class="bi bi-wind"></i> Cabelo</div>
+
+                    <!-- Estilo do cabelo -->
+                    <div class="pedit-opcao-row pedit-opcao-row--col">
+                      <span class="pedit-opcao-label">Estilo do cabelo</span>
+                      <div class="pedit-chips-av">
+                        <template x-for="op in opcoesAvataaars.topType" :key="op.valor">
+                          <button class="pedit-chip-av"
+                                  :class="configAvatarEditando.topType === op.valor ? 'pedit-chip-av--ativo' : ''"
+                                  @click="selecionarOpcaoAvatarEdit('topType', op.valor)"
+                                  :title="op.label">
+                            <img :src="urlAvatarBaseComOpcao('topType', op.valor)" alt="" class="pedit-chip-av-img" loading="lazy" />
+                            <span class="pedit-chip-av-label" x-text="op.label"></span>
+                          </button>
+                        </template>
+                      </div>
+                    </div>
+
+                    <!-- Cor do cabelo -->
+                    <div class="pedit-opcao-row">
+                      <span class="pedit-opcao-label">Cor</span>
+                      <div class="pedit-swatches">
+                        <template x-for="op in opcoesAvataaars.hairColor" :key="op.valor">
+                          <button class="pedit-swatch"
+                                  :style="'background:' + op.hex"
+                                  :class="configAvatarEditando.hairColor === op.valor ? 'pedit-swatch--ativa' : ''"
+                                  :title="op.label"
+                                  @click="selecionarOpcaoAvatarEdit('hairColor', op.valor)">
+                          </button>
+                        </template>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- ── Grupo: Barba ── -->
+                  <div class="pedit-grupo">
+                    <div class="pedit-grupo-titulo"><i class="bi bi-person-check"></i> Barba / Bigode</div>
+
+                    <div class="pedit-opcao-row pedit-opcao-row--col">
+                      <span class="pedit-opcao-label">Estilo</span>
+                      <div class="pedit-chips-av">
+                        <template x-for="op in opcoesAvataaars.facialHairType" :key="op.valor">
+                          <button class="pedit-chip-av"
+                                  :class="configAvatarEditando.facialHairType === op.valor ? 'pedit-chip-av--ativo' : ''"
+                                  @click="selecionarOpcaoAvatarEdit('facialHairType', op.valor)"
+                                  :title="op.label">
+                            <img :src="urlAvatarBaseComOpcao('facialHairType', op.valor)" alt="" class="pedit-chip-av-img" loading="lazy" />
+                            <span class="pedit-chip-av-label" x-text="op.label"></span>
+                          </button>
+                        </template>
+                      </div>
+                    </div>
+
+                    <div class="pedit-opcao-row" x-show="configAvatarEditando.facialHairType !== 'Blank'">
+                      <span class="pedit-opcao-label">Cor</span>
+                      <div class="pedit-swatches">
+                        <template x-for="op in opcoesAvataaars.facialHairColor" :key="op.valor">
+                          <button class="pedit-swatch"
+                                  :style="'background:' + op.hex"
+                                  :class="configAvatarEditando.facialHairColor === op.valor ? 'pedit-swatch--ativa' : ''"
+                                  @click="selecionarOpcaoAvatarEdit('facialHairColor', op.valor)">
+                          </button>
+                        </template>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- ── Grupo: Rosto ── -->
+                  <div class="pedit-grupo">
+                    <div class="pedit-grupo-titulo"><i class="bi bi-emoji-smile"></i> Expressão</div>
+
+                    <div class="pedit-opcao-row pedit-opcao-row--col">
+                      <span class="pedit-opcao-label">Olhos</span>
+                      <div class="pedit-chips-av">
+                        <template x-for="op in opcoesAvataaars.eyeType" :key="op.valor">
+                          <button class="pedit-chip-av"
+                                  :class="configAvatarEditando.eyeType === op.valor ? 'pedit-chip-av--ativo' : ''"
+                                  @click="selecionarOpcaoAvatarEdit('eyeType', op.valor)"
+                                  :title="op.label">
+                            <img :src="urlAvatarBaseComOpcao('eyeType', op.valor)" alt="" class="pedit-chip-av-img" loading="lazy" />
+                            <span class="pedit-chip-av-label" x-text="op.label"></span>
+                          </button>
+                        </template>
+                      </div>
+                    </div>
+
+                    <div class="pedit-opcao-row pedit-opcao-row--col">
+                      <span class="pedit-opcao-label">Sobrancelhas</span>
+                      <div class="pedit-chips-av">
+                        <template x-for="op in opcoesAvataaars.eyebrowType" :key="op.valor">
+                          <button class="pedit-chip-av"
+                                  :class="configAvatarEditando.eyebrowType === op.valor ? 'pedit-chip-av--ativo' : ''"
+                                  @click="selecionarOpcaoAvatarEdit('eyebrowType', op.valor)"
+                                  :title="op.label">
+                            <img :src="urlAvatarBaseComOpcao('eyebrowType', op.valor)" alt="" class="pedit-chip-av-img" loading="lazy" />
+                            <span class="pedit-chip-av-label" x-text="op.label"></span>
+                          </button>
+                        </template>
+                      </div>
+                    </div>
+
+                    <div class="pedit-opcao-row pedit-opcao-row--col">
+                      <span class="pedit-opcao-label">Boca</span>
+                      <div class="pedit-chips-av">
+                        <template x-for="op in opcoesAvataaars.mouthType" :key="op.valor">
+                          <button class="pedit-chip-av"
+                                  :class="configAvatarEditando.mouthType === op.valor ? 'pedit-chip-av--ativo' : ''"
+                                  @click="selecionarOpcaoAvatarEdit('mouthType', op.valor)"
+                                  :title="op.label">
+                            <img :src="urlAvatarBaseComOpcao('mouthType', op.valor)" alt="" class="pedit-chip-av-img" loading="lazy" />
+                            <span class="pedit-chip-av-label" x-text="op.label"></span>
+                          </button>
+                        </template>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- ── Grupo: Acessórios ── -->
+                  <div class="pedit-grupo">
+                    <div class="pedit-grupo-titulo"><i class="bi bi-eyeglasses"></i> Acessórios</div>
+                    <div class="pedit-opcao-row pedit-opcao-row--col">
+                      <span class="pedit-opcao-label">Óculos / Adorno</span>
+                      <div class="pedit-chips-av">
+                        <template x-for="op in opcoesAvataaars.accessoriesType" :key="op.valor">
+                          <button class="pedit-chip-av"
+                                  :class="configAvatarEditando.accessoriesType === op.valor ? 'pedit-chip-av--ativo' : ''"
+                                  @click="selecionarOpcaoAvatarEdit('accessoriesType', op.valor)"
+                                  :title="op.label">
+                            <img :src="urlAvatarBaseComOpcao('accessoriesType', op.valor)" alt="" class="pedit-chip-av-img" loading="lazy" />
+                            <span class="pedit-chip-av-label" x-text="op.label"></span>
+                          </button>
+                        </template>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- ── Grupo: Vestuário ── -->
+                  <div class="pedit-grupo">
+                    <div class="pedit-grupo-titulo"><i class="bi bi-bag-fill"></i> Vestuário</div>
+
+                    <div class="pedit-opcao-row pedit-opcao-row--col">
+                      <span class="pedit-opcao-label">Roupa</span>
+                      <div class="pedit-chips-av">
+                        <template x-for="op in opcoesAvataaars.clotheType" :key="op.valor">
+                          <button class="pedit-chip-av"
+                                  :class="configAvatarEditando.clotheType === op.valor ? 'pedit-chip-av--ativo' : ''"
+                                  @click="selecionarOpcaoAvatarEdit('clotheType', op.valor)"
+                                  :title="op.label">
+                            <img :src="urlAvatarBaseComOpcao('clotheType', op.valor)" alt="" class="pedit-chip-av-img" loading="lazy" />
+                            <span class="pedit-chip-av-label" x-text="op.label"></span>
+                          </button>
+                        </template>
+                      </div>
+                    </div>
+
+                    <div class="pedit-opcao-row">
+                      <span class="pedit-opcao-label">Cor da roupa</span>
+                      <div class="pedit-swatches">
+                        <template x-for="op in opcoesAvataaars.clotheColor" :key="op.valor">
+                          <button class="pedit-swatch"
+                                  :style="'background:' + op.hex + '; border: 1px solid #ccc'"
+                                  :class="configAvatarEditando.clotheColor === op.valor ? 'pedit-swatch--ativa' : ''"
+                                  @click="selecionarOpcaoAvatarEdit('clotheColor', op.valor)">
+                          </button>
+                        </template>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Botão salvar final -->
+                  <button class="pedit-btn-salvar-final" @click="salvarEditarPerfil()">
+                    <i class="bi bi-check-circle-fill"></i>
+                    Salvar personagem
+                  </button>
+
+                </div>
+              </template>
+            </div>
+
+          </div><!-- /viewPerfil === 'editar' -->
+
         </div>
 
         <!-- Missões -->

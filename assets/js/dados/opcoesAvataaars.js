@@ -157,4 +157,29 @@ const OPCOES_AVATAAARS = {
   ]
 };
 
-export { OPCOES_AVATAAARS };
+/**
+ * Fundos disponíveis para o avatar do perfil.
+ * gradient: string CSS (linear-gradient / radial-gradient)
+ * svgPattern: string SVG inline usada como padrão repetido sobre o gradiente
+ * preview: hex aproximado para o swatch na UI
+ */
+const BACKGROUNDS_AVATAR = [
+  { valor: 'verde-natural',   label: 'Natureza',     gradient: 'linear-gradient(135deg,#1a6640 0%,#4aaf78 60%,#6ee7a0 100%)',                                    svgPattern: null,          preview: '#4aaf78' },
+  { valor: 'azul-safira',     label: 'Safira',       gradient: 'linear-gradient(135deg,#1e3a8a 0%,#3b82f6 60%,#93c5fd 100%)',                                    svgPattern: null,          preview: '#3b82f6' },
+  { valor: 'roxo-royal',      label: 'Royal',        gradient: 'linear-gradient(135deg,#4c1d95 0%,#7c3aed 60%,#c4b5fd 100%)',                                    svgPattern: null,          preview: '#7c3aed' },
+  { valor: 'rosa-petala',     label: 'Pétala',       gradient: 'linear-gradient(135deg,#9d174d 0%,#ec4899 60%,#fbcfe8 100%)',                                    svgPattern: null,          preview: '#ec4899' },
+  { valor: 'dourado',         label: 'Dourado',      gradient: 'linear-gradient(135deg,#78350f 0%,#d97706 60%,#fde68a 100%)',                                    svgPattern: null,          preview: '#d97706' },
+  { valor: 'coral',           label: 'Coral',        gradient: 'linear-gradient(135deg,#9a3412 0%,#f97316 60%,#fed7aa 100%)',                                    svgPattern: null,          preview: '#f97316' },
+  { valor: 'aurora',          label: 'Aurora',       gradient: 'linear-gradient(135deg,#064e3b 0%,#5b21b6 50%,#be185d 100%)',                                    svgPattern: null,          preview: '#5b21b6' },
+  { valor: 'oceano',          label: 'Oceano',       gradient: 'linear-gradient(135deg,#0c4a6e 0%,#0284c7 55%,#38bdf8 100%)',                                    svgPattern: null,          preview: '#0284c7' },
+  { valor: 'cinza',           label: 'Cinza',        gradient: 'linear-gradient(135deg,#374151 0%,#6b7280 55%,#9ca3af 100%)',                                    svgPattern: null,          preview: '#6b7280' },
+  { valor: 'claro',           label: 'Claro',        gradient: 'linear-gradient(135deg,#f8fafc 0%,#e2e8f0 100%)',                                                svgPattern: null,          preview: '#e2e8f0' },
+  { valor: 'noite',           label: 'Noite',        gradient: 'linear-gradient(135deg,#0f172a 0%,#1e293b 65%,#0f172a 100%)',                                    svgPattern: '<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"><circle cx="5" cy="5" r="1.2" fill="rgba(255,255,255,0.7)"/><circle cx="20" cy="12" r="1.5" fill="rgba(255,255,255,0.5)"/><circle cx="40" cy="5" r="0.8" fill="rgba(255,255,255,0.8)"/><circle cx="55" cy="20" r="1.2" fill="rgba(255,255,255,0.6)"/><circle cx="10" cy="35" r="1" fill="rgba(255,255,255,0.5)"/><circle cx="30" cy="45" r="1.5" fill="rgba(255,255,255,0.7)"/><circle cx="50" cy="50" r="0.8" fill="rgba(255,255,255,0.6)"/><circle cx="45" cy="30" r="1.2" fill="rgba(255,255,255,0.4)"/></svg>', preview: '#1e293b' },
+  { valor: 'bolhas',          label: 'Bolhas',       gradient: 'linear-gradient(135deg,#0c4a6e 0%,#0284c7 55%,#38bdf8 100%)',                                    svgPattern: '<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"><circle cx="12" cy="12" r="8" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="1.5"/><circle cx="45" cy="20" r="12" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/><circle cx="20" cy="48" r="6" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/><circle cx="52" cy="50" r="9" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/></svg>', preview: '#0ea5e9' },
+  { valor: 'pontos',          label: 'Pontos',       gradient: 'linear-gradient(135deg,#1a6640 0%,#4aaf78 60%,#6ee7a0 100%)',                                    svgPattern: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><circle cx="10" cy="10" r="2.2" fill="rgba(255,255,255,0.3)"/></svg>',  preview: '#22c55e' },
+  { valor: 'hexagonos',       label: 'Hexágonos',   gradient: 'linear-gradient(135deg,#4c1d95 0%,#7c3aed 60%,#c4b5fd 100%)',                                    svgPattern: '<svg xmlns="http://www.w3.org/2000/svg" width="30" height="26"><polygon points="15,1 29,8 29,22 15,29 1,22 1,8" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="1.2"/></svg>', preview: '#8b5cf6' },
+  { valor: 'linhas',          label: 'Linhas',       gradient: 'linear-gradient(135deg,#0f172a 0%,#1e3a8a 55%,#1e293b 100%)',                                    svgPattern: '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"><line x1="0" y1="12" x2="12" y2="0" stroke="rgba(255,255,255,0.18)" stroke-width="1.2"/></svg>', preview: '#2563eb' },
+  { valor: 'floral',          label: 'Floral',       gradient: 'linear-gradient(135deg,#9d174d 0%,#ec4899 60%,#fbcfe8 100%)',                                    svgPattern: '<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30"><circle cx="15" cy="15" r="3" fill="rgba(255,255,255,0.3)"/><circle cx="15" cy="6" r="2" fill="rgba(255,255,255,0.2)"/><circle cx="15" cy="24" r="2" fill="rgba(255,255,255,0.2)"/><circle cx="6" cy="15" r="2" fill="rgba(255,255,255,0.2)"/><circle cx="24" cy="15" r="2" fill="rgba(255,255,255,0.2)"/></svg>', preview: '#f472b6' },
+];
+
+export { OPCOES_AVATAAARS, BACKGROUNDS_AVATAR };

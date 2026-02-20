@@ -2,7 +2,7 @@
  * Avataaars - montagem de URL para avatar (CONVENCOES_E_APIS.md)
  */
 const CONFIG_AVATAR_PADRAO = {
-  avatarStyle: 'Circle',
+  avatarStyle: 'Transparent',
   topType: 'LongHairStraight',
   accessoriesType: 'Blank',
   hairColor: 'BrownDark',
@@ -13,7 +13,8 @@ const CONFIG_AVATAR_PADRAO = {
   eyeType: 'Default',
   eyebrowType: 'Default',
   mouthType: 'Default',
-  skinColor: 'Light'
+  skinColor: 'Light',
+  bgAvatar: 'verde-natural'
 };
 
 function montarUrlAvataaars(config) {

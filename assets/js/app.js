@@ -17,7 +17,7 @@ import { listarModelosMissoes, listarMissoesAtivas, listarTodasMissoes, obterMet
 import { obterCapitulo } from './api/apiBiblia.js';
 import { montarUrlAvataaars, CONFIG_AVATAR_PADRAO } from './api/apiAvataaars.js';
 import { LIVROS_BIBLIA, obterLivrosAntigoTestamento, obterLivrosNovoTestamento } from './dados/livrosBiblia.js';
-import { OPCOES_AVATAAARS } from './dados/opcoesAvataaars.js';
+import { OPCOES_AVATAAARS, BACKGROUNDS_AVATAR } from './dados/opcoesAvataaars.js';
 import {
   salvarProgresso,
   obterProgressoUsuario,
@@ -79,6 +79,13 @@ document.addEventListener('alpine:init', () => {
     estadoCivilCadastro: '',
     configAvatarCadastro: { ...CONFIG_AVATAR_PADRAO },
     opcoesAvataaars: OPCOES_AVATAAARS,
+    backgroundsAvatar: BACKGROUNDS_AVATAR,
+
+    // Editar perfil
+    viewPerfil: 'ver',          // 'ver' | 'editar'
+    abaEditarPerfil: 'dados',   // 'dados' | 'personagem'
+    perfilEditando: null,
+    configAvatarEditando: null,
 
     // Leitura Bíblia
     livroSelecionado: 'JHN',
@@ -630,7 +637,13 @@ document.addEventListener('alpine:init', () => {
         const dados = await res.json();
         this.modoDemo = true;
         this.usuario = { id: 'demo' };
-        this.perfil = dados.perfil || { nome: 'Demo', sobrenome: 'Usuário', config_avatar: { ...CONFIG_AVATAR_PADRAO } };
+        // Prioridade: localStorage (edições do usuário) > demo.json > fallback
+        const perfilSalvo = (() => { try { const s = localStorage.getItem('demo_perfil'); return s ? JSON.parse(s) : null; } catch { return null; } })();
+        this.perfil = perfilSalvo || dados.perfil || { nome: 'Demo', sobrenome: 'Usuário', config_avatar: {} };
+        // Garantir config_avatar e bgAvatar padrão
+        if (!this.perfil.config_avatar) this.perfil.config_avatar = {};
+        if (!this.perfil.config_avatar.bgAvatar) this.perfil.config_avatar.bgAvatar = 'cinza';
+        if (!this.perfil.config_avatar.avatarStyle) this.perfil.config_avatar.avatarStyle = 'Transparent';
         this.nivel = dados.nivel || { nivel: 1, xp_total: 50, dias_sequencia: 3 };
         this.moeda = dados.moeda || { ouro: 100 };
         this.coracoes = dados.coracoes || { atual: 5, maximo: 5, proxima_regeneracao: null, tempo_regeneracao_horas: 4 };
@@ -738,6 +751,117 @@ document.addEventListener('alpine:init', () => {
     urlAvatar(config) {
       return montarUrlAvataaars(config || this.perfil?.config_avatar || {});
     },
+
+    // ---- Editar Perfil (Demo) ----
+    abrirEditarPerfil() {
+      this.perfilEditando = {
+        nome: this.perfil?.nome || '',
+        sobrenome: this.perfil?.sobrenome || '',
+        dataNascimento: this.perfil?.data_nascimento || '',
+        estadoCivil: this.perfil?.estado_civil || '',
+      };
+      this.configAvatarEditando = { ...(this.perfil?.config_avatar || CONFIG_AVATAR_PADRAO) };
+      this.abaEditarPerfil = 'dados';
+      this.viewPerfil = 'editar';
+    },
+    cancelarEditarPerfil() {
+      this.viewPerfil = 'ver';
+      this.perfilEditando = null;
+      this.configAvatarEditando = null;
+    },
+    salvarEditarPerfil() {
+      if (!this.perfilEditando) return;
+      this.perfil = {
+        ...this.perfil,
+        nome: this.perfilEditando.nome,
+        sobrenome: this.perfilEditando.sobrenome,
+        data_nascimento: this.perfilEditando.dataNascimento || null,
+        estado_civil: this.perfilEditando.estadoCivil || null,
+        config_avatar: { ...this.configAvatarEditando },
+      };
+      if (this.modoDemo) {
+        try { localStorage.setItem('demo_perfil', JSON.stringify(this.perfil)); } catch(e) {}
+      }
+      this.viewPerfil = 'ver';
+      this.sucesso = 'Perfil atualizado com sucesso!';
+      setTimeout(() => (this.sucesso = ''), 3000);
+    },
+    urlAvatarEditando() {
+      return montarUrlAvataaars(this.configAvatarEditando || this.perfil?.config_avatar || {});
+    },
+    // Gera URL do avatar com UM campo sobreposto — mantido por compatibilidade
+    urlAvatarComOpcao(campo, valor) {
+      if (!this.configAvatarEditando) return '';
+      return montarUrlAvataaars({ ...this.configAvatarEditando, [campo]: valor });
+    },
+    // ── Backgrounds do avatar ──────────────────────────────────────────────
+    // Calcula CSS de background a partir do valor salvo no config
+    _cssBgDeValor(valor) {
+      if (!valor || valor === 'nenhum') return '';
+      const opt = BACKGROUNDS_AVATAR.find(b => b.valor === valor);
+      if (!opt || !opt.gradient) return '';
+      if (opt.svgPattern) {
+        const encoded = encodeURIComponent(opt.svgPattern);
+        return `url("data:image/svg+xml,${encoded}") repeat, ${opt.gradient}`;
+      }
+      return opt.gradient;
+    },
+    // Background atual no EDITOR
+    cssBackgroundAvatarAtual() {
+      return this._cssBgDeValor(this.configAvatarEditando?.bgAvatar);
+    },
+    // Background do perfil salvo (view mode)
+    cssBgAvatarPerfil() {
+      return this._cssBgDeValor(this.perfil?.config_avatar?.bgAvatar);
+    },
+    // ───────────────────────────────────────────────────────────────────────
+
+    // Gera URL de um avatar BASE neutro (careca, sem barba, sem óculos, expressão padrão)
+    // com APENAS o campo de opção sobreposto — para previews individuais de cada opção
+    urlAvatarBaseComOpcao(campo, valor) {
+      const BASE_NEUTRO = {
+        avatarStyle:      'Circle',
+        topType:          'NoHair',
+        accessoriesType:  'Blank',
+        hairColor:        'BrownDark',
+        facialHairType:   'Blank',
+        facialHairColor:  'BrownDark',
+        clotheType:       'ShirtCrewNeck',
+        clotheColor:      'Blue03',
+        eyeType:          'Default',
+        eyebrowType:      'Default',
+        mouthType:        'Default',
+        skinColor:        'Light',
+      };
+      return montarUrlAvataaars({ ...BASE_NEUTRO, [campo]: valor });
+    },
+    cicloOpcaoAvatarEdit(campo, direcao) {
+      const lista = this.opcoesAvataaars[campo];
+      if (!lista || lista.length === 0) return;
+      const atual = this.configAvatarEditando?.[campo];
+      let i = lista.findIndex((o) => o.valor === atual);
+      if (i < 0) i = 0;
+      i += direcao;
+      if (i < 0) i = lista.length - 1;
+      if (i >= lista.length) i = 0;
+      this.configAvatarEditando = { ...this.configAvatarEditando, [campo]: lista[i].valor };
+    },
+    selecionarOpcaoAvatarEdit(campo, valor) {
+      this.configAvatarEditando = { ...this.configAvatarEditando, [campo]: valor };
+    },
+    labelOpcaoAvatarEdit(campo) {
+      const lista = this.opcoesAvataaars[campo];
+      if (!lista) return '';
+      const item = lista.find((o) => o.valor === this.configAvatarEditando?.[campo]);
+      return item ? (item.label || item.valor) : '';
+    },
+    indiceInfoAvatarEdit(campo) {
+      const lista = this.opcoesAvataaars[campo];
+      if (!lista) return { atual: 0, total: 0 };
+      const i = lista.findIndex((o) => o.valor === this.configAvatarEditando?.[campo]);
+      return { atual: (i < 0 ? 0 : i) + 1, total: lista.length };
+    },
+
     indiceOpcaoAvatar(campo) {
       const lista = this.opcoesAvataaars[campo];
       if (!lista) return 0;
@@ -1826,6 +1950,74 @@ document.addEventListener('alpine:init', () => {
     livroAprovado(codigoLivro) {
       return (this.livrosAprovadosQuiz || []).includes(codigoLivro);
     },
+
+    // ---- Estatísticas de quizes para o Perfil ----
+
+    // Quizes concluídos com nota >= 70% (livros bíblicos + aulas + módulos)
+    quizesConcluidos() {
+      const livros = (this.livrosAprovadosQuiz || []).length;
+      let aulasAprovadas = 0;
+      Object.entries(this.progressoEstudo || {}).forEach(([key, p]) => {
+        if (key !== 'modulos' && p && typeof p === 'object' && p.quizAprovado) aulasAprovadas++;
+      });
+      const modulosAprovados = Object.keys(this.progressoEstudo?.modulos || {}).length;
+      return livros + aulasAprovadas + modulosAprovados;
+    },
+
+    // Total de quizes disponíveis no app
+    totalQuizesDisponiveis() {
+      let aulasComQuiz = 0;
+      (this.TRILHAS_ESTUDO || []).forEach((trilha) => {
+        (trilha.aulas || []).forEach((aula) => {
+          if ((aula.quiz?.length || 0) > 0) aulasComQuiz++;
+        });
+      });
+      const modulosComQuiz = (this.TRILHAS_ESTUDO || []).filter((t) => (t.quizModulo?.length || 0) > 0).length;
+      const totalLivros = LIVROS_BIBLIA.length; // todos os 66 livros têm quiz disponível
+      return aulasComQuiz + modulosComQuiz + totalLivros;
+    },
+
+    // ── Posição no ranking ─────────────────────────────────────────────────
+    posicaoRanking() {
+      if (!this.ranking || !this.ranking.length) return null;
+      const idx = this.ranking.findIndex(r => r.usuario_id === this.usuario?.id || r.id === this.usuario?.id);
+      return idx >= 0 ? idx + 1 : this.ranking.length + 1;
+    },
+
+    // ── Lista de conquistas ────────────────────────────────────────────────
+    conquistas() {
+      const lidos        = (this.progressoLeitura || []).filter(p => p.concluido).length;
+      const totalCap     = (this.livrosBiblia || []).reduce((s, l) => s + (l.capitulos || 0), 0) || 1189;
+      const pctBiblia    = Math.round(lidos / totalCap * 100);
+      const quizFeitos   = this.quizesConcluidos ? this.quizesConcluidos() : 0;
+      const missoesDone  = (this.todasMissoes || []).filter(m => m.status === 'concluida').length;
+      const nivelAtual   = this.nivel?.nivel || 1;
+      const sequencia    = this.nivel?.dias_sequencia || 0;
+      const xpTotal      = this.nivel?.xp_total || 0;
+      const perfilOk     = !!(this.perfil?.nome && this.perfil?.dataNascimento);
+      const avatarOk     = !!(this.perfil?.config_avatar?.bgAvatar && this.perfil.config_avatar.bgAvatar !== 'nenhum');
+
+      const lista = [
+        { icone:'bi-book-half',           titulo:'Primeiro Passo',          desc:'Leia o primeiro capítulo',               conquistado: lidos >= 1,    cor:'success' },
+        { icone:'bi-book',                titulo:'Leitor Dedicado',          desc:'Leia 50 capítulos',                      conquistado: lidos >= 50,   cor:'success' },
+        { icone:'bi-journals',            titulo:'Maratonista da Palavra',   desc:'Leia 500 capítulos',                     conquistado: lidos >= 500,  cor:'success' },
+        { icone:'bi-book-fill',           titulo:'Bíblia Completa',          desc:'Leia todos os capítulos',                conquistado: pctBiblia>=100,cor:'warning'  },
+        { icone:'bi-fire',                titulo:'Em Chamas',                desc:'7 dias seguidos de leitura',             conquistado: sequencia>=7,  cor:'danger'  },
+        { icone:'bi-lightning-charge-fill',titulo:'30 Dias de Fé',          desc:'30 dias consecutivos de leitura',        conquistado: sequencia>=30, cor:'danger'  },
+        { icone:'bi-patch-question-fill', titulo:'Estudioso',                desc:'Conclua 1 quiz com ≥70%',                conquistado: quizFeitos>=1, cor:'primary' },
+        { icone:'bi-mortarboard-fill',    titulo:'Quizmaster',               desc:'Conclua 10 quizes com ≥70%',             conquistado: quizFeitos>=10,cor:'primary' },
+        { icone:'bi-star-fill',           titulo:'Nível 5',                  desc:'Alcance o nível 5',                      conquistado: nivelAtual>=5, cor:'warning'  },
+        { icone:'bi-trophy-fill',         titulo:'Veterano',                 desc:'Alcance o nível 10',                     conquistado: nivelAtual>=10,cor:'warning'  },
+        { icone:'bi-lightning-fill',      titulo:'1.000 XP',                 desc:'Acumule 1.000 pontos de experiência',    conquistado: xpTotal>=1000, cor:'primary' },
+        { icone:'bi-flag-fill',           titulo:'Missionário',              desc:'Conclua 3 missões',                      conquistado: missoesDone>=3,cor:'info'    },
+        { icone:'bi-check-circle-fill',   titulo:'Perfil Completo',          desc:'Preencha nome e data de nascimento',     conquistado: perfilOk,      cor:'success' },
+        { icone:'bi-palette-fill',        titulo:'Personalidade',            desc:'Personalize seu personagem',             conquistado: avatarOk,      cor:'info'    },
+      ];
+
+      // Conquistadas primeiro, depois bloqueadas
+      return lista.sort((a, b) => (b.conquistado ? 1 : 0) - (a.conquistado ? 1 : 0));
+    },
+    // ───────────────────────────────────────────────────────────────────────
 
     selecionarLivroParaCapitulos(livro) {
       this.livroSelecionadoParaCapitulos = livro;
