@@ -748,77 +748,54 @@
           <h2 class="titulo-pagina mb-1">Missões</h2>
           <p class="subtitulo-pagina mb-3">Cumpra missões e ganhe XP e ouro</p>
 
-          <!-- Métricas e Legendas - Agrupamento Profissional -->
-          <div class="metricas-legendas-wrapper">
-            <!-- Métricas -->
-            <div class="metricas-grupo">
-              <div class="metrica-item-profissional">
-                <span class="metrica-numero" x-text="filtroMissaoStatus === null ? (modelosMissoesFiltrados.length + totalMissoes) : totalMissoes"></span>
-                <span class="metrica-nome">Total</span>
-              </div>
-              <div class="metrica-item-profissional">
-                <span class="metrica-numero" x-text="metricasMissoes?.ativas || 0"></span>
-                <span class="metrica-nome">Ativas</span>
-              </div>
-              <div class="metrica-item-profissional">
-                <span class="metrica-numero" x-text="metricasMissoes?.concluidas || 0"></span>
-                <span class="metrica-nome">Concluídas</span>
-              </div>
-              <div class="metrica-item-profissional">
-                <span class="metrica-numero" x-text="(metricasMissoes?.abandonadas || 0) + (metricasMissoes?.expiradas || 0)"></span>
-                <span class="metrica-nome">Não concluídas</span>
-              </div>
+          <!-- Resumo compacto: métricas inline + legenda colapsável -->
+          <div class="miss-resumo">
+            <!-- Métricas em linha única -->
+            <div class="miss-resumo-metricas">
+              <span class="miss-met">
+                <b x-text="filtroMissaoStatus === null ? (modelosMissoesFiltrados.length + totalMissoes) : totalMissoes"></b>
+                Total
+              </span>
+              <span class="miss-met-sep">·</span>
+              <span class="miss-met">
+                <b x-text="metricasMissoes?.ativas || 0"></b>
+                Ativas
+              </span>
+              <span class="miss-met-sep">·</span>
+              <span class="miss-met miss-met--ok">
+                <b x-text="metricasMissoes?.concluidas || 0"></b>
+                Concluídas
+              </span>
+              <span class="miss-met-sep">·</span>
+              <span class="miss-met miss-met--off">
+                <b x-text="(metricasMissoes?.abandonadas || 0) + (metricasMissoes?.expiradas || 0)"></b>
+                Não concluídas
+              </span>
             </div>
 
-            <!-- Legendas agrupadas -->
-            <div class="legendas-grupo">
-              <div class="legenda-grupo-item">
-                <span class="legenda-grupo-titulo">Status</span>
-                <div class="legenda-itens-linha">
-                  <div class="legenda-item-compacta" title="Missões disponíveis para iniciar">
-                    <span class="legenda-cor" style="background: #ffffff; border: 1px solid #e0e0e0;"></span>
-                    <span class="legenda-texto">Disponível</span>
-                  </div>
-                  <div class="legenda-item-compacta" title="Missões em andamento">
-                    <span class="legenda-cor" style="background: #e3f2fd; border: 1px solid #2196f3;"></span>
-                    <span class="legenda-texto">Em andamento</span>
-                  </div>
-                  <div class="legenda-item-compacta" title="Missões concluídas">
-                    <span class="legenda-cor" style="background: #e8f5e9; border: 1px solid #4caf50;"></span>
-                    <span class="legenda-texto">Concluída</span>
-                  </div>
-                  <div class="legenda-item-compacta" title="Missões expiradas ou abandonadas">
-                    <span class="legenda-cor" style="background: #fff3e0; border: 1px solid #ff9800;"></span>
-                    <span class="legenda-texto">Não concluída</span>
-                  </div>
+            <!-- Legenda colapsável -->
+            <details class="miss-legenda">
+              <summary class="miss-legenda-toggle">
+                <i class="bi bi-info-circle"></i> Ver legenda
+              </summary>
+              <div class="miss-legenda-corpo">
+                <div class="miss-legenda-linha">
+                  <span class="miss-leg-titulo">Status:</span>
+                  <span class="miss-leg-item" title="Disponível"><span class="miss-leg-cor" style="background:#fff;border:1px solid #e0e0e0"></span>Disponível</span>
+                  <span class="miss-leg-item" title="Em andamento"><span class="miss-leg-cor" style="background:#e3f2fd;border:1px solid #2196f3"></span>Andamento</span>
+                  <span class="miss-leg-item" title="Concluída"><span class="miss-leg-cor" style="background:#e8f5e9;border:1px solid #4caf50"></span>Concluída</span>
+                  <span class="miss-leg-item" title="Não concluída"><span class="miss-leg-cor" style="background:#fff3e0;border:1px solid #ff9800"></span>Não concluída</span>
+                </div>
+                <div class="miss-legenda-linha">
+                  <span class="miss-leg-titulo">Tipo:</span>
+                  <span class="miss-leg-item"><i class="bi bi-person-heart"></i>Humana</span>
+                  <span class="miss-leg-item"><i class="bi bi-heart"></i>Espiritual</span>
+                  <span class="miss-leg-item"><i class="bi bi-book"></i>Conhecimento</span>
+                  <span class="miss-leg-item"><i class="bi bi-check-circle"></i>Tarefa</span>
+                  <span class="miss-leg-item"><i class="bi bi-people"></i>Casal</span>
                 </div>
               </div>
-              <div class="legenda-grupo-item">
-                <span class="legenda-grupo-titulo">Categorias</span>
-                <div class="legenda-itens-linha">
-                  <div class="legenda-item-compacta" title="Missões que envolvem valores humanos e relacionamentos">
-                    <i class="bi bi-person-heart legenda-icone-tipo"></i>
-                    <span class="legenda-texto">Humana</span>
-                  </div>
-                  <div class="legenda-item-compacta" title="Missões relacionadas à vida espiritual e comunhão com Deus">
-                    <i class="bi bi-heart legenda-icone-tipo"></i>
-                    <span class="legenda-texto">Espiritual</span>
-                  </div>
-                  <div class="legenda-item-compacta" title="Missões de aprendizado e estudo bíblico">
-                    <i class="bi bi-book legenda-icone-tipo"></i>
-                    <span class="legenda-texto">Conhecimento</span>
-                  </div>
-                  <div class="legenda-item-compacta" title="Missões de ações práticas e serviço">
-                    <i class="bi bi-check-circle legenda-icone-tipo"></i>
-                    <span class="legenda-texto">Tarefa</span>
-                  </div>
-                  <div class="legenda-item-compacta" title="Missões para casais realizarem juntos">
-                    <i class="bi bi-people legenda-icone-tipo"></i>
-                    <span class="legenda-texto">Casal</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+            </details>
           </div>
 
           <!-- Filtros minimalistas -->
@@ -1767,10 +1744,14 @@
             </p>
 
             <!-- Cores de marcação -->
-            <div class="bctx-section-label">Marcar com cor</div>
+            <div class="bctx-section-label">Marcar texto</div>
             <div class="bctx-cores">
               <template x-for="cor in CORES_MARCADOR" :key="cor.valor">
-                <button class="bctx-cor-btn" :style="'background:'+cor.valor" @click.stop="aplicarMarcadorDoMenu(cor.valor)">
+                <button class="bctx-cor-btn" :style="'--c:'+cor.valor" @click.stop="aplicarMarcadorDoMenu(cor.valor)">
+                  <span class="bctx-cor-preview">
+                    <i class="bi bi-pen-fill bctx-cor-pen"></i>
+                    <span class="bctx-cor-letra">A</span>
+                  </span>
                   <span class="bctx-cor-nome" x-text="cor.nome"></span>
                 </button>
               </template>

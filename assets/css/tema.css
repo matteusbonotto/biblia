@@ -547,34 +547,74 @@ body {
   margin-bottom: 10px;
 }
 
-/* Swatches de cor */
+/* Swatches de cor — padrão "A sublinhado" (estilo Word / Google Docs) */
 .bctx-cores {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   margin-bottom: 18px;
 }
 .bctx-cor-btn {
   flex: 1;
-  height: 42px;
-  border: 2px solid rgba(0, 0, 0, 0.07);
-  border-radius: 10px;
+  min-width: 0;
+  height: 62px;
+  border: 1.5px solid var(--cor-borda);
+  border-radius: 12px;
+  background: var(--cor-fundo-card);
   cursor: pointer;
   display: flex;
-  align-items: flex-end;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  padding-bottom: 5px;
+  gap: 4px;
+  padding: 6px 4px 8px;
+  position: relative;
+  overflow: hidden;
   transition: transform 0.15s, box-shadow 0.15s;
 }
+/* Barra de cor na base — a "pincelada" do marca-texto */
+.bctx-cor-btn::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 5px;
+  background: var(--c);
+  border-radius: 0 0 10px 10px;
+}
 .bctx-cor-btn:hover, .bctx-cor-btn:active {
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+  transform: scale(1.06) translateY(-2px);
+  box-shadow: 0 5px 14px rgba(0,0,0,0.13);
+  border-color: var(--c);
+}
+/* Linha com ícone de caneta + "A" já marcado com a cor */
+.bctx-cor-preview {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  pointer-events: none;
+}
+/* Caneta na cor do marcador */
+.bctx-cor-pen {
+  font-size: 0.85rem;
+  color: var(--c);
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,0.15));
+}
+/* "A" com fundo na cor — simula o texto já marcado */
+.bctx-cor-letra {
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: rgba(0, 0, 0, 0.72);
+  line-height: 1.15;
+  background: var(--c);
+  padding: 0px 5px 1px;
+  border-radius: 3px;
+  pointer-events: none;
 }
 .bctx-cor-nome {
   font-size: 0.58rem;
-  font-weight: 700;
-  color: rgba(0, 0, 0, 0.5);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  font-weight: 600;
+  color: var(--cor-texto-secundario);
+  line-height: 1;
+  pointer-events: none;
 }
 
 /* Lista de ações */
