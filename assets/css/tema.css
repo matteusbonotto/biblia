@@ -610,7 +610,7 @@ body {
   font-size: 0.95rem;
   flex-shrink: 0;
 }
-.bctx-ico-nota   { background: rgba(234, 179, 8,  0.15); color: #b45309; }
+.bctx-ico-nota   { background: rgba(74, 175, 120, 0.15); color: #1a6640; }
 .bctx-ico-copiar { background: rgba(59,  130, 246, 0.15); color: #1d4ed8; }
 .bctx-ico-tudo   { background: rgba(37,  99,  59,  0.12); color: var(--cor-primaria); }
 
@@ -754,12 +754,12 @@ body {
 /* Quiz do capítulo — âmbar */
 .bnav-quiz-cap {
   flex: 1;
-  background: rgba(234, 179, 8, 0.1);
-  color: #92400e;
-  border: 1px solid rgba(234, 179, 8, 0.35);
+  background: rgba(74, 175, 120, 0.10);
+  color: #1a6640;
+  border: 1px solid rgba(74, 175, 120, 0.40);
 }
-.bnav-quiz-cap:hover { background: rgba(234, 179, 8, 0.18); }
-[data-bs-theme="dark"] .bnav-quiz-cap { color: #fcd34d; }
+.bnav-quiz-cap:hover { background: rgba(74, 175, 120, 0.18); }
+[data-bs-theme="dark"] .bnav-quiz-cap { color: #6ee7a0; }
 
 /* Quiz do livro — verde suave */
 .bnav-quiz-livro {
@@ -933,8 +933,8 @@ body {
 /* ── Card de quiz do módulo ──────────────────────────────────────────── */
 .estudo-quiz-modulo-card {
   margin-top: 16px;
-  border: 1px solid rgba(234, 179, 8, 0.4);
-  background: rgba(234, 179, 8, 0.06);
+  border: 1px solid rgba(74, 175, 120, 0.40);
+  background: rgba(74, 175, 120, 0.06);
   border-radius: 14px;
   padding: 16px;
   display: flex;
@@ -942,19 +942,19 @@ body {
   gap: 12px;
 }
 [data-bs-theme="dark"] .estudo-quiz-modulo-card {
-  background: rgba(234, 179, 8, 0.08);
-  border-color: rgba(234, 179, 8, 0.25);
+  background: rgba(74, 175, 120, 0.10);
+  border-color: rgba(74, 175, 120, 0.28);
 }
 .estudo-quiz-modulo-info { display: flex; flex-direction: column; gap: 3px; }
 .estudo-quiz-modulo-titulo {
   font-size: 0.92rem;
   font-weight: 700;
-  color: #92400e;
+  color: #1a6640;
   display: flex;
   align-items: center;
   gap: 6px;
 }
-[data-bs-theme="dark"] .estudo-quiz-modulo-titulo { color: #fcd34d; }
+[data-bs-theme="dark"] .estudo-quiz-modulo-titulo { color: #6ee7a0; }
 .estudo-quiz-modulo-desc {
   font-size: 0.73rem;
   color: var(--cor-texto-secundario);
@@ -990,6 +990,327 @@ body {
   font-size: 0.93rem;
   line-height: 1.8;
   color: var(--cor-texto);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   BÍBLIA — View Livros  (grid interativo)
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Cabeçalho da página de livros ──────────────────────────────────── */
+.bliv-header {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.bliv-titulo {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--cor-texto);
+  margin: 0;
+}
+
+/* ── Campo de busca ─────────────────────────────────────────────────── */
+.bliv-busca {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.bliv-busca-ico {
+  position: absolute;
+  left: 10px;
+  color: var(--cor-texto-secundario);
+  font-size: 0.82rem;
+  pointer-events: none;
+}
+.bliv-busca-input {
+  width: 100%;
+  padding: 10px 34px 10px 32px;
+  border: 1.5px solid var(--cor-borda);
+  border-radius: 12px;
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.bliv-busca-input:focus {
+  border-color: var(--cor-primaria);
+  box-shadow: 0 0 0 3px rgba(37, 99, 59, 0.1);
+}
+.bliv-busca-input::placeholder { color: var(--cor-texto-secundario); opacity: 0.7; }
+.bliv-busca-clear {
+  position: absolute;
+  right: 6px;
+  border: none;
+  background: none;
+  color: var(--cor-texto-secundario);
+  cursor: pointer;
+  padding: 4px 7px;
+  border-radius: 7px;
+  font-size: 0.72rem;
+  transition: background 0.12s;
+}
+.bliv-busca-clear:hover { background: var(--cor-borda); }
+
+/* ── Tabs AT / NT ───────────────────────────────────────────────────── */
+.bliv-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.bliv-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1.5px solid var(--cor-borda);
+  background: var(--cor-fundo);
+  color: var(--cor-texto-secundario);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 9px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.bliv-tab--on {
+  background: var(--cor-primaria);
+  color: #fff;
+  border-color: var(--cor-primaria);
+  box-shadow: 0 2px 10px rgba(37, 99, 59, 0.25);
+}
+.bliv-tab:not(.bliv-tab--on):hover {
+  background: var(--cor-borda);
+  color: var(--cor-texto);
+}
+.bliv-tab-pill {
+  font-size: 0.65rem;
+  padding: 1px 7px;
+  border-radius: 20px;
+  background: rgba(0, 0, 0, 0.1);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.bliv-tab--on .bliv-tab-pill { background: rgba(255, 255, 255, 0.25); }
+
+/* ── Grid de livros ─────────────────────────────────────────────────── */
+.bliv-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 7px;
+}
+@media (min-width: 400px) { .bliv-grid { grid-template-columns: repeat(5, 1fr); } }
+@media (min-width: 560px) { .bliv-grid { grid-template-columns: repeat(6, 1fr); } }
+
+/* Célula de livro */
+.bliv-cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-height: 72px;        /* altura maior para acomodar nome + porcentagem */
+  border: 1.5px solid var(--cor-borda);
+  border-radius: 12px;
+  background: var(--cor-fundo-card);
+  cursor: pointer;
+  overflow: hidden;
+  padding: 8px 5px 6px;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+}
+.bliv-cell:hover {
+  border-color: var(--cor-primaria);
+  box-shadow: 0 3px 12px rgba(37, 99, 59, 0.14);
+}
+.bliv-cell:active { transform: scale(0.93); }
+
+/* Estado: em progresso (âmbar) */
+.bliv-cell--parcial {
+  border-color: rgba(74, 175, 120, 0.65);
+  background: rgba(74, 175, 120, 0.08);
+}
+/* Estado: completo (verde) */
+.bliv-cell--ok {
+  border-color: rgba(37, 99, 59, 0.45);
+  background: rgba(37, 99, 59, 0.08);
+}
+[data-bs-theme="dark"] .bliv-cell--ok {
+  background: rgba(75, 173, 110, 0.1);
+  border-color: rgba(75, 173, 110, 0.3);
+}
+[data-bs-theme="dark"] .bliv-cell--parcial {
+  background: rgba(74, 175, 120, 0.12);
+  border-color: rgba(74, 175, 120, 0.5);
+}
+
+/* Nome completo do livro — fonte escalonada via inline style */
+.bliv-cell-nome {
+  font-weight: 700;
+  color: var(--cor-texto);
+  text-align: center;
+  line-height: 1.25;
+  /* Clamp a 2 linhas; abaixo de ~6px adiciona "..." */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  max-width: 100%;
+  word-break: break-word;
+  hyphens: auto;
+}
+.bliv-cell--ok .bliv-cell-nome      { color: var(--cor-primaria); }
+.bliv-cell--parcial .bliv-cell-nome { color: #1a6640; }
+[data-bs-theme="dark"] .bliv-cell--parcial .bliv-cell-nome { color: #6ee7a0; }
+
+/* Porcentagem */
+.bliv-cell-pct {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--cor-texto-secundario);
+  line-height: 1;
+}
+.bliv-cell--ok .bliv-cell-pct      { color: var(--cor-primaria); }
+.bliv-cell--parcial .bliv-cell-pct { color: #1a6640; }
+[data-bs-theme="dark"] .bliv-cell--parcial .bliv-cell-pct { color: #6ee7a0; }
+
+/* Ícone check (livro 100% lido) */
+.bliv-cell-check {
+  font-size: 0.7rem;
+  color: var(--cor-primaria);
+  line-height: 1;
+}
+
+/* Barra de progresso fixa no fundo (sempre visível, trilho + preenchimento) */
+.bliv-cell-prog {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--cor-borda); /* trilho sempre presente */
+}
+.bliv-cell-prog-fill {
+  height: 100%;
+  background: #4aaf78;          /* verde claro para progresso parcial */
+  transition: width 0.4s ease;
+}
+/* Barra verde escuro quando livro completo */
+.bliv-cell--ok .bliv-cell-prog-fill { background: var(--cor-primaria); }
+
+/* Estado vazio da busca */
+.bliv-vazio {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: var(--cor-texto-secundario);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.88rem;
+}
+.bliv-vazio i { font-size: 2.5rem; opacity: 0.3; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   BÍBLIA — View Capítulos  (círculos interativos)
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Grid de capítulos */
+.bcap-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+@media (min-width: 360px) { .bcap-grid { grid-template-columns: repeat(6, 1fr); } }
+@media (min-width: 440px) { .bcap-grid { grid-template-columns: repeat(7, 1fr); } }
+@media (min-width: 560px) { .bcap-grid { grid-template-columns: repeat(8, 1fr); } }
+
+/* Célula = círculo */
+.bcap-cell {
+  aspect-ratio: 1;
+  border: 1.5px solid var(--cor-borda);
+  border-radius: 50%;
+  background: var(--cor-fundo-card);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+  position: relative;   /* âncora para o overlay absoluto */
+  overflow: hidden;
+}
+.bcap-cell:hover {
+  border-color: var(--cor-primaria);
+  background: rgba(37, 99, 59, 0.07);
+}
+.bcap-cell:active { transform: scale(0.88); }
+
+/* Em progresso (verde claro) */
+.bcap-cell--parcial {
+  border-color: rgba(74, 175, 120, 0.7);
+  background: rgba(74, 175, 120, 0.12);
+}
+/* Completo — borda verde, fundo leve (o overlay cuida do visual do check) */
+.bcap-cell--ok {
+  border-color: var(--cor-primaria);
+  background: rgba(37, 99, 59, 0.06);
+  box-shadow: 0 1px 5px rgba(37, 99, 59, 0.2);
+}
+
+/* Número sempre visível (fica por baixo do overlay) */
+.bcap-cell-num {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--cor-texto);
+  line-height: 1;
+  position: relative;
+  z-index: 1;
+}
+.bcap-cell--parcial .bcap-cell-num { color: #1a6640; }
+[data-bs-theme="dark"] .bcap-cell--parcial .bcap-cell-num { color: #6ee7a0; }
+
+/* Overlay semi-transparente com check (capítulo concluído) */
+.bcap-cell-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(37, 99, 59, 0.55);  /* verde semi-transparente */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+[data-bs-theme="dark"] .bcap-cell-overlay {
+  background: rgba(75, 173, 110, 0.60);
+}
+.bcap-cell-overlay i {
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 900;
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,0.3));
+}
+
+/* Rodapé (quiz / aprovado) */
+.bcap-rodape {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.bcap-rodape-btn { width: 100%; justify-content: center; }
+.bcap-aprovado {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--cor-primaria);
+  padding: 11px 14px;
+  background: rgba(37, 99, 59, 0.08);
+  border: 1px solid rgba(37, 99, 59, 0.2);
+  border-radius: 11px;
 }
 
 /* Popup de nota */

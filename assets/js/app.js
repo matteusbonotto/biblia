@@ -90,6 +90,8 @@ document.addEventListener('alpine:init', () => {
     viewBiblia: 'livros',
     gridOuListaBiblia: 'grid',
     livroSelecionadoParaCapitulos: null,
+    abaTestamentoBiblia: 'AT',   // 'AT' | 'NT'
+    filtroBiblia: '',             // busca reativa de livro
     // Quiz do livro (estado da tela de quiz)
     quizLivroAtivo: null,
     quizTipo: null,
@@ -1769,6 +1771,28 @@ document.addEventListener('alpine:init', () => {
     livrosBiblia: LIVROS_BIBLIA,
     livrosAT: obterLivrosAntigoTestamento(),
     livrosNT: obterLivrosNovoTestamento(),
+
+    // Computed: lista filtrada pela busca e aba ativa
+    get livrosFiltrados() {
+      const q = (this.filtroBiblia || '').trim().toLowerCase();
+      if (q) {
+        return [...this.livrosAT, ...this.livrosNT].filter(
+          (l) => l.nome.toLowerCase().includes(q)
+        );
+      }
+      return this.abaTestamentoBiblia === 'AT' ? this.livrosAT : this.livrosNT;
+    },
+
+    // Retorna font-size inline baseado no comprimento do nome do livro.
+    // Garante legibilidade até ~6px — abaixo disso o CSS aplica ellipsis.
+    fontSizeLivro(nome) {
+      const len = (nome || '').length;
+      if (len <= 7)  return 'font-size:0.72rem';
+      if (len <= 10) return 'font-size:0.62rem';
+      if (len <= 13) return 'font-size:0.52rem';
+      if (len <= 17) return 'font-size:0.43rem';
+      return 'font-size:0.375rem'; // ≈6px, abaixo disso o text-overflow corta
+    },
 
     percentualLivro(codigoLivro) {
       const livro = LIVROS_BIBLIA.find((l) => l.codigo === codigoLivro);

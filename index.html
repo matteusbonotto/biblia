@@ -1404,78 +1404,178 @@
 
         <!-- Leitura Bíblia -->
         <div x-show="pagina === 'leitura-biblia'" style="display: none;">
-          <!-- Lista de livros (AT / NT em grid ou lista) -->
+          <!-- ── View: Livros da Bíblia ── -->
           <template x-if="viewBiblia === 'livros'">
             <div>
-              <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2 class="mb-0 fw-600">Leitura da Bíblia</h2>
-                <div class="btn-group btn-group-sm">
-                  <button type="button" class="btn" :class="gridOuListaBiblia === 'grid' ? 'btn-primario' : 'btn-outline-secondary'" @click="gridOuListaBiblia = 'grid'"><i class="bi bi-grid-3x3-gap"></i></button>
-                  <button type="button" class="btn" :class="gridOuListaBiblia === 'lista' ? 'btn-primario' : 'btn-outline-secondary'" @click="gridOuListaBiblia = 'lista'"><i class="bi bi-list-ul"></i></button>
+
+              <!-- Cabeçalho + busca -->
+              <div class="bliv-header">
+                <h2 class="bliv-titulo">Leitura da Bíblia</h2>
+                <div class="bliv-busca">
+                  <i class="bi bi-search bliv-busca-ico"></i>
+                  <input class="bliv-busca-input"
+                         type="search"
+                         placeholder="Buscar livro…"
+                         x-model.debounce.200ms="filtroBiblia"
+                         autocomplete="off"
+                         spellcheck="false">
+                  <button class="bliv-busca-clear"
+                          x-show="filtroBiblia"
+                          @click="filtroBiblia = ''"
+                          aria-label="Limpar busca">
+                    <i class="bi bi-x-lg"></i>
+                  </button>
                 </div>
               </div>
-              <p class="texto-secundario fs-menor mb-2">Antigo Testamento</p>
-              <div class="mb-4" :class="gridOuListaBiblia === 'grid' ? 'row g-2' : ''">
-                <template x-for="livro in livrosAT" :key="livro.codigo">
-                  <div :class="gridOuListaBiblia === 'grid' ? 'col-4' : 'mb-2'" @click="selecionarLivroParaCapitulos(livro)">
-                    <div class="card-tema p-2 text-center cursor-pointer h-100">
-                      <span class="fw-600 d-block text-truncate" x-text="livro.nome"></span>
-                      <div class="progress progresso-xp mt-1" style="height: 4px;">
-                        <div class="barra" :style="'width:' + percentualLivro(livro.codigo) + '%'"></div>
-                      </div>
-                      <span class="fs-menor texto-secundario" x-text="percentualLivro(livro.codigo) + '%'"></span>
-                    </div>
+
+              <!-- Tabs AT / NT (esconde durante a busca) -->
+              <div class="bliv-tabs" x-show="!filtroBiblia" x-transition>
+                <button class="bliv-tab"
+                        :class="{ 'bliv-tab--on': abaTestamentoBiblia === 'AT' }"
+                        @click="abaTestamentoBiblia = 'AT'">
+                  Antigo Testamento
+                  <span class="bliv-tab-pill" x-text="livrosAT.length"></span>
+                </button>
+                <button class="bliv-tab"
+                        :class="{ 'bliv-tab--on': abaTestamentoBiblia === 'NT' }"
+                        @click="abaTestamentoBiblia = 'NT'">
+                  Novo Testamento
+                  <span class="bliv-tab-pill" x-text="livrosNT.length"></span>
+                </button>
+              </div>
+
+              <!-- Progresso do testamento (esconde na busca) -->
+              <div class="biblia-prog-wrap mb-3" x-show="!filtroBiblia">
+                <div class="biblia-prog-track">
+                  <div class="biblia-prog-fill"
+                       :style="'width:' + Math.round(
+                         (abaTestamentoBiblia === 'AT' ? livrosAT : livrosNT)
+                           .filter(l => percentualLivro(l.codigo) >= 100).length
+                         / (abaTestamentoBiblia === 'AT' ? livrosAT.length : livrosNT.length)
+                         * 100) + '%'">
                   </div>
+                </div>
+                <span class="biblia-prog-pct"
+                      x-text="(abaTestamentoBiblia === 'AT' ? livrosAT : livrosNT)
+                                .filter(l => percentualLivro(l.codigo) >= 100).length
+                              + '/' + (abaTestamentoBiblia === 'AT' ? livrosAT.length : livrosNT.length)
+                              + ' livros'">
+                </span>
+              </div>
+
+              <!-- Grid de livros -->
+              <div class="bliv-grid">
+                <template x-for="livro in livrosFiltrados" :key="livro.codigo">
+                  <button class="bliv-cell"
+                          :class="{
+                            'bliv-cell--ok':      percentualLivro(livro.codigo) >= 100,
+                            'bliv-cell--parcial': percentualLivro(livro.codigo) > 0 && percentualLivro(livro.codigo) < 100
+                          }"
+                          @click="selecionarLivroParaCapitulos(livro)"
+                          :title="livro.nome + ' · ' + percentualLivro(livro.codigo) + '%'">
+
+                    <!-- Nome completo com fonte escalonada -->
+                    <span class="bliv-cell-nome"
+                          x-text="livro.nome"
+                          :style="fontSizeLivro(livro.nome)">
+                    </span>
+
+                    <!-- Porcentagem (0% em cinza, parcial em âmbar, 100% com check) -->
+                    <span x-show="percentualLivro(livro.codigo) < 100"
+                          class="bliv-cell-pct"
+                          x-text="percentualLivro(livro.codigo) + '%'">
+                    </span>
+                    <i x-show="percentualLivro(livro.codigo) >= 100"
+                       class="bi bi-check-circle-fill bliv-cell-check">
+                    </i>
+
+                    <!-- Barra de progresso fixa no fundo (sempre visível) -->
+                    <div class="bliv-cell-prog">
+                      <div class="bliv-cell-prog-fill"
+                           :style="'width:' + percentualLivro(livro.codigo) + '%'">
+                      </div>
+                    </div>
+                  </button>
                 </template>
               </div>
-              <p class="texto-secundario fs-menor mb-2">Novo Testamento</p>
-              <div :class="gridOuListaBiblia === 'grid' ? 'row g-2' : ''">
-                <template x-for="livro in livrosNT" :key="livro.codigo">
-                  <div :class="gridOuListaBiblia === 'grid' ? 'col-4' : 'mb-2'" @click="selecionarLivroParaCapitulos(livro)">
-                    <div class="card-tema p-2 text-center cursor-pointer h-100">
-                      <span class="fw-600 d-block text-truncate" x-text="livro.nome"></span>
-                      <div class="progress progresso-xp mt-1" style="height: 4px;">
-                        <div class="barra" :style="'width:' + percentualLivro(livro.codigo) + '%'"></div>
-                      </div>
-                      <span class="fs-menor texto-secundario" x-text="percentualLivro(livro.codigo) + '%'"></span>
-                    </div>
-                  </div>
-                </template>
+
+              <!-- Estado vazio da busca -->
+              <div x-show="filtroBiblia && livrosFiltrados.length === 0" class="bliv-vazio">
+                <i class="bi bi-book-half"></i>
+                <span>Nenhum livro encontrado para "<strong x-text="filtroBiblia"></strong>"</span>
               </div>
+
             </div>
           </template>
 
-          <!-- Capítulos do livro selecionado -->
+          <!-- ── View: Capítulos do livro ── -->
           <template x-if="viewBiblia === 'capitulos' && livroSelecionadoParaCapitulos">
             <div>
-              <button type="button" class="btn btn-link btn-sm p-0 mb-2 texto-primario" @click="voltarBibliaLivros()"><i class="bi bi-arrow-left"></i> Livros</button>
-              <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2 class="mb-0 fw-600" x-text="livroSelecionadoParaCapitulos.nome"></h2>
-                <div class="btn-group btn-group-sm">
-                  <button type="button" class="btn" :class="gridOuListaBiblia === 'grid' ? 'btn-primario' : 'btn-outline-secondary'" @click="gridOuListaBiblia = 'grid'"><i class="bi bi-grid-3x3-gap"></i></button>
-                  <button type="button" class="btn" :class="gridOuListaBiblia === 'lista' ? 'btn-primario' : 'btn-outline-secondary'" @click="gridOuListaBiblia = 'lista'"><i class="bi bi-list-ul"></i></button>
+
+              <!-- Cabeçalho: voltar + nome + info -->
+              <div class="biblia-leitura-topo mb-3">
+                <button class="btopo-voltar" @click="voltarBibliaLivros()" title="Voltar para livros">
+                  <i class="bi bi-arrow-left"></i>
+                </button>
+                <div class="btopo-info">
+                  <span class="btopo-livro" x-text="livroSelecionadoParaCapitulos.nome"></span>
+                  <span class="btopo-cap"
+                        x-text="livroSelecionadoParaCapitulos.totalCapitulos + ' capítulos · '
+                                 + percentualLivro(livroSelecionadoParaCapitulos.codigo) + '% lido'">
+                  </span>
                 </div>
               </div>
-              <div class="mb-2 texto-secundario fs-menor" x-text="'Leitura: ' + percentualLivro(livroSelecionadoParaCapitulos.codigo) + '%'"></div>
-              <div :class="gridOuListaBiblia === 'grid' ? 'row g-2' : ''">
-                <template x-for="cap in Array.from({length: livroSelecionadoParaCapitulos.totalCapitulos}, (_, i) => i + 1)" :key="cap">
-                  <div :class="gridOuListaBiblia === 'grid' ? 'col-4' : 'mb-2'" @click="selecionarCapituloParaLeitura(livroSelecionadoParaCapitulos, cap)">
-                    <div class="card-tema p-2 text-center cursor-pointer h-100">
-                      <span class="fw-600" x-text="'Cap. ' + cap"></span>
-                      <div class="progress progresso-xp mt-1" style="height: 4px;">
-                        <div class="barra" :style="'width:' + percentualCapitulo(livroSelecionadoParaCapitulos.codigo, cap) + '%'"></div>
-                      </div>
-                      <span class="fs-menor texto-secundario" x-text="percentualCapitulo(livroSelecionadoParaCapitulos.codigo, cap) + '%'"></span>
-                    </div>
+
+              <!-- Barra de progresso do livro -->
+              <div class="biblia-prog-wrap mb-4">
+                <div class="biblia-prog-track">
+                  <div class="biblia-prog-fill"
+                       :style="'width:' + percentualLivro(livroSelecionadoParaCapitulos.codigo) + '%'">
                   </div>
+                </div>
+                <span class="biblia-prog-pct"
+                      x-text="percentualLivro(livroSelecionadoParaCapitulos.codigo) + '%'">
+                </span>
+              </div>
+
+              <!-- Grid de capítulos (círculos coloridos) -->
+              <div class="bcap-grid">
+                <template x-for="cap in Array.from({length: livroSelecionadoParaCapitulos.totalCapitulos}, (_, i) => i + 1)" :key="cap">
+                  <button class="bcap-cell"
+                          :class="{
+                            'bcap-cell--ok':      percentualCapitulo(livroSelecionadoParaCapitulos.codigo, cap) >= 100,
+                            'bcap-cell--parcial': percentualCapitulo(livroSelecionadoParaCapitulos.codigo, cap) > 0
+                                                  && percentualCapitulo(livroSelecionadoParaCapitulos.codigo, cap) < 100
+                          }"
+                          @click="selecionarCapituloParaLeitura(livroSelecionadoParaCapitulos, cap)"
+                          :title="'Capítulo ' + cap + ' · ' + percentualCapitulo(livroSelecionadoParaCapitulos.codigo, cap) + '%'">
+                    <!-- Número sempre visível (fica sob o overlay) -->
+                    <span class="bcap-cell-num" x-text="cap"></span>
+                    <!-- Overlay semi-transparente com check (quando 100%) -->
+                    <div x-show="percentualCapitulo(livroSelecionadoParaCapitulos.codigo, cap) >= 100"
+                         class="bcap-cell-overlay">
+                      <i class="bi bi-check2"></i>
+                    </div>
+                  </button>
                 </template>
               </div>
-              <div class="mt-3" x-show="quizDesbloqueado(livroSelecionadoParaCapitulos.codigo)">
-                <button type="button" class="btn btn-primario w-100" @click="iniciarQuizLivro(livroSelecionadoParaCapitulos)"><i class="bi bi-patch-question me-1"></i> Fazer quiz do livro</button>
+
+              <!-- Rodapé: quiz / aprovado -->
+              <div class="bcap-rodape">
+                <template x-if="quizDesbloqueado(livroSelecionadoParaCapitulos.codigo)">
+                  <button class="bnav-btn bnav-quiz-cap bcap-rodape-btn"
+                          @click="iniciarQuizLivro(livroSelecionadoParaCapitulos)">
+                    <i class="bi bi-patch-question-fill"></i>
+                    Fazer quiz do livro
+                  </button>
+                </template>
+                <div x-show="livroAprovado(livroSelecionadoParaCapitulos.codigo)"
+                     class="bcap-aprovado">
+                  <i class="bi bi-check-circle-fill"></i>
+                  <span>Quiz aprovado!</span>
+                </div>
               </div>
-              <div class="mt-2" x-show="livroAprovado(livroSelecionadoParaCapitulos.codigo)">
-                <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i> Quiz aprovado</span>
-              </div>
+
             </div>
           </template>
 
