@@ -25,6 +25,12 @@
   "moeda": {
     "ouro": 85
   },
+  "coracoes": {
+    "atual": 5,
+    "maximo": 5,
+    "proxima_regeneracao": null,
+    "tempo_regeneracao_horas": 4
+  },
   "efeitosAtivos": [
     {
       "id": "efeito-demo-1",
@@ -148,6 +154,11 @@
       "concluida_em": "2027-01-13T18:00:00.000Z",
       "prazo_em": "2027-01-20T23:59:00.000Z",
       "modelo_id": "mod-4",
+      "checklist": [
+        { "id": "check-1", "texto": "Ajudar alguém com uma necessidade prática", "concluida": true, "concluida_em": "2027-01-13T10:00:00.000Z" },
+        { "id": "check-2", "texto": "Fazer um elogio sincero a alguém", "concluida": true, "concluida_em": "2027-01-13T14:00:00.000Z" },
+        { "id": "check-3", "texto": "Doar algo para alguém necessitado", "concluida": true, "concluida_em": "2027-01-13T18:00:00.000Z" }
+      ],
       "modelos_missao": {
         "id": "mod-4",
         "titulo": "Fazer 3 boas ações",
@@ -156,12 +167,93 @@
         "descricao_completa": "Realize três atos de bondade durante o dia. Pode ser ajudar alguém, fazer um elogio sincero, doar algo, ou qualquer outra ação que demonstre amor ao próximo. 'Assim brilhe a vossa luz diante dos homens, para que vejam as vossas boas obras' (Mateus 5:16).",
         "tipo": "tarefa",
         "icone": "bi-check-circle",
+        "checklist_template": [
+          "Ajudar alguém com uma necessidade prática",
+          "Fazer um elogio sincero a alguém",
+          "Doar algo para alguém necessitado"
+        ],
         "recompensa_xp": 15,
         "recompensa_ouro": 5,
         "recompensas": {
           "xp": 15,
           "ouro": 5,
           "itens": []
+        },
+        "consequencias": {
+          "xp_perdido": 0,
+          "ouro_perdido": 0,
+          "mensagem": "Não completar esta missão pode resultar em pontos negativos."
+        }
+      }
+    },
+    {
+      "id": "missao-demo-15",
+      "status": "ativa",
+      "iniciada_em": "2027-01-15T08:00:00.000Z",
+      "prazo_em": "2027-01-22T23:59:00.000Z",
+      "modelo_id": "mod-15",
+      "checklist": [
+        { "id": "check-1", "texto": "Ajudar alguém com uma necessidade prática", "concluida": false },
+        { "id": "check-2", "texto": "Fazer um elogio sincero a alguém", "concluida": true, "concluida_em": "2027-01-15T14:00:00.000Z", "concluida_por": "demo" },
+        { "id": "check-3", "texto": "Doar algo para alguém necessitado", "concluida": false }
+      ],
+      "modelos_missao": {
+        "id": "mod-15",
+        "titulo": "Fazer 3 boas ações",
+        "subtitulo": "Missão de Tarefa",
+        "descricao": "Realize três atos de bondade hoje. Demonstre amor ao próximo através de ações práticas.",
+        "descricao_completa": "Realize três atos de bondade durante o dia. Pode ser ajudar alguém, fazer um elogio sincero, doar algo, ou qualquer outra ação que demonstre amor ao próximo. 'Assim brilhe a vossa luz diante dos homens, para que vejam as vossas boas obras' (Mateus 5:16).",
+        "tipo": "tarefa",
+        "icone": "bi-check-circle",
+        "checklist_template": [
+          "Ajudar alguém com uma necessidade prática",
+          "Fazer um elogio sincero a alguém",
+          "Doar algo para alguém necessitado"
+        ],
+        "recompensa_xp": 15,
+        "recompensa_ouro": 5,
+        "recompensas": {
+          "xp": 15,
+          "ouro": 5,
+          "itens": []
+        },
+        "consequencias": {
+          "xp_perdido": 0,
+          "ouro_perdido": 0,
+          "mensagem": "Não completar esta missão pode resultar em pontos negativos."
+        }
+      }
+    },
+    {
+      "id": "missao-demo-16",
+      "status": "ativa",
+      "iniciada_em": "2027-01-15T09:00:00.000Z",
+      "prazo_em": "2027-01-22T23:59:00.000Z",
+      "modelo_id": "mod-16",
+      "tipo_colaborativa": true,
+      "participantes": [
+        { "usuario_id": "demo", "nome": "Demo Usuário", "avatar": null, "entrou_em": "2027-01-15T09:00:00.000Z", "progresso": 33 },
+        { "usuario_id": "u2", "nome": "Maria Silva", "avatar": null, "entrou_em": "2027-01-15T10:00:00.000Z", "progresso": 66 },
+        { "usuario_id": "u3", "nome": "João Santos", "avatar": null, "entrou_em": "2027-01-15T11:00:00.000Z", "progresso": 0 }
+      ],
+      "progresso_total": 66,
+      "meta_total": 100,
+      "modelos_missao": {
+        "id": "mod-16",
+        "titulo": "Evangelizar 10 pessoas juntos",
+        "subtitulo": "Missão Colaborativa Espiritual",
+        "descricao": "Trabalhem juntos para compartilhar o evangelho com 10 pessoas. A união faz a força!",
+        "descricao_completa": "Esta é uma missão colaborativa! Trabalhem em equipe para compartilhar o evangelho com 10 pessoas. Cada participante contribui para o progresso total. Quando a meta for alcançada, todos receberão as recompensas. 'Eis que bom e quão suave é que os irmãos vivam em união!' (Salmos 133:1).",
+        "tipo": "espiritual",
+        "icone": "bi-people-fill",
+        "tipo_colaborativa": true,
+        "meta_total": 100,
+        "recompensa_xp": 150,
+        "recompensa_ouro": 75,
+        "recompensas": {
+          "xp": 150,
+          "ouro": 75,
+          "itens": ["Cálice Sagrado", "Bíblia Sagrada"]
         },
         "consequencias": {
           "xp_perdido": 0,
@@ -450,6 +542,82 @@
           "xp_perdido": 0,
           "ouro_perdido": 0,
           "mensagem": "Esta missão expirou. Você não recebeu as recompensas. Tente novamente."
+        }
+      }
+    },
+    {
+      "id": "missao-demo-15",
+      "status": "ativa",
+      "iniciada_em": "2027-01-15T08:00:00.000Z",
+      "prazo_em": "2027-01-22T23:59:00.000Z",
+      "modelo_id": "mod-15",
+      "checklist": [
+        { "id": "check-1", "texto": "Ajudar alguém com uma necessidade prática", "concluida": false },
+        { "id": "check-2", "texto": "Fazer um elogio sincero a alguém", "concluida": true, "concluida_em": "2027-01-15T14:00:00.000Z", "concluida_por": "demo" },
+        { "id": "check-3", "texto": "Doar algo para alguém necessitado", "concluida": false }
+      ],
+      "modelos_missao": {
+        "id": "mod-15",
+        "titulo": "Fazer 3 boas ações",
+        "subtitulo": "Missão de Tarefa",
+        "descricao": "Realize três atos de bondade hoje. Demonstre amor ao próximo através de ações práticas.",
+        "descricao_completa": "Realize três atos de bondade durante o dia. Pode ser ajudar alguém, fazer um elogio sincero, doar algo, ou qualquer outra ação que demonstre amor ao próximo. 'Assim brilhe a vossa luz diante dos homens, para que vejam as vossas boas obras' (Mateus 5:16).",
+        "tipo": "tarefa",
+        "icone": "bi-check-circle",
+        "checklist_template": [
+          "Ajudar alguém com uma necessidade prática",
+          "Fazer um elogio sincero a alguém",
+          "Doar algo para alguém necessitado"
+        ],
+        "recompensa_xp": 15,
+        "recompensa_ouro": 5,
+        "recompensas": {
+          "xp": 15,
+          "ouro": 5,
+          "itens": []
+        },
+        "consequencias": {
+          "xp_perdido": 0,
+          "ouro_perdido": 0,
+          "mensagem": "Não completar esta missão pode resultar em pontos negativos."
+        }
+      }
+    },
+    {
+      "id": "missao-demo-16",
+      "status": "ativa",
+      "iniciada_em": "2027-01-15T09:00:00.000Z",
+      "prazo_em": "2027-01-22T23:59:00.000Z",
+      "modelo_id": "mod-16",
+      "tipo_colaborativa": true,
+      "participantes": [
+        { "usuario_id": "demo", "nome": "Demo Usuário", "avatar": null, "entrou_em": "2027-01-15T09:00:00.000Z", "progresso": 33 },
+        { "usuario_id": "u2", "nome": "Maria Silva", "avatar": null, "entrou_em": "2027-01-15T10:00:00.000Z", "progresso": 66 },
+        { "usuario_id": "u3", "nome": "João Santos", "avatar": null, "entrou_em": "2027-01-15T11:00:00.000Z", "progresso": 0 }
+      ],
+      "progresso_total": 66,
+      "meta_total": 100,
+      "modelos_missao": {
+        "id": "mod-16",
+        "titulo": "Evangelizar 10 pessoas juntos",
+        "subtitulo": "Missão Colaborativa Espiritual",
+        "descricao": "Trabalhem juntos para compartilhar o evangelho com 10 pessoas. A união faz a força!",
+        "descricao_completa": "Esta é uma missão colaborativa! Trabalhem em equipe para compartilhar o evangelho com 10 pessoas. Cada participante contribui para o progresso total. Quando a meta for alcançada, todos receberão as recompensas. 'Eis que bom e quão suave é que os irmãos vivam em união!' (Salmos 133:1).",
+        "tipo": "espiritual",
+        "icone": "bi-people-fill",
+        "tipo_colaborativa": true,
+        "meta_total": 100,
+        "recompensa_xp": 150,
+        "recompensa_ouro": 75,
+        "recompensas": {
+          "xp": 150,
+          "ouro": 75,
+          "itens": ["Cálice Sagrado", "Bíblia Sagrada"]
+        },
+        "consequencias": {
+          "xp_perdido": 0,
+          "ouro_perdido": 0,
+          "mensagem": "Não completar esta missão pode resultar em pontos negativos."
         }
       }
     }
@@ -776,29 +944,178 @@
         "mensagem": "Não completar esta missão pode resultar em pontos negativos."
       },
       "ativo": true
+    },
+    {
+      "id": "mod-15",
+      "titulo": "Fazer 3 boas ações",
+      "subtitulo": "Missão de Tarefa",
+      "descricao": "Realize três atos de bondade hoje. Demonstre amor ao próximo através de ações práticas.",
+      "descricao_completa": "Realize três atos de bondade durante o dia. Pode ser ajudar alguém, fazer um elogio sincero, doar algo, ou qualquer outra ação que demonstre amor ao próximo. 'Assim brilhe a vossa luz diante dos homens, para que vejam as vossas boas obras' (Mateus 5:16).",
+      "tipo": "tarefa",
+      "icone": "bi-check-circle",
+      "prazo_padrao_horas": 168,
+      "checklist_template": [
+        "Ajudar alguém com uma necessidade prática",
+        "Fazer um elogio sincero a alguém",
+        "Doar algo para alguém necessitado"
+      ],
+      "recompensa_xp": 15,
+      "recompensa_ouro": 5,
+      "recompensas": {
+        "xp": 15,
+        "ouro": 5,
+        "itens": []
+      },
+      "consequencias": {
+        "xp_perdido": 0,
+        "ouro_perdido": 0,
+        "mensagem": "Não completar esta missão pode resultar em pontos negativos."
+      },
+      "ativo": true
+    },
+    {
+      "id": "mod-16",
+      "titulo": "Evangelizar 10 pessoas juntos",
+      "subtitulo": "Missão Colaborativa Espiritual",
+      "descricao": "Trabalhem juntos para compartilhar o evangelho com 10 pessoas. A união faz a força!",
+      "descricao_completa": "Esta é uma missão colaborativa! Trabalhem em equipe para compartilhar o evangelho com 10 pessoas. Cada participante contribui para o progresso total. Quando a meta for alcançada, todos receberão as recompensas. 'Eis que bom e quão suave é que os irmãos vivam em união!' (Salmos 133:1).",
+      "tipo": "espiritual",
+      "icone": "bi-people-fill",
+      "prazo_padrao_horas": 168,
+      "tipo_colaborativa": true,
+      "meta_total": 100,
+      "recompensa_xp": 150,
+      "recompensa_ouro": 75,
+      "recompensas": {
+        "xp": 150,
+        "ouro": 75,
+        "itens": ["Cálice Sagrado", "Bíblia Sagrada"]
+      },
+      "consequencias": {
+        "xp_perdido": 0,
+        "ouro_perdido": 0,
+        "mensagem": "Não completar esta missão pode resultar em pontos negativos."
+      },
+      "ativo": true
     }
   ],
   "itensLoja": [
     {
       "id": "item-pao",
       "nome": "Pão da Vida",
-      "descricao": "Recupera resistência.",
+      "descricao": "Recupera resistência espiritual e restaura forças para continuar a jornada.",
       "preco_ouro": 10,
-      "tipo": "consumivel"
+      "tipo": "consumivel",
+      "raridade": "comum",
+      "nivel_requerido": 1,
+      "duracao_minutos": 60,
+      "icone": "bi-bread-slice",
+      "imagem": "https://via.placeholder.com/128x128/4a90e2/ffffff?text=Pão",
+      "categoria": "Consumível"
     },
     {
       "id": "item-calice",
       "nome": "Cálice Sagrado",
-      "descricao": "Bênção por 30 minutos.",
+      "descricao": "Bênção especial que aumenta XP ganho por 30 minutos.",
       "preco_ouro": 5,
-      "tipo": "consumivel"
+      "tipo": "consumivel",
+      "raridade": "comum",
+      "nivel_requerido": 1,
+      "duracao_minutos": 30,
+      "icone": "bi-cup-straw",
+      "imagem": "https://via.placeholder.com/128x128/9b59b6/ffffff?text=Cálice",
+      "categoria": "Consumível"
+    },
+    {
+      "id": "item-coracao",
+      "nome": "Coração",
+      "descricao": "Recupera 1 vida para fazer quizzes.",
+      "preco_ouro": 15,
+      "tipo": "consumivel",
+      "adiciona_coracoes": 1,
+      "raridade": "raro",
+      "nivel_requerido": 1,
+      "icone": "bi-heart-fill",
+      "imagem": "https://via.placeholder.com/128x128/e74c3c/ffffff?text=❤",
+      "categoria": "Consumível"
+    },
+    {
+      "id": "item-coracoes-pack",
+      "nome": "Pack de 5 Corações",
+      "descricao": "Recupera 5 vidas para fazer quizzes. Economia garantida!",
+      "preco_ouro": 60,
+      "tipo": "consumivel",
+      "adiciona_coracoes": 5,
+      "raridade": "epico",
+      "nivel_requerido": 3,
+      "icone": "bi-heart-pulse-fill",
+      "imagem": "https://via.placeholder.com/128x128/c0392b/ffffff?text=❤❤❤",
+      "categoria": "Consumível"
     },
     {
       "id": "item-cinto",
       "nome": "Cinto da Verdade",
-      "descricao": "Peça da armadura de Deus (Efésios 6).",
+      "descricao": "Peça da armadura de Deus. Aumenta resistência a tentações (Efésios 6.14).",
       "preco_ouro": 20,
-      "tipo": "armadura"
+      "tipo": "armadura",
+      "raridade": "raro",
+      "nivel_requerido": 2,
+      "icone": "bi-belt-fill",
+      "imagem": "https://via.placeholder.com/128x128/27ae60/ffffff?text=Cinto",
+      "categoria": "Armadura",
+      "slot": "cintura"
+    },
+    {
+      "id": "item-peitoral",
+      "nome": "Peitoral da Justiça",
+      "descricao": "Protege o coração contra ataques espirituais (Efésios 6.14).",
+      "preco_ouro": 50,
+      "tipo": "armadura",
+      "raridade": "epico",
+      "nivel_requerido": 5,
+      "icone": "bi-shield-fill",
+      "imagem": "https://via.placeholder.com/128x128/16a085/ffffff?text=Peitoral",
+      "categoria": "Armadura",
+      "slot": "peito"
+    },
+    {
+      "id": "item-espada",
+      "nome": "Espada do Espírito",
+      "descricao": "A Palavra de Deus como arma ofensiva (Efésios 6.17).",
+      "preco_ouro": 100,
+      "tipo": "permanente",
+      "raridade": "lendario",
+      "nivel_requerido": 10,
+      "icone": "bi-sword",
+      "imagem": "https://via.placeholder.com/128x128/f39c12/ffffff?text=⚔",
+      "categoria": "Arma",
+      "slot": "mao"
+    },
+    {
+      "id": "item-escudo",
+      "nome": "Escudo da Fé",
+      "descricao": "Abrevia todos os dardos inflamados do maligno (Efésios 6.16).",
+      "preco_ouro": 75,
+      "tipo": "armadura",
+      "raridade": "epico",
+      "nivel_requerido": 7,
+      "icone": "bi-shield-check",
+      "imagem": "https://via.placeholder.com/128x128/3498db/ffffff?text=🛡",
+      "categoria": "Armadura",
+      "slot": "mao"
+    },
+    {
+      "id": "item-elmo",
+      "nome": "Elmo da Salvação",
+      "descricao": "Protege a mente com a certeza da salvação (Efésios 6.17).",
+      "preco_ouro": 60,
+      "tipo": "armadura",
+      "raridade": "raro",
+      "nivel_requerido": 4,
+      "icone": "bi-shield-fill-check",
+      "imagem": "https://via.placeholder.com/128x128/8e44ad/ffffff?text=Elmo",
+      "categoria": "Armadura",
+      "slot": "cabeca"
     }
   ],
   "ranking": [

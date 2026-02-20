@@ -41,8 +41,10 @@ document.addEventListener('alpine:init', () => {
     perfil: null,
     nivel: null,
     moeda: null,
+    coracoes: { atual: 5, maximo: 5, proxima_regeneracao: null, tempo_regeneracao_horas: 4 },
     efeitosAtivos: [],
     inventario: [],
+    viewInventario: 'equipamentos',
     missoesAtivas: [],
     modelosMissoes: [],
     todasMissoes: [],
@@ -95,6 +97,11 @@ document.addEventListener('alpine:init', () => {
     quizRespostas: {},
     quizEnviado: false,
     quizNota: null,
+    quizPerguntaAtual: 0, // Índice da pergunta atual
+    quizRespostaSelecionada: null, // Resposta selecionada na pergunta atual
+    quizFeedback: null, // 'correto' | 'errado' | null
+    quizAcertos: 0,
+    quizErros: 0,
     progressoLeituraScroll: 0,
     _timeoutSalvarScroll: null,
     notacoesCapitulo: [],
@@ -117,6 +124,10 @@ document.addEventListener('alpine:init', () => {
     ranking: [],
     // Loja
     itensLoja: [],
+    filtroLoja: null,
+    viewLoja: 'grid',
+    modalItemDetalhes: false,
+    itemSelecionado: null,
 
     // Estudo do evangelho
     TRILHAS_ESTUDO,
@@ -134,6 +145,11 @@ document.addEventListener('alpine:init', () => {
     quizEstudoRespostas: {},
     quizEstudoEnviado: false,
     quizEstudoNota: null,
+    quizEstudoPerguntaAtual: 0, // Índice da pergunta atual
+    quizEstudoRespostaSelecionada: null, // Resposta selecionada na pergunta atual
+    quizEstudoFeedback: null, // 'correto' | 'errado' | null
+    quizEstudoAcertos: 0,
+    quizEstudoErros: 0,
 
     temaSalvo: 'claro',
     tempoAtual: Date.now(),
@@ -143,6 +159,24 @@ document.addEventListener('alpine:init', () => {
       this.aplicarTema(this.temaSalvo);
       this.atualizarPagina();
       window.addEventListener('hashchange', () => this.atualizarPagina());
+      
+      // Verificar regeneração de corações a cada minuto
+      setInterval(() => {
+        this.verificarRegeneracaoCoracoes();
+      }, 60000); // 1 minuto
+      
+      // Carregar corações do localStorage no modo demo
+      if (this.modoDemo) {
+        const coracoesSalvos = localStorage.getItem('demo_coracoes');
+        if (coracoesSalvos) {
+          try {
+            this.coracoes = JSON.parse(coracoesSalvos);
+            this.verificarRegeneracaoCoracoes();
+          } catch (e) {
+            console.error('Erro ao carregar corações:', e);
+          }
+        }
+      }
       
       // Timer será inicializado via x-init em cada elemento
       
@@ -197,6 +231,13 @@ document.addEventListener('alpine:init', () => {
       }
       if (this.usuario && (r === 'home' || r === 'inventario' || r === 'missoes')) {
         this.carregarDadosUsuario();
+      }
+      if (r === 'inventario') {
+        if (this.viewInventario === 'fruto') {
+          setTimeout(() => this.renderizarFrutosSVG(), 100);
+        } else if (this.viewInventario === 'obras') {
+          setTimeout(() => this.renderizarObrasSVG(), 100);
+        }
       }
       if (r === 'missoes' && this.usuario) {
         if (this.modoDemo) {
@@ -273,17 +314,61 @@ document.addEventListener('alpine:init', () => {
       this.itensLoja = await listarItensLoja();
     },
 
+    // Computed para itens filtrados da loja
+    get itensLojaFiltrados() {
+      if (!this.filtroLoja) return this.itensLoja || [];
+      return (this.itensLoja || []).filter(item => item.tipo === this.filtroLoja);
+    },
+
+    getRaridadeNome(raridade) {
+      const nomes = {
+        comum: 'Comum',
+        raro: 'Raro',
+        epico: 'Épico',
+        lendario: 'Lendário'
+      };
+      return nomes[raridade] || 'Comum';
+    },
+
+    abrirDetalhesItem(item) {
+      this.itemSelecionado = item;
+      this.modalItemDetalhes = true;
+    },
+
+    fecharDetalhesItem() {
+      this.modalItemDetalhes = false;
+      this.itemSelecionado = null;
+    },
+
     async comprarItem(item) {
       this.erro = '';
       if (this.modoDemo) {
-        this.sucesso = 'Modo demonstração: crie uma conta para comprar itens.';
-        setTimeout(() => (this.sucesso = ''), 3000);
+        // No modo demo, simular compra e adicionar corações se for item de coração
+        if (item.adiciona_coracoes) {
+          if ((this.moeda?.ouro || 0) >= item.preco_ouro) {
+            this.moeda.ouro -= item.preco_ouro;
+            this.adicionarCoracoes(item.adiciona_coracoes);
+            this.sucesso = `Compra realizada! Você ganhou ${item.adiciona_coracoes} coração(ões).`;
+            setTimeout(() => (this.sucesso = ''), 3000);
+          } else {
+            this.erro = 'Ouro insuficiente!';
+          }
+        } else {
+          this.sucesso = 'Modo demonstração: crie uma conta para comprar itens.';
+          setTimeout(() => (this.sucesso = ''), 3000);
+        }
         return;
       }
       const r = await comprarItemLoja(this.usuario.id, item.id, item.preco_ouro);
       if (r.sucesso) {
         await this.carregarDadosUsuario();
         this.carregarLoja();
+        
+        // Se o item adiciona corações, adicionar
+        if (item.adiciona_coracoes) {
+          this.adicionarCoracoes(item.adiciona_coracoes);
+        }
+        
         this.sucesso = 'Compra realizada!';
         setTimeout(() => (this.sucesso = ''), 2000);
       } else {
@@ -415,15 +500,52 @@ document.addEventListener('alpine:init', () => {
     trilhaTemQuizModulo(trilha) {
       return (trilha?.quizModulo?.length || 0) > 0;
     },
-    submitQuizEstudo() {
-      let acertos = 0;
-      this.quizEstudoPerguntas.forEach((p, i) => {
-        if (Number(this.quizEstudoRespostas[i]) === p.correta) acertos++;
-      });
+    // Selecionar resposta no quiz de estudo (feedback imediato)
+    selecionarRespostaQuizEstudo(respostaIndex) {
+      if (this.quizEstudoFeedback !== null) return; // Já respondeu esta pergunta
+      
+      const pergunta = this.quizEstudoPerguntas[this.quizEstudoPerguntaAtual];
+      const correta = Number(respostaIndex) === pergunta.correta;
+      
+      this.quizEstudoRespostaSelecionada = respostaIndex;
+      this.quizEstudoRespostas[this.quizEstudoPerguntaAtual] = respostaIndex;
+      
+      if (correta) {
+        this.quizEstudoFeedback = 'correto';
+        this.quizEstudoAcertos++;
+        this.tocarSomSucesso();
+      } else {
+        this.quizEstudoFeedback = 'errado';
+        this.quizEstudoErros++;
+        this.consumirCoracao();
+        this.tocarSomErro();
+      }
+      
+      // Avançar para próxima pergunta após 1.5 segundos
+      setTimeout(() => {
+        this.proximaPerguntaQuizEstudo();
+      }, 1500);
+    },
+    
+    // Avançar para próxima pergunta no quiz de estudo
+    proximaPerguntaQuizEstudo() {
+      if (this.quizEstudoPerguntaAtual < this.quizEstudoPerguntas.length - 1) {
+        this.quizEstudoPerguntaAtual++;
+        this.quizEstudoRespostaSelecionada = null;
+        this.quizEstudoFeedback = null;
+      } else {
+        // Finalizar quiz
+        this.finalizarQuizEstudo();
+      }
+    },
+    
+    // Finalizar quiz de estudo
+    finalizarQuizEstudo() {
       const total = this.quizEstudoPerguntas.length;
-      this.quizEstudoNota = total ? Math.round((acertos / total) * 100) : 0;
+      this.quizEstudoNota = total ? Math.round((this.quizEstudoAcertos / total) * 100) : 0;
       this.quizEstudoEnviado = true;
       const aprovado = this.quizEstudoNota >= 70;
+      
       if (aprovado) {
         if (this.quizEstudoTipo === 'aula' && this.aulaSelecionadaEstudo) {
           const id = this.aulaSelecionadaEstudo.id;
@@ -434,6 +556,11 @@ document.addEventListener('alpine:init', () => {
         }
         this.salvarProgressoEstudoDemo();
       }
+    },
+    
+    submitQuizEstudo() {
+      // Função antiga mantida para compatibilidade, mas não é mais usada
+      this.finalizarQuizEstudo();
     },
     voltarQuizParaAula() {
       this.viewEstudo = this.quizEstudoTipo === 'modulo' ? 'aulas' : 'aula';
@@ -484,6 +611,7 @@ document.addEventListener('alpine:init', () => {
         this.perfil = dados.perfil || { nome: 'Demo', sobrenome: 'Usuário', config_avatar: { ...CONFIG_AVATAR_PADRAO } };
         this.nivel = dados.nivel || { nivel: 1, xp_total: 50, dias_sequencia: 3 };
         this.moeda = dados.moeda || { ouro: 100 };
+        this.coracoes = dados.coracoes || { atual: 5, maximo: 5, proxima_regeneracao: null, tempo_regeneracao_horas: 4 };
         this.efeitosAtivos = dados.efeitosAtivos || [];
         this.inventario = dados.inventario || [];
         this.modelosMissoes = dados.modelosMissoes || [];
@@ -1026,6 +1154,50 @@ document.addEventListener('alpine:init', () => {
              [];
     },
 
+    // Função para marcar/desmarcar item do checklist
+    toggleChecklistItem(missaoId, itemId) {
+      if (this.modoDemo) {
+        const missao = this.todasMissoes.find(m => m.id === missaoId);
+        if (!missao || !missao.checklist) return;
+        
+        const item = missao.checklist.find(c => c.id === itemId);
+        if (!item) return;
+        
+        // Toggle do status
+        item.concluida = !item.concluida;
+        if (item.concluida) {
+          item.concluida_em = new Date().toISOString();
+          item.concluida_por = this.usuario?.id || 'demo';
+        } else {
+          item.concluida_em = null;
+          item.concluida_por = null;
+        }
+        
+        // Verificar se todos os itens estão concluídos
+        const todosConcluidos = missao.checklist.every(c => c.concluida);
+        if (todosConcluidos && missao.status === 'ativa') {
+          // Concluir missão automaticamente
+          this.concluirMissao(missao);
+        }
+      } else {
+        // TODO: Implementar chamada à API para atualizar checklist
+        console.log('Atualizar checklist via API:', missaoId, itemId);
+      }
+    },
+
+    // Verificar se todos os itens do checklist estão concluídos
+    todosChecklistConcluidos(missao) {
+      if (!missao.checklist || missao.checklist.length === 0) return false;
+      return missao.checklist.every(item => item.concluida === true);
+    },
+
+    // Calcular progresso do checklist
+    progressoChecklist(missao) {
+      if (!missao.checklist || missao.checklist.length === 0) return 0;
+      const concluidos = missao.checklist.filter(item => item.concluida).length;
+      return Math.round((concluidos / missao.checklist.length) * 100);
+    },
+
     fecharDetalhesMissao() {
       this.modalDetalhesMissao = { aberto: false, missao: null };
     },
@@ -1075,6 +1247,10 @@ document.addEventListener('alpine:init', () => {
           }
         }
         
+        // Debug: verificar quantas missões existem
+        console.log('atualizarFiltrosMissoes - Total missões:', this.todasMissoes.length, 'Filtro status:', this.filtroMissaoStatus, 'Filtro tipo:', this.filtroMissaoTipo);
+        console.log('Status das missões:', this.todasMissoes.map(m => ({ id: m.id, status: m.status })));
+        
         // Filtrar modelos
         let modelosFiltrados = (this.modelosMissoes || []).filter(mod => {
           if (this.filtroMissaoTipo && mod.tipo !== this.filtroMissaoTipo) return false;
@@ -1082,9 +1258,10 @@ document.addEventListener('alpine:init', () => {
         });
         
         // Filtrar missões - sempre usar uma cópia do array original
+        // IMPORTANTE: Quando filtro é null (Todos), incluir TODAS as missões sem filtrar por status
         let todasMissoesFiltradas = [...(this.todasMissoes || [])];
         
-        // Aplicar filtro de status
+        // Aplicar filtro de status (apenas se não for null - quando null, mostra todas)
         if (this.filtroMissaoStatus === 'ativa') {
           // Filtrar apenas missões com status 'ativa' - FORÇAR exibição no modo demo
           todasMissoesFiltradas = todasMissoesFiltradas.filter(m => {
@@ -1107,22 +1284,31 @@ document.addEventListener('alpine:init', () => {
           todasMissoesFiltradas = todasMissoesFiltradas.filter(m => m && (m.status === 'abandonada' || m.status === 'expirada'));
           modelosFiltrados = [];
         }
+        // Se filtroMissaoStatus === null, não filtrar por status - mostrar TODAS as missões
         
-        // Aplicar filtro de tipo
+        // Aplicar filtro de tipo (sempre, mesmo quando filtro de status é null)
         if (this.filtroMissaoTipo) {
           todasMissoesFiltradas = todasMissoesFiltradas.filter(m => m && m.modelos_missao?.tipo === this.filtroMissaoTipo);
         }
         
         // Quando sem filtro de status: combinar modelos + missões e paginar tudo junto
         if (this.filtroMissaoStatus === null) {
+          // IMPORTANTE: Garantir que todas as missões estão incluídas (sem filtro de status)
+          // todasMissoesFiltradas já foi filtrada por tipo acima (se necessário), mas não por status
           // Combinar todos os itens (modelos + missões)
           const todosItens = [...modelosFiltrados.map(m => ({ ...m, _tipo: 'modelo' })), ...todasMissoesFiltradas.map(m => ({ ...m, _tipo: 'missao' }))];
           this.totalMissoes = todosItens.length;
+          
+          // Debug: verificar combinação e paginação
+          console.log('Filtro Todos - Modelos:', modelosFiltrados.length, 'Missões:', todasMissoesFiltradas.length, 'Total itens:', todosItens.length);
+          console.log('Página:', this.paginaMissoes, 'Limite:', this.limiteMissoes, 'Total páginas:', this.totalPaginasMissoes);
           
           // Aplicar paginação
           const inicio = (this.paginaMissoes - 1) * this.limiteMissoes;
           const fim = inicio + this.limiteMissoes;
           const itensPaginados = todosItens.slice(inicio, fim);
+          
+          console.log('Itens paginados:', itensPaginados.length, 'De', inicio, 'até', fim, 'de', todosItens.length);
           
           // Separar modelos e missões para exibição
           this.modelosMissoesFiltrados = itensPaginados.filter(i => i._tipo === 'modelo').map(i => {
@@ -1133,6 +1319,8 @@ document.addEventListener('alpine:init', () => {
             const { _tipo, ...rest } = i;
             return rest;
           });
+          
+          console.log('Exibindo - Modelos:', this.modelosMissoesFiltrados.length, 'Missões:', this.missoesFiltradas.length);
         } else {
           // Com filtro de status: só missões, paginadas normalmente
           this.modelosMissoesFiltrados = [];
@@ -1591,17 +1779,30 @@ document.addEventListener('alpine:init', () => {
 
     async iniciarQuizLivro(livro) {
       if (!this.quizDesbloqueado(livro.codigo)) return;
+      if (!this.temCoracoesSuficientes()) {
+        this.erro = 'Você não tem corações suficientes para fazer o quiz.';
+        return;
+      }
       this.quizLivroAtivo = livro;
       this.quizTipo = 'livro';
       this.quizPerguntas = this.gerarPerguntasQuizLivro(livro);
       this.quizRespostas = {};
       this.quizEnviado = false;
       this.quizNota = null;
+      this.quizPerguntaAtual = 0;
+      this.quizRespostaSelecionada = null;
+      this.quizFeedback = null;
+      this.quizAcertos = 0;
+      this.quizErros = 0;
       this.viewBiblia = 'quiz';
     },
 
     iniciarQuizCapitulo() {
       if (!this.quizDesbloqueadoCapitulo() || !this.capituloBiblia) return;
+      if (!this.temCoracoesSuficientes()) {
+        this.erro = 'Você não tem corações suficientes para fazer o quiz.';
+        return;
+      }
       const livro = LIVROS_BIBLIA.find((l) => l.codigo === this.livroSelecionado);
       this.quizLivroAtivo = livro || { nome: this.livroSelecionado, codigo: this.livroSelecionado };
       this.quizTipo = 'capitulo';
@@ -1609,6 +1810,11 @@ document.addEventListener('alpine:init', () => {
       this.quizRespostas = {};
       this.quizEnviado = false;
       this.quizNota = null;
+      this.quizPerguntaAtual = 0;
+      this.quizRespostaSelecionada = null;
+      this.quizFeedback = null;
+      this.quizAcertos = 0;
+      this.quizErros = 0;
       this.viewBiblia = 'quiz';
     },
 
@@ -1651,50 +1857,72 @@ document.addEventListener('alpine:init', () => {
       return (perguntasPorLivro[livro.codigo] || padrao).slice(0, 5);
     },
 
-    async enviarQuizLivro() {
-      if (!this.quizLivroAtivo) return;
+    // Selecionar resposta no quiz de livro (feedback imediato)
+    selecionarRespostaQuizLivro(respostaIndex) {
+      if (this.quizFeedback !== null) return; // Já respondeu esta pergunta
+      
+      const pergunta = this.quizPerguntas[this.quizPerguntaAtual];
+      const correta = Number(respostaIndex) === pergunta.correta;
+      
+      this.quizRespostaSelecionada = respostaIndex;
+      this.quizRespostas[this.quizPerguntaAtual] = respostaIndex;
+      
+      if (correta) {
+        this.quizFeedback = 'correto';
+        this.quizAcertos++;
+        this.tocarSomSucesso();
+      } else {
+        this.quizFeedback = 'errado';
+        this.quizErros++;
+        this.consumirCoracao();
+        this.tocarSomErro();
+      }
+      
+      // Avançar para próxima pergunta após 1.5 segundos
+      setTimeout(() => {
+        this.proximaPerguntaQuizLivro();
+      }, 1500);
+    },
+    
+    // Avançar para próxima pergunta no quiz de livro
+    proximaPerguntaQuizLivro() {
+      if (this.quizPerguntaAtual < this.quizPerguntas.length - 1) {
+        this.quizPerguntaAtual++;
+        this.quizRespostaSelecionada = null;
+        this.quizFeedback = null;
+      } else {
+        // Finalizar quiz
+        this.finalizarQuizLivro();
+      }
+    },
+    
+    // Finalizar quiz de livro
+    async finalizarQuizLivro() {
       const total = this.quizPerguntas.length;
-      let certas = 0;
-      this.quizPerguntas.forEach((q, i) => {
-        const resp = this.quizRespostas[i];
-        if (resp !== undefined && Number(resp) === q.correta) certas++;
-      });
-      const nota = total > 0 ? Math.round((certas / total) * 100) : 0;
+      const nota = total > 0 ? Math.round((this.quizAcertos / total) * 100) : 0;
       this.quizNota = nota;
       this.quizEnviado = true;
       const NOTA_MINIMA = 70;
 
       if (this.quizTipo === 'capitulo') {
-        if (nota >= NOTA_MINIMA) {
-          this.sucesso = `Aprovado com ${nota}%! Capítulo concluído.`;
-        } else {
-          this.erro = `Nota ${nota}%. É preciso pelo menos ${NOTA_MINIMA}% para aprovar. Você pode refazer o quiz.`;
-        }
-        setTimeout(() => {
-          this.sucesso = '';
-          this.erro = '';
-          this.quizLivroAtivo = null;
-          this.quizTipo = null;
-          this.voltarBibliaCapitulos();
-        }, 2500);
+        // Resultado será mostrado na tela
         return;
       }
 
-      if (this.modoDemo) {
-        this.sucesso = nota >= NOTA_MINIMA ? `Aprovado com ${nota}%! (Demo)` : `Nota ${nota}%. (Demo)`;
-        setTimeout(() => { this.sucesso = ''; this.voltarBibliaCapitulos(); }, 2500);
-        return;
+      if (!this.modoDemo) {
+        if (nota >= NOTA_MINIMA) {
+          await registrarAprovacaoQuizLivro(this.usuario.id, this.quizLivroAtivo.codigo);
+          this.livrosAprovadosQuiz = await obterLivrosAprovadosQuiz(this.usuario.id);
+        } else {
+          await resetarProgressoLivro(this.usuario.id, this.quizLivroAtivo.codigo);
+          this.progressoLeitura = await obterProgressoUsuario(this.usuario.id);
+        }
       }
-      if (nota >= NOTA_MINIMA) {
-        await registrarAprovacaoQuizLivro(this.usuario.id, this.quizLivroAtivo.codigo);
-        this.livrosAprovadosQuiz = await obterLivrosAprovadosQuiz(this.usuario.id);
-        this.sucesso = `Aprovado com ${nota}%! Livro concluído.`;
-        setTimeout(() => { this.sucesso = ''; this.voltarBibliaCapitulos(); }, 2500);
-      } else {
-        await resetarProgressoLivro(this.usuario.id, this.quizLivroAtivo.codigo);
-        this.progressoLeitura = await obterProgressoUsuario(this.usuario.id);
-        this.erro = `Nota ${nota}%. É preciso pelo menos ${NOTA_MINIMA}% para aprovar. O progresso do livro foi resetado.`;
-      }
+    },
+
+    async enviarQuizLivro() {
+      // Função antiga mantida para compatibilidade
+      await this.finalizarQuizLivro();
     },
 
     fecharQuiz() {
@@ -1702,7 +1930,620 @@ document.addEventListener('alpine:init', () => {
       this.quizTipo = null;
       this.quizEnviado = false;
       this.quizNota = null;
+      this.quizPerguntaAtual = 0;
+      this.quizRespostaSelecionada = null;
+      this.quizFeedback = null;
+      this.quizAcertos = 0;
+      this.quizErros = 0;
       this.voltarBibliaCapitulos();
+    },
+
+    // ========== SISTEMA DE CORAÇÕES (VIDAS) ==========
+    
+    // Verificar se tem corações suficientes para fazer quiz
+    temCoracoesSuficientes() {
+      return (this.coracoes?.atual || 0) > 0;
+    },
+    
+    // Consumir 1 coração
+    consumirCoracao() {
+      if (!this.coracoes) {
+        this.coracoes = { atual: 5, maximo: 5, proxima_regeneracao: null, tempo_regeneracao_horas: 4 };
+      }
+      
+      if (this.coracoes.atual > 0) {
+        this.coracoes.atual--;
+        
+        // Se ficou sem corações, iniciar regeneração
+        if (this.coracoes.atual === 0) {
+          this.iniciarRegeneracaoCoracoes();
+        }
+        
+        // Salvar no modo demo
+        if (this.modoDemo) {
+          localStorage.setItem('demo_coracoes', JSON.stringify(this.coracoes));
+        }
+      }
+    },
+    
+    // Adicionar corações (comprar, ganhar de missão, etc)
+    adicionarCoracoes(quantidade = 1) {
+      if (!this.coracoes) {
+        this.coracoes = { atual: 5, maximo: 5, proxima_regeneracao: null, tempo_regeneracao_horas: 4 };
+      }
+      
+      this.coracoes.atual = Math.min(this.coracoes.maximo, this.coracoes.atual + quantidade);
+      
+      // Se chegou no máximo, limpar regeneração
+      if (this.coracoes.atual >= this.coracoes.maximo) {
+        this.coracoes.proxima_regeneracao = null;
+      }
+      
+      // Salvar no modo demo
+      if (this.modoDemo) {
+        localStorage.setItem('demo_coracoes', JSON.stringify(this.coracoes));
+      }
+    },
+    
+    // Iniciar regeneração de corações
+    iniciarRegeneracaoCoracoes() {
+      if (!this.coracoes) {
+        this.coracoes = { atual: 0, maximo: 5, proxima_regeneracao: null, tempo_regeneracao_horas: 4 };
+      }
+      
+      const horasRegeneracao = this.coracoes.tempo_regeneracao_horas || 4;
+      const agora = new Date();
+      const proximaRegeneracao = new Date(agora.getTime() + (horasRegeneracao * 60 * 60 * 1000));
+      
+      this.coracoes.proxima_regeneracao = proximaRegeneracao.toISOString();
+      
+      // Salvar no modo demo
+      if (this.modoDemo) {
+        localStorage.setItem('demo_coracoes', JSON.stringify(this.coracoes));
+      }
+    },
+    
+    // Verificar e regenerar corações automaticamente
+    verificarRegeneracaoCoracoes() {
+      if (!this.coracoes || !this.coracoes.proxima_regeneracao) return;
+      
+      const agora = new Date();
+      const proximaRegeneracao = new Date(this.coracoes.proxima_regeneracao);
+      
+      // Se já passou o tempo de regeneração
+      if (agora >= proximaRegeneracao && this.coracoes.atual < this.coracoes.maximo) {
+        this.adicionarCoracoes(1);
+        
+        // Se ainda não está no máximo, agendar próxima regeneração
+        if (this.coracoes.atual < this.coracoes.maximo) {
+          this.iniciarRegeneracaoCoracoes();
+        }
+      }
+    },
+    
+    // Tempo restante para próxima regeneração
+    tempoRestanteRegeneracao() {
+      if (!this.coracoes || !this.coracoes.proxima_regeneracao || this.coracoes.atual >= this.coracoes.maximo) {
+        return 'Corações cheios!';
+      }
+      
+      const agora = new Date();
+      const proximaRegeneracao = new Date(this.coracoes.proxima_regeneracao);
+      const diferenca = proximaRegeneracao - agora;
+      
+      if (diferenca <= 0) {
+        return 'Regenerando...';
+      }
+      
+      const horas = Math.floor(diferenca / (1000 * 60 * 60));
+      const minutos = Math.floor((diferenca % (1000 * 60 * 60)) / (1000 * 60));
+      
+      if (horas > 0) {
+        return `${horas}h ${minutos}m`;
+      }
+      return `${minutos}m`;
+    },
+    
+    // Tocar som de sucesso
+    tocarSomSucesso() {
+      try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.value = 523.25; // C5
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.3);
+      } catch (e) {
+        // Silenciosamente falhar se áudio não estiver disponível
+      }
+    },
+    
+    // Tocar som de erro
+    tocarSomErro() {
+      try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.value = 220; // A3
+        oscillator.type = 'sawtooth';
+        
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.2);
+      } catch (e) {
+        // Silenciosamente falhar se áudio não estiver disponível
+      }
+    },
+    
+    // Orar para ganhar corações (1 coração por oração, máximo 1x por dia)
+    orarParaGanharCoracao() {
+      if (!this.coracoes) {
+        this.coracoes = { atual: 5, maximo: 5, proxima_regeneracao: null, tempo_regeneracao_horas: 4 };
+      }
+      
+      // Verificar se já orou hoje (modo demo - usar localStorage)
+      const hoje = new Date().toDateString();
+      const ultimaOracao = localStorage.getItem('demo_ultima_oracao');
+      
+      if (ultimaOracao === hoje) {
+        this.erro = 'Você já orou hoje! Volte amanhã para ganhar mais corações.';
+        return;
+      }
+      
+      // Adicionar coração e registrar oração
+      this.adicionarCoracoes(1);
+      localStorage.setItem('demo_ultima_oracao', hoje);
+      this.sucesso = 'Oração registrada! Você ganhou 1 coração.';
+      
+      setTimeout(() => {
+        this.sucesso = '';
+      }, 3000);
+    },
+    
+    // Enviar bênção para outro jogador (ganha 1 coração, máximo 3x por dia)
+    enviarBencao(usuarioId) {
+      if (!this.coracoes) {
+        this.coracoes = { atual: 5, maximo: 5, proxima_regeneracao: null, tempo_regeneracao_horas: 4 };
+      }
+      
+      // Verificar quantas bênçãos já enviou hoje (modo demo)
+      const hoje = new Date().toDateString();
+      const bencoesHoje = JSON.parse(localStorage.getItem('demo_bencoes_hoje') || '[]');
+      const bencoesHojeData = bencoesHoje[0] === hoje ? bencoesHoje.slice(1) : [];
+      
+      if (bencoesHojeData.length >= 3) {
+        this.erro = 'Você já enviou 3 bênçãos hoje! Volte amanhã para enviar mais.';
+        return;
+      }
+      
+      // Adicionar coração e registrar bênção
+      this.adicionarCoracoes(1);
+      bencoesHojeData.push(usuarioId);
+      localStorage.setItem('demo_bencoes_hoje', JSON.stringify([hoje, ...bencoesHojeData]));
+      this.sucesso = 'Bênção enviada! Você ganhou 1 coração.';
+      
+      setTimeout(() => {
+        this.sucesso = '';
+      }, 3000);
+    },
+
+    // Funções do Inventário RPG
+    getItemEquipadoSlot(slotId) {
+      // Mapear slot da armadura para item equipado
+      const slotMap = {
+        'cinto': 'cintura',
+        'peitoral': 'peito',
+        'sapato': 'pe',
+        'escudo': 'mao',
+        'elmo': 'cabeca',
+        'espada': 'mao'
+      };
+      const slotItem = slotMap[slotId] || slotId;
+      return (this.inventario || []).find(item => 
+        item.equipado && 
+        (item.itens?.slot === slotItem || item.itens?.nome?.toLowerCase().includes(slotId))
+      )?.itens || null;
+    },
+
+    isFrutoDesbloqueado(index) {
+      // No modo demo, simular alguns frutos desbloqueados baseado no nível
+      const nivel = this.nivel?.nivel || 1;
+      // Cada nível desbloqueia mais frutos
+      return index < nivel * 2;
+    },
+    
+    getPercentualFruto(index) {
+      // Retorna porcentagem do fruto (0-100)
+      // No modo demo, simular progresso baseado no nível
+      const nivel = this.nivel?.nivel || 1;
+      if (index >= nivel * 2) return 0; // Bloqueado
+      // Simular progresso variado
+      const baseProgress = (index + 1) * 10;
+      return Math.min(baseProgress + (nivel * 5), 100);
+    },
+
+    getIconeFruto(index) {
+      const icones = [
+        'bi-heart-fill',      // Amor
+        'bi-emoji-smile-fill', // Alegria
+        'bi-peace-fill',      // Paz
+        'bi-hourglass-split',  // Longanimidade
+        'bi-hand-thumbs-up-fill', // Benignidade
+        'bi-gift-fill',       // Bondade
+        'bi-shield-check-fill', // Fidelidade
+        'bi-dove-fill',       // Mansidão
+        'bi-lock-fill'        // Domínio próprio
+      ];
+      return 'bi ' + (icones[index] || 'bi-circle');
+    },
+
+    getPosicaoGalho(index) {
+      // Função mantida para compatibilidade, mas não usada mais (usamos SVG agora)
+      return '';
+    },
+
+    getPosicaoFrutoSVG(index) {
+      // Posições dos frutos na árvore SVG original (coordenadas no viewBox 1024x1024)
+      // Baseado nas posições das folhas verdes claras (maçãs) do SVG original
+      const posicoes = [
+        { x: 646, y: 604.6 },   // Amor - baseado na primeira folha verde clara
+        { x: 754, y: 688.08 },  // Alegria - segunda folha
+        { x: 398.35, y: 593.07 }, // Paz - terceira folha
+        { x: 331.52, y: 535.27 }, // Longanimidade - quarta folha
+        { x: 248.41, y: 711.5 },  // Benignidade - quinta folha
+        { x: 465.43, y: 430.07 }, // Bondade - sexta folha
+        { x: 380.65, y: 327.94 }, // Fidelidade - sétima folha
+        { x: 481.56, y: 223.27 }, // Mansidão - oitava folha
+        { x: 538, y: 278.32 }     // Domínio próprio - nona folha
+      ];
+      return posicoes[index] || { x: 512, y: 512 };
+    },
+
+    getAbreviaturaFruto(fruto) {
+      // Retorna abreviação do fruto para caber no círculo SVG
+      const abreviacoes = {
+        'Amor': 'AM',
+        'Alegria': 'AL',
+        'Paz': 'PZ',
+        'Longanimidade': 'LG',
+        'Benignidade': 'BN',
+        'Bondade': 'BD',
+        'Fidelidade': 'FD',
+        'Mansidão': 'MS',
+        'Domínio próprio': 'DP'
+      };
+      return abreviacoes[fruto] || fruto.substring(0, 2).toUpperCase();
+    },
+
+    toggleFrutoInfo(index) {
+      // Pode ser usado para mostrar informações do fruto ao clicar
+      const fruto = this.FRUTO_DO_ESPIRITO[index];
+      const desbloqueado = this.isFrutoDesbloqueado(index);
+      // Aqui você pode adicionar um modal ou tooltip com informações
+      console.log(`${fruto} - ${desbloqueado ? 'Desbloqueado' : 'Bloqueado'}`);
+    },
+
+    getPosicaoLabelFruto(index) {
+      // Posições dos labels ajustadas manualmente para evitar TODA sobreposição
+      // Espaçamento maior entre badges para garantir visibilidade total
+      const posicoes = [
+        { top: '60%', left: '65%' },   // Amor - movido para direita
+        { top: '68%', right: '22%' },  // Alegria - movido mais para direita
+        { top: '59%', left: '36%' },   // Paz - movido para esquerda
+        { top: '53%', left: '28%' },   // Longanimidade - movido mais para esquerda
+        { top: '70%', left: '20%' },   // Benignidade - movido mais para esquerda
+        { top: '43%', left: '42%' },   // Bondade - ajustado
+        { top: '33%', left: '34%' },   // Fidelidade - movido para esquerda
+        { top: '23%', left: '44%' },   // Mansidão - ajustado
+        { top: '28%', left: '49%' }   // Domínio próprio - ajustado
+      ];
+      const pos = posicoes[index] || { top: '50%', left: '50%' };
+      const style = Object.entries(pos).map(([k, v]) => `${k}: ${v}`).join('; ');
+      return `${style}; margin: 15px;`;
+    },
+
+    renderizarFrutosSVG() {
+      // Renderiza os frutos no SVG após o DOM estar pronto
+      const container = document.getElementById('frutos-container');
+      if (!container || !this.FRUTO_DO_ESPIRITO) return;
+      
+      container.innerHTML = '';
+      
+      this.FRUTO_DO_ESPIRITO.forEach((fruto, index) => {
+        const pos = this.getPosicaoFrutoSVG(index);
+        const desbloqueado = this.isFrutoDesbloqueado(index);
+        const abreviacao = this.getAbreviaturaFruto(fruto);
+        
+        // Grupo para o fruto (maçã)
+        const grupo = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        grupo.setAttribute('class', `fruto-grupo ${desbloqueado ? 'desbloqueado' : 'bloqueado'}`);
+        grupo.setAttribute('transform', `translate(${pos.x}, ${pos.y}) scale(0.8)`);
+        grupo.setAttribute('style', 'cursor: pointer;');
+        grupo.setAttribute('title', `${fruto} - ${desbloqueado ? 'Desbloqueado' : 'Bloqueado'}`);
+        grupo.addEventListener('click', () => this.toggleFrutoInfo(index));
+        
+        // Forma de maçã usando o path fornecido
+        const maca = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        maca.setAttribute('d', 'M0,-10 C-2.5,-12.5 -4,-15 -4,-18 C-4,-21 -2.5,-22.5 0,-22.5 C2.5,-22.5 4,-21 4,-18 C4,-15 2.5,-12.5 0,-10 Z M-1.5,-10 L-1.5,7 C-1.5,8.5 -0.75,10 0,10 C0.75,10 1.5,8.5 1.5,7 L1.5,-10 Z');
+        maca.setAttribute('class', `fruto-maca ${desbloqueado ? 'desbloqueado' : 'bloqueado'}`);
+        grupo.appendChild(maca);
+        
+        // Texto abreviado no centro
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', '0');
+        text.setAttribute('y', '4');
+        text.setAttribute('class', `fruto-svg-texto ${desbloqueado ? '' : 'bloqueado'}`);
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('pointer-events', 'none');
+        text.setAttribute('font-size', '7');
+        text.setAttribute('font-weight', '600');
+        text.textContent = abreviacao;
+        grupo.appendChild(text);
+        
+        // Porcentagem abaixo do texto
+        const percentual = this.getPercentualFruto(index);
+        const percentText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        percentText.setAttribute('x', '0');
+        percentText.setAttribute('y', '12');
+        percentText.setAttribute('class', `fruto-svg-percentual ${desbloqueado ? '' : 'bloqueado'}`);
+        percentText.setAttribute('text-anchor', 'middle');
+        percentText.setAttribute('pointer-events', 'none');
+        percentText.setAttribute('font-size', '5');
+        percentText.setAttribute('font-weight', '500');
+        percentText.textContent = `${percentual}/100`;
+        grupo.appendChild(percentText);
+        
+        container.appendChild(grupo);
+      });
+      
+      // Ajustar posições após o DOM ser atualizado
+      setTimeout(() => this.ajustarPosicoesFrutos(), 300);
+    },
+    
+    ajustarPosicoesFrutos() {
+      // Função para evitar sobreposição dos labels dos frutos
+      const labels = document.querySelectorAll('.fruto-label-overlay');
+      if (labels.length === 0) return;
+      
+      const padding = 10; // Espaçamento mínimo em pixels
+      const labelsArray = Array.from(labels);
+      
+      labelsArray.forEach((label, index) => {
+        let tentativas = 0;
+        const maxTentativas = 50;
+        let colisao = true;
+        
+        while (colisao && tentativas < maxTentativas) {
+          colisao = false;
+          const rect = label.getBoundingClientRect();
+          
+          labelsArray.forEach((outroLabel, outroIndex) => {
+            if (index === outroIndex) return;
+            
+            const outroRect = outroLabel.getBoundingClientRect();
+            
+            // Verificar se há sobreposição
+            if (!(rect.right + padding < outroRect.left || 
+                  rect.left > outroRect.right + padding ||
+                  rect.bottom + padding < outroRect.top ||
+                  rect.top > outroRect.bottom + padding)) {
+              colisao = true;
+              
+              // Calcular distância e direção
+              const dx = outroRect.left - rect.left;
+              const dy = outroRect.top - rect.top;
+              const distancia = Math.sqrt(dx * dx + dy * dy);
+              
+              if (distancia < padding * 2) {
+                // Mover o label atual para longe
+                const container = label.parentElement;
+                const containerRect = container.getBoundingClientRect();
+                
+                const currentTop = parseFloat(label.style.top || '0');
+                const currentLeft = parseFloat(label.style.left || '0');
+                const currentRight = parseFloat(label.style.right || '0');
+                
+                // Calcular deslocamento em porcentagem
+                const offsetX = (padding * 1.5 / containerRect.width) * 100;
+                const offsetY = (padding * 1.5 / containerRect.height) * 100;
+                
+                // Mover na direção oposta à colisão
+                if (Math.abs(dx) > Math.abs(dy)) {
+                  // Mover horizontalmente
+                  if (label.style.left !== 'auto') {
+                    label.style.left = `${Math.max(2, Math.min(98, currentLeft + (dx > 0 ? -offsetX : offsetX)))}%`;
+                  } else {
+                    label.style.right = `${Math.max(2, Math.min(98, currentRight + (dx > 0 ? offsetX : -offsetX)))}%`;
+                  }
+                } else {
+                  // Mover verticalmente
+                  label.style.top = `${Math.max(2, Math.min(98, currentTop + (dy > 0 ? -offsetY : offsetY)))}%`;
+                }
+              }
+            }
+          });
+          
+          tentativas++;
+        }
+      });
+    },
+
+    isObraAtiva(index) {
+      // No modo demo, simular algumas obras ativas (para demonstração)
+      // Em produção, isso viria do progresso do usuário
+      return false; // Por padrão, nenhuma obra está ativa
+    },
+    
+    getPercentualObra(index) {
+      // Retorna porcentagem da obra (0-100)
+      // No modo demo, simular progresso variado
+      // Obras ativas têm porcentagem maior
+      const ativa = this.isObraAtiva(index);
+      if (ativa) {
+        return Math.min(50 + (index * 5), 100);
+      }
+      // Obras inativas têm porcentagem menor
+      return Math.min(20 + (index * 3), 50);
+    },
+
+    getIconeObra(index) {
+      const icones = [
+        'bi-x-circle-fill', 'bi-x-circle-fill', 'bi-x-circle-fill',
+        'bi-x-circle-fill', 'bi-x-circle-fill', 'bi-x-circle-fill',
+        'bi-x-circle-fill', 'bi-x-circle-fill', 'bi-x-circle-fill',
+        'bi-x-circle-fill', 'bi-x-circle-fill', 'bi-x-circle-fill',
+        'bi-x-circle-fill', 'bi-x-circle-fill', 'bi-x-circle-fill'
+      ];
+      return 'bi ' + (icones[index] || 'bi-exclamation-circle-fill');
+    },
+
+    getPosicaoObraSVG(index) {
+      // Posições dos corações centralizados dentro do coração grande (coordenadas no viewBox 512x512)
+      // Centro: 256, 256
+      // Distribuídos em círculo dentro do coração grande
+      const centroX = 256;
+      const centroY = 256;
+      const raio = 60; // Raio menor para ficar dentro do coração grande
+      const anguloInicial = -Math.PI / 2; // Começar do topo
+      const anguloPorItem = (2 * Math.PI) / 15; // 15 obras
+      
+      const angulo = anguloInicial + (index * anguloPorItem);
+      const x = centroX + (raio * Math.cos(angulo));
+      const y = centroY + (raio * Math.sin(angulo));
+      
+      return { x, y };
+    },
+
+    getPosicaoLabelObra(index) {
+      // Posições dos labels ajustadas manualmente para evitar TODA sobreposição
+      // Distribuição em múltiplos círculos concêntricos com raios alternados
+      const centroX = 50;
+      const centroY = 50;
+      
+      // Usar raios alternados (20, 26, 20, 26...) para criar dois círculos concêntricos
+      // Isso garante que labels adjacentes não se sobreponham
+      const raioBase = index % 2 === 0 ? 20 : 26;
+      const raio = raioBase;
+      
+      const anguloInicial = -Math.PI / 2;
+      const anguloPorItem = (2 * Math.PI) / 15;
+      
+      // Adicionar pequeno offset para labels do círculo externo
+      const offsetAngulo = index % 2 === 1 ? (anguloPorItem / 3) : 0;
+      const angulo = anguloInicial + (index * anguloPorItem) + offsetAngulo;
+      
+      const x = centroX + (raio * Math.cos(angulo));
+      const y = centroY + (raio * Math.sin(angulo));
+      
+      // Converter para posicionamento CSS com limites seguros
+      const left = x < 50 ? `${Math.max(x, 3)}%` : 'auto';
+      const right = x >= 50 ? `${Math.max(100 - x, 3)}%` : 'auto';
+      const top = `${Math.max(Math.min(y, 97), 3)}%`;
+      
+      return `top: ${top}; ${left !== 'auto' ? `left: ${left}` : `right: ${right}`}; margin: 15px;`;
+    },
+
+    renderizarObrasSVG() {
+      // Não renderiza corações pequenos - apenas o coração grande centralizado é usado
+      // Esta função agora apenas limpa o container, mantendo apenas os labels HTML
+      const container = document.getElementById('obras-coracoes-container');
+      if (!container) return;
+      
+      // Limpa o container - não renderiza corações pequenos
+      container.innerHTML = '';
+      
+      // Ajustar posições após o DOM ser atualizado
+      setTimeout(() => this.ajustarPosicoesObras(), 300);
+    },
+    
+    ajustarPosicoesObras() {
+      // Função para evitar sobreposição dos labels das obras
+      const labels = document.querySelectorAll('.obra-label-overlay');
+      if (labels.length === 0) return;
+      
+      const padding = 10; // Espaçamento mínimo em pixels
+      const labelsArray = Array.from(labels);
+      
+      labelsArray.forEach((label, index) => {
+        let tentativas = 0;
+        const maxTentativas = 50;
+        let colisao = true;
+        
+        while (colisao && tentativas < maxTentativas) {
+          colisao = false;
+          const rect = label.getBoundingClientRect();
+          
+          labelsArray.forEach((outroLabel, outroIndex) => {
+            if (index === outroIndex) return;
+            
+            const outroRect = outroLabel.getBoundingClientRect();
+            
+            // Verificar se há sobreposição
+            if (!(rect.right + padding < outroRect.left || 
+                  rect.left > outroRect.right + padding ||
+                  rect.bottom + padding < outroRect.top ||
+                  rect.top > outroRect.bottom + padding)) {
+              colisao = true;
+              
+              // Calcular distância e direção
+              const dx = outroRect.left - rect.left;
+              const dy = outroRect.top - rect.top;
+              const distancia = Math.sqrt(dx * dx + dy * dy);
+              
+              if (distancia < padding * 2) {
+                // Mover o label atual para longe
+                const container = label.parentElement;
+                const containerRect = container.getBoundingClientRect();
+                
+                const currentTop = parseFloat(label.style.top || '0');
+                const currentLeft = parseFloat(label.style.left || '0');
+                const currentRight = parseFloat(label.style.right || '0');
+                
+                // Calcular deslocamento em porcentagem
+                const offsetX = (padding * 1.5 / containerRect.width) * 100;
+                const offsetY = (padding * 1.5 / containerRect.height) * 100;
+                
+                // Mover na direção oposta à colisão
+                if (Math.abs(dx) > Math.abs(dy)) {
+                  // Mover horizontalmente
+                  if (label.style.left !== 'auto') {
+                    label.style.left = `${Math.max(2, Math.min(98, currentLeft + (dx > 0 ? -offsetX : offsetX)))}%`;
+                  } else {
+                    label.style.right = `${Math.max(2, Math.min(98, currentRight + (dx > 0 ? offsetX : -offsetX)))}%`;
+                  }
+                } else {
+                  // Mover verticalmente
+                  label.style.top = `${Math.max(2, Math.min(98, currentTop + (dy > 0 ? -offsetY : offsetY)))}%`;
+                }
+              }
+            }
+          });
+          
+          tentativas++;
+        }
+      });
+    },
+
+    toggleObraInfo(index) {
+      // Pode ser usado para mostrar informações da obra ao clicar
+      const obra = this.OBRAS_DA_CARNE[index];
+      const ativa = this.isObraAtiva(index);
+      console.log(`${obra} - ${ativa ? 'Ativa' : 'Inativa'}`);
     },
 
     VERSAO_TERMOS
