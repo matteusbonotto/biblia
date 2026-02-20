@@ -1192,6 +1192,11 @@
                 <span class="ref-biblica" :title="REFS_BIBLICAS.FRUTO_ESPIRITO">Gálatas 5.22-23</span>
               </h3>
               <div class="fruto-arvore-container">
+                <div class="fruto-arvore-wrapper">
+                <div class="zoom-canvas"
+                     :style="getZoomStyle('fruto')"
+                     @mousedown="startDrag('fruto', $event)"
+                     @wheel.prevent="onWheelZoom('fruto', $event)">
                 <svg class="fruto-arvore-svg" viewBox="0 0 1024 1024" preserveAspectRatio="xMidYMid meet" version="1.1" xmlns="http://www.w3.org/2000/svg">
                   <defs>
                     <style type="text/css">
@@ -1223,10 +1228,20 @@
                     <div class="fruto-label-overlay" 
                          :style="getPosicaoLabelFruto(index)"
                          :class="{ 'desbloqueado': isFrutoDesbloqueado(index) }"
-                         :title="fruto + (isFrutoDesbloqueado(index) ? ' (Desbloqueado)' : ' (Bloqueado)')"
-                         x-text="fruto"></div>
+                         :title="fruto + (isFrutoDesbloqueado(index) ? ' (Desbloqueado)' : ' (Bloqueado)')">
+                      <div class="fruto-label-nome" x-text="fruto"></div>
+                      <div class="fruto-label-percentual" x-text="getPercentualFruto(index) + '/100'"></div>
+                    </div>
                   </template>
                 </div>
+                </div><!-- /zoom-canvas -->
+                <!-- Controles de zoom -->
+                <div class="zoom-controls">
+                  <button class="zoom-btn" @click.stop="zoomIn('fruto')" title="Ampliar"><i class="bi bi-zoom-in"></i></button>
+                  <button class="zoom-btn zoom-btn-reset" @click.stop="resetZoom('fruto')" title="Resetar zoom"><i class="bi bi-arrows-fullscreen"></i></button>
+                  <button class="zoom-btn" @click.stop="zoomOut('fruto')" title="Reduzir"><i class="bi bi-zoom-out"></i></button>
+                </div>
+                </div><!-- /fruto-arvore-wrapper -->
               </div>
             </div>
           </div>
@@ -1240,6 +1255,11 @@
                 <span class="ref-biblica" :title="REFS_BIBLICAS.OBRAS_CARNE">Gálatas 5.19-21</span>
               </h3>
               <div class="obras-container">
+                <div class="obras-svg-wrapper">
+                <div class="zoom-canvas"
+                     :style="getZoomStyle('obras')"
+                     @mousedown="startDrag('obras', $event)"
+                     @wheel.prevent="onWheelZoom('obras', $event)">
                 <svg class="obras-svg" viewBox="0 0 512 512" preserveAspectRatio="xMidYMid meet" version="1.1" xmlns="http://www.w3.org/2000/svg">
                   <defs>
                     <style type="text/css">
@@ -1282,6 +1302,14 @@
                     </div>
                   </template>
                 </div>
+                </div><!-- /zoom-canvas -->
+                <!-- Controles de zoom -->
+                <div class="zoom-controls">
+                  <button class="zoom-btn" @click.stop="zoomIn('obras')" title="Ampliar"><i class="bi bi-zoom-in"></i></button>
+                  <button class="zoom-btn zoom-btn-reset" @click.stop="resetZoom('obras')" title="Resetar zoom"><i class="bi bi-arrows-fullscreen"></i></button>
+                  <button class="zoom-btn" @click.stop="zoomOut('obras')" title="Reduzir"><i class="bi bi-zoom-out"></i></button>
+                </div>
+                </div><!-- /obras-svg-wrapper -->
               </div>
             </div>
           </div>
@@ -1395,7 +1423,14 @@
               </div>
               <div x-show="carregandoCapitulo" class="text-center py-4"><div class="spinner-border text-success"></div></div>
               <div x-show="capituloBiblia && !carregandoCapitulo" class="card-tema p-3">
-                <div class="conteudo-leitura-biblia" @scroll="onScrollLeitura($event)" @mousedown="iniciarLongPressLeitura($event)" @touchstart="iniciarLongPressLeitura($event)" @mouseup="cancelarLongPressLeitura(); onSoltarLeitura($event)" @touchend="cancelarLongPressLeitura(); onSoltarLeitura($event)" @click="onClickConteudoLeitura($event)">
+                <div class="conteudo-leitura-biblia"
+                     @scroll="onScrollLeitura($event)"
+                     @touchstart="iniciarLongPressLeitura($event)"
+                     @touchmove="cancelarLongPressLeitura()"
+                     @mouseup="onSoltarLeitura($event)"
+                     @touchend="cancelarLongPressLeitura(); onSoltarLeitura($event)"
+                     @contextmenu.prevent="abrirMenuContextoBiblia($event)"
+                     @click="onClickConteudoLeitura($event)">
                   <template x-for="v in (capituloBiblia?.verses || [])" :key="v.verse">
                     <p class="mb-2 verso-biblia"><span class="texto-primario fw-600" x-text="v.verse + '.'"></span> <span class="verso-texto" :data-verse="v.verse" x-html="renderVersoHtml(v.verse, v.text)"></span></p>
                   </template>
@@ -1410,6 +1445,30 @@
               </div>
             </div>
           </template>
+
+          <!-- Menu de contexto da Bíblia (selecionar texto → marcar / nota) -->
+          <template x-if="bibleContextMenu.aberto">
+            <!-- Overlay transparente fecha ao clicar fora -->
+            <div style="position:fixed;inset:0;z-index:1199;" @click="fecharMenuBiblia()" @touchstart="fecharMenuBiblia()"></div>
+          </template>
+          <div x-show="bibleContextMenu.aberto"
+               x-transition
+               class="bible-ctx-menu"
+               :style="'position:fixed;z-index:1200;top:'+bibleContextMenu.y+'px;left:'+bibleContextMenu.x+'px;'"
+               @click.stop>
+            <p class="bible-ctx-titulo"><i class="bi bi-pencil-fill me-1"></i>O que deseja fazer?</p>
+            <div class="bible-ctx-cores">
+              <template x-for="cor in CORES_MARCADOR" :key="cor.valor">
+                <button class="bible-ctx-cor-btn" :style="'background:'+cor.valor" :title="'Marcar em '+cor.nome" @click.stop="aplicarMarcadorDoMenu(cor.valor)">
+                  <i class="bi bi-highlighter"></i>
+                </button>
+              </template>
+            </div>
+            <button class="bible-ctx-nota-btn" @click.stop="abrirNotaDoMenu()">
+              <i class="bi bi-sticky-fill me-2"></i>Inserir nota
+            </button>
+            <button class="bible-ctx-fechar-btn" @click.stop="fecharMenuBiblia()" title="Fechar"><i class="bi bi-x-lg"></i></button>
+          </div>
 
           <!-- Popup de nota (marca-texto) -->
           <div x-show="notaPopup.aberto" class="modal-nota-overlay" @click.self="fecharNotaPopup()" x-transition>

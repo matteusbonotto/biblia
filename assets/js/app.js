@@ -111,6 +111,7 @@ document.addEventListener('alpine:init', () => {
     _longPressTimer: null,
     _longPressAcionado: false,
     notaPopup: { aberto: false, id: null, conteudo: '', textoRef: '' },
+    bibleContextMenu: { aberto: false, x: 0, y: 0, pendente: null },
     narrando: false,
 
     CORES_MARCADOR: [
@@ -135,6 +136,10 @@ document.addEventListener('alpine:init', () => {
     REFS_BIBLICAS,
     OBRAS_DA_CARNE,
     FRUTO_DO_ESPIRITO,
+
+    // Estado de zoom/pan para Obras da Carne e Fruto do Espírito
+    obrasZoom: { scale: 1, tx: 0, ty: 0, dragging: false, startX: 0, startY: 0 },
+    frutoZoom: { scale: 1, tx: 0, ty: 0, dragging: false, startX: 0, startY: 0 },
     viewEstudo: 'trilhas',
     trilhaSelecionadaEstudo: null,
     aulaSelecionadaEstudo: null,
@@ -1479,40 +1484,80 @@ document.addEventListener('alpine:init', () => {
       return out;
     },
 
-    onSoltarLeitura(ev) {
-      if (this._longPressTimer || this._longPressAcionado) return;
+    // Extrai os dados da seleção atual (retorna null se inválida)
+    _extrairSelecaoBiblia() {
       const sel = window.getSelection();
-      if (!sel || sel.isCollapsed) return;
+      if (!sel || sel.isCollapsed) return null;
       const range = sel.getRangeAt(0);
       const node = range.commonAncestorContainer;
       const elNode = node.nodeType === Node.TEXT_NODE ? node.parentElement : node;
       const el = elNode && elNode.closest ? elNode.closest('.verso-texto') : null;
-      if (!el || !el.contains(range.commonAncestorContainer)) return;
+      if (!el || !el.contains(range.commonAncestorContainer)) return null;
       const verseNum = parseInt(el.getAttribute('data-verse'), 10);
-      const pre = range.cloneContents();
       const div = document.createElement('div');
-      div.appendChild(pre);
+      div.appendChild(range.cloneContents());
       const selectedText = (div.textContent || '').trim();
-      if (!selectedText) return;
+      if (!selectedText) return null;
       const start = this.offsetEmTexto(el, range.startContainer, range.startOffset);
       const end = this.offsetEmTexto(el, range.endContainer, range.endOffset);
-      if (start === undefined || end === undefined) return;
+      if (start === undefined || end === undefined) return null;
       const [s, e] = start <= end ? [start, end] : [end, start];
+      return { verse: verseNum, start: s, end: e, text: selectedText };
+    },
 
-      if (this.modoNota) {
-        this.modoNota = false;
-        this.notaPopup.aberto = true;
-        this.notaPopup.id = null;
-        this.notaPopup.textoRef = selectedText;
-        this.notaPopup.conteudo = '';
-        this._pendenteNota = { verse: verseNum, start: s, end: e, text: selectedText };
-        sel.removeAllRanges();
-        return;
-      }
+    // Posiciona e abre o menu de contexto da Bíblia
+    _mostrarMenuBiblia(x, y) {
+      const menuW = 210, menuH = 150;
+      const vw = window.innerWidth, vh = window.innerHeight;
+      const cx = Math.min(x, vw - menuW - 10);
+      const cy = (y + 16 + menuH < vh) ? y + 16 : y - menuH - 8;
+      this.bibleContextMenu.x = Math.max(8, cx);
+      this.bibleContextMenu.y = Math.max(8, cy);
+      this.bibleContextMenu.aberto = true;
+    },
 
-      if (!this.corMarcadorAtiva) return;
-      this.adicionarMarcador(verseNum, s, e, selectedText, this.corMarcadorAtiva);
-      sel.removeAllRanges();
+    onSoltarLeitura(ev) {
+      if (this._longPressAcionado) return;
+      if (this._longPressTimer) { clearTimeout(this._longPressTimer); this._longPressTimer = null; }
+      const pendente = this._extrairSelecaoBiblia();
+      if (!pendente) return;
+      this.bibleContextMenu.pendente = pendente;
+      const cx = ev.changedTouches ? ev.changedTouches[0].clientX : ev.clientX;
+      const cy = ev.changedTouches ? ev.changedTouches[0].clientY : ev.clientY;
+      this._mostrarMenuBiblia(cx, cy);
+    },
+
+    abrirMenuContextoBiblia(ev) {
+      const pendente = this._extrairSelecaoBiblia();
+      if (!pendente) return;
+      this.bibleContextMenu.pendente = pendente;
+      this._mostrarMenuBiblia(ev.clientX, ev.clientY);
+    },
+
+    fecharMenuBiblia() {
+      this.bibleContextMenu.aberto = false;
+    },
+
+    aplicarMarcadorDoMenu(cor) {
+      const p = this.bibleContextMenu.pendente;
+      if (!p) return;
+      this.adicionarMarcador(p.verse, p.start, p.end, p.text, cor);
+      window.getSelection()?.removeAllRanges();
+      this.bibleContextMenu.aberto = false;
+      this.bibleContextMenu.pendente = null;
+    },
+
+    abrirNotaDoMenu() {
+      const p = this.bibleContextMenu.pendente;
+      if (!p) return;
+      this.notaPopup.aberto = true;
+      this.notaPopup.id = null;
+      this.notaPopup.textoRef = p.text;
+      this.notaPopup.conteudo = '';
+      this._pendenteNota = p;
+      window.getSelection()?.removeAllRanges();
+      this.bibleContextMenu.aberto = false;
+      this.bibleContextMenu.pendente = null;
     },
 
     offsetEmTexto(containerEl, node, offset) {
@@ -1528,32 +1573,18 @@ document.addEventListener('alpine:init', () => {
     },
 
     iniciarLongPressLeitura(ev) {
+      // Apenas touch; mouse usa mouseup + onSoltarLeitura
+      if (!ev.touches) return;
+      const touch = ev.touches[0];
       this._longPressTimer = setTimeout(() => {
         this._longPressTimer = null;
         this._longPressAcionado = true;
-        setTimeout(() => (this._longPressAcionado = false), 600);
-        const sel = window.getSelection();
-        if (!sel || sel.isCollapsed) return;
-        const range = sel.getRangeAt(0);
-        const node = range.commonAncestorContainer;
-        const el = node.nodeType === Node.TEXT_NODE ? node.parentElement : node;
-        const versoEl = el && el.closest ? el.closest('.verso-texto') : null;
-        if (!versoEl || !versoEl.contains(range.commonAncestorContainer)) return;
-        const verseNum = parseInt(versoEl.getAttribute('data-verse'), 10);
-        const div = document.createElement('div');
-        div.appendChild(range.cloneContents());
-        const selectedText = (div.textContent || '').trim();
-        if (!selectedText) return;
-        const start = this.offsetEmTexto(versoEl, range.startContainer, range.startOffset);
-        const end = this.offsetEmTexto(versoEl, range.endContainer, range.endOffset);
-        if (start === undefined || end === undefined) return;
-        const [s, e] = start <= end ? [start, end] : [end, start];
-        this.notaPopup.aberto = true;
-        this.notaPopup.id = null;
-        this.notaPopup.textoRef = selectedText;
-        this.notaPopup.conteudo = '';
-        this._pendenteNota = { verse: verseNum, start: s, end: e, text: selectedText };
-      }, 3000);
+        setTimeout(() => (this._longPressAcionado = false), 800);
+        const pendente = this._extrairSelecaoBiblia();
+        if (!pendente) return;
+        this.bibleContextMenu.pendente = pendente;
+        this._mostrarMenuBiblia(touch.clientX, touch.clientY);
+      }, 650);
     },
 
     cancelarLongPressLeitura() {
@@ -2239,22 +2270,22 @@ document.addEventListener('alpine:init', () => {
     },
 
     getPosicaoLabelFruto(index) {
-      // Posições dos labels ajustadas manualmente para evitar TODA sobreposição
-      // Espaçamento maior entre badges para garantir visibilidade total
+      // Posições fixas em % relativas ao .fruto-arvore-wrapper (viewBox 1024×1024).
+      // Distribuição: 2 + 3 + 3 + 1 = 9 itens em fileiras, formato que acompanha
+      // a copa da árvore (mais estreita no topo, larga no meio, afunilando no fim).
+      // O CSS aplica transform: translate(-50%, -50%) para centralizar cada círculo.
       const posicoes = [
-        { top: '60%', left: '65%' },   // Amor - movido para direita
-        { top: '68%', right: '22%' },  // Alegria - movido mais para direita
-        { top: '59%', left: '36%' },   // Paz - movido para esquerda
-        { top: '53%', left: '28%' },   // Longanimidade - movido mais para esquerda
-        { top: '70%', left: '20%' },   // Benignidade - movido mais para esquerda
-        { top: '43%', left: '42%' },   // Bondade - ajustado
-        { top: '33%', left: '34%' },   // Fidelidade - movido para esquerda
-        { top: '23%', left: '44%' },   // Mansidão - ajustado
-        { top: '28%', left: '49%' }   // Domínio próprio - ajustado
+        // Fileira 1 — topo da copa, mais estreito (2 itens)
+        [38, 13], [62, 13],
+        // Fileira 2 — copa larga (3 itens)
+        [22, 29], [50, 29], [78, 29],
+        // Fileira 3 — copa mais larga (3 itens)
+        [20, 45], [50, 45], [80, 45],
+        // Fileira 4 — base da copa, acima do tronco (1 item centrado)
+        [50, 60],
       ];
-      const pos = posicoes[index] || { top: '50%', left: '50%' };
-      const style = Object.entries(pos).map(([k, v]) => `${k}: ${v}`).join('; ');
-      return `${style}; margin: 15px;`;
+      const [left, top] = posicoes[index] || [50, 50];
+      return `left: ${left}%; top: ${top}%;`;
     },
 
     renderizarFrutosSVG() {
@@ -2316,71 +2347,7 @@ document.addEventListener('alpine:init', () => {
     },
     
     ajustarPosicoesFrutos() {
-      // Função para evitar sobreposição dos labels dos frutos
-      const labels = document.querySelectorAll('.fruto-label-overlay');
-      if (labels.length === 0) return;
-      
-      const padding = 10; // Espaçamento mínimo em pixels
-      const labelsArray = Array.from(labels);
-      
-      labelsArray.forEach((label, index) => {
-        let tentativas = 0;
-        const maxTentativas = 50;
-        let colisao = true;
-        
-        while (colisao && tentativas < maxTentativas) {
-          colisao = false;
-          const rect = label.getBoundingClientRect();
-          
-          labelsArray.forEach((outroLabel, outroIndex) => {
-            if (index === outroIndex) return;
-            
-            const outroRect = outroLabel.getBoundingClientRect();
-            
-            // Verificar se há sobreposição
-            if (!(rect.right + padding < outroRect.left || 
-                  rect.left > outroRect.right + padding ||
-                  rect.bottom + padding < outroRect.top ||
-                  rect.top > outroRect.bottom + padding)) {
-              colisao = true;
-              
-              // Calcular distância e direção
-              const dx = outroRect.left - rect.left;
-              const dy = outroRect.top - rect.top;
-              const distancia = Math.sqrt(dx * dx + dy * dy);
-              
-              if (distancia < padding * 2) {
-                // Mover o label atual para longe
-                const container = label.parentElement;
-                const containerRect = container.getBoundingClientRect();
-                
-                const currentTop = parseFloat(label.style.top || '0');
-                const currentLeft = parseFloat(label.style.left || '0');
-                const currentRight = parseFloat(label.style.right || '0');
-                
-                // Calcular deslocamento em porcentagem
-                const offsetX = (padding * 1.5 / containerRect.width) * 100;
-                const offsetY = (padding * 1.5 / containerRect.height) * 100;
-                
-                // Mover na direção oposta à colisão
-                if (Math.abs(dx) > Math.abs(dy)) {
-                  // Mover horizontalmente
-                  if (label.style.left !== 'auto') {
-                    label.style.left = `${Math.max(2, Math.min(98, currentLeft + (dx > 0 ? -offsetX : offsetX)))}%`;
-                  } else {
-                    label.style.right = `${Math.max(2, Math.min(98, currentRight + (dx > 0 ? offsetX : -offsetX)))}%`;
-                  }
-                } else {
-                  // Mover verticalmente
-                  label.style.top = `${Math.max(2, Math.min(98, currentTop + (dy > 0 ? -offsetY : offsetY)))}%`;
-                }
-              }
-            }
-          });
-          
-          tentativas++;
-        }
-      });
+      // Posições fixas definidas em getPosicaoLabelFruto — nenhum ajuste dinâmico necessário.
     },
 
     isObraAtiva(index) {
@@ -2430,32 +2397,26 @@ document.addEventListener('alpine:init', () => {
     },
 
     getPosicaoLabelObra(index) {
-      // Posições dos labels ajustadas manualmente para evitar TODA sobreposição
-      // Distribuição em múltiplos círculos concêntricos com raios alternados
-      const centroX = 50;
-      const centroY = 50;
-      
-      // Usar raios alternados (20, 26, 20, 26...) para criar dois círculos concêntricos
-      // Isso garante que labels adjacentes não se sobreponham
-      const raioBase = index % 2 === 0 ? 20 : 26;
-      const raio = raioBase;
-      
-      const anguloInicial = -Math.PI / 2;
-      const anguloPorItem = (2 * Math.PI) / 15;
-      
-      // Adicionar pequeno offset para labels do círculo externo
-      const offsetAngulo = index % 2 === 1 ? (anguloPorItem / 3) : 0;
-      const angulo = anguloInicial + (index * anguloPorItem) + offsetAngulo;
-      
-      const x = centroX + (raio * Math.cos(angulo));
-      const y = centroY + (raio * Math.sin(angulo));
-      
-      // Converter para posicionamento CSS com limites seguros
-      const left = x < 50 ? `${Math.max(x, 3)}%` : 'auto';
-      const right = x >= 50 ? `${Math.max(100 - x, 3)}%` : 'auto';
-      const top = `${Math.max(Math.min(y, 97), 3)}%`;
-      
-      return `top: ${top}; ${left !== 'auto' ? `left: ${left}` : `right: ${right}`}; margin: 15px;`;
+      // Posições fixas calibradas para o formato do coração SVG (viewBox 512×512).
+      // Distribuição: 2 + 3 + 3 + 3 + 2 + 2 = 15 itens, sem sobreposição.
+      // Valores em % relativos ao .obras-svg-wrapper (quadrado, mesmo tamanho do SVG).
+      // O CSS aplica transform: translate(-50%, -50%) para centralizar cada label.
+      const posicoes = [
+        // Fileira 1 — topo, área dos dois lobos (2 itens)
+        [32, 19], [68, 19],
+        // Fileira 2 (3 itens)
+        [18, 32], [50, 32], [82, 32],
+        // Fileira 3 — meio (3 itens)
+        [14, 46], [50, 46], [86, 46],
+        // Fileira 4 (3 itens)
+        [21, 59], [50, 59], [79, 59],
+        // Fileira 5 — começa a afunilar (2 itens)
+        [34, 71], [66, 71],
+        // Fileira 6 — base da ponta do coração (2 itens)
+        [42, 82], [58, 82],
+      ];
+      const [left, top] = posicoes[index] || [50, 50];
+      return `left: ${left}%; top: ${top}%;`;
     },
 
     renderizarObrasSVG() {
@@ -2472,79 +2433,82 @@ document.addEventListener('alpine:init', () => {
     },
     
     ajustarPosicoesObras() {
-      // Função para evitar sobreposição dos labels das obras
-      const labels = document.querySelectorAll('.obra-label-overlay');
-      if (labels.length === 0) return;
-      
-      const padding = 10; // Espaçamento mínimo em pixels
-      const labelsArray = Array.from(labels);
-      
-      labelsArray.forEach((label, index) => {
-        let tentativas = 0;
-        const maxTentativas = 50;
-        let colisao = true;
-        
-        while (colisao && tentativas < maxTentativas) {
-          colisao = false;
-          const rect = label.getBoundingClientRect();
-          
-          labelsArray.forEach((outroLabel, outroIndex) => {
-            if (index === outroIndex) return;
-            
-            const outroRect = outroLabel.getBoundingClientRect();
-            
-            // Verificar se há sobreposição
-            if (!(rect.right + padding < outroRect.left || 
-                  rect.left > outroRect.right + padding ||
-                  rect.bottom + padding < outroRect.top ||
-                  rect.top > outroRect.bottom + padding)) {
-              colisao = true;
-              
-              // Calcular distância e direção
-              const dx = outroRect.left - rect.left;
-              const dy = outroRect.top - rect.top;
-              const distancia = Math.sqrt(dx * dx + dy * dy);
-              
-              if (distancia < padding * 2) {
-                // Mover o label atual para longe
-                const container = label.parentElement;
-                const containerRect = container.getBoundingClientRect();
-                
-                const currentTop = parseFloat(label.style.top || '0');
-                const currentLeft = parseFloat(label.style.left || '0');
-                const currentRight = parseFloat(label.style.right || '0');
-                
-                // Calcular deslocamento em porcentagem
-                const offsetX = (padding * 1.5 / containerRect.width) * 100;
-                const offsetY = (padding * 1.5 / containerRect.height) * 100;
-                
-                // Mover na direção oposta à colisão
-                if (Math.abs(dx) > Math.abs(dy)) {
-                  // Mover horizontalmente
-                  if (label.style.left !== 'auto') {
-                    label.style.left = `${Math.max(2, Math.min(98, currentLeft + (dx > 0 ? -offsetX : offsetX)))}%`;
-                  } else {
-                    label.style.right = `${Math.max(2, Math.min(98, currentRight + (dx > 0 ? offsetX : -offsetX)))}%`;
-                  }
-                } else {
-                  // Mover verticalmente
-                  label.style.top = `${Math.max(2, Math.min(98, currentTop + (dy > 0 ? -offsetY : offsetY)))}%`;
-                }
-              }
-            }
-          });
-          
-          tentativas++;
-        }
-      });
+      // Posições fixas definidas em getPosicaoLabelObra — nenhum ajuste dinâmico necessário.
     },
 
     toggleObraInfo(index) {
-      // Pode ser usado para mostrar informações da obra ao clicar
       const obra = this.OBRAS_DA_CARNE[index];
       const ativa = this.isObraAtiva(index);
       console.log(`${obra} - ${ativa ? 'Ativa' : 'Inativa'}`);
     },
+
+    // ── Zoom / Pan ─────────────────────────────────────────────────────────
+    _z(tipo) { return tipo === 'obras' ? this.obrasZoom : this.frutoZoom; },
+
+    getZoomStyle(tipo) {
+      const z = this._z(tipo);
+      const cursor = z.dragging ? 'grabbing' : (z.scale > 1 ? 'grab' : 'default');
+      return `transform: translate(${z.tx}px, ${z.ty}px) scale(${z.scale}); transform-origin: center; cursor: ${cursor};`;
+    },
+
+    zoomIn(tipo) {
+      const z = this._z(tipo);
+      z.scale = Math.min(4, parseFloat((z.scale + 0.35).toFixed(2)));
+    },
+
+    zoomOut(tipo) {
+      const z = this._z(tipo);
+      z.scale = Math.max(0.75, parseFloat((z.scale - 0.35).toFixed(2)));
+      if (z.scale <= 1) { z.scale = 1; z.tx = 0; z.ty = 0; }
+    },
+
+    resetZoom(tipo) {
+      const z = this._z(tipo);
+      z.scale = 1; z.tx = 0; z.ty = 0;
+    },
+
+    startDrag(tipo, e) {
+      if (e.button !== 0) return;
+      const z = this._z(tipo);
+      z.dragging = true;
+      z.startX = e.clientX - z.tx;
+      z.startY = e.clientY - z.ty;
+      e.preventDefault();
+
+      // Listeners no window para capturar drag mesmo fora do elemento transformado
+      const onMove = (ev) => {
+        if (!z.dragging) return;
+        z.tx = ev.clientX - z.startX;
+        z.ty = ev.clientY - z.startY;
+      };
+      const onUp = () => {
+        z.dragging = false;
+        window.removeEventListener('mousemove', onMove);
+        window.removeEventListener('mouseup', onUp);
+      };
+      window.addEventListener('mousemove', onMove);
+      window.addEventListener('mouseup', onUp);
+    },
+
+    onDrag(tipo, e) {
+      // Mantido para compatibilidade; drag real é tratado pelo window listener em startDrag
+      const z = this._z(tipo);
+      if (!z.dragging) return;
+      z.tx = e.clientX - z.startX;
+      z.ty = e.clientY - z.startY;
+    },
+
+    stopDrag(tipo) {
+      this._z(tipo).dragging = false;
+    },
+
+    onWheelZoom(tipo, e) {
+      const z = this._z(tipo);
+      const delta = e.deltaY < 0 ? 0.15 : -0.15;
+      z.scale = Math.max(0.75, Math.min(4, parseFloat((z.scale + delta).toFixed(2))));
+      if (z.scale <= 1) { z.scale = 1; z.tx = 0; z.ty = 0; }
+    },
+    // ───────────────────────────────────────────────────────────────────────
 
     VERSAO_TERMOS
   }));

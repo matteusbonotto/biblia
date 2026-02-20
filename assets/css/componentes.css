@@ -897,9 +897,6 @@
 }
 
 .card-missao-timer-top {
-  position: absolute;
-  top: 0;
-  right: 0;
   display: flex;
   align-items: center;
   gap: 0.375rem;
@@ -910,6 +907,11 @@
   padding: 0.25rem 0.5rem;
   background: rgba(0, 0, 0, 0.03);
   border-radius: 6px;
+  /* Sem position:absolute — fica como flex-item normal, sem sobrepor o título */
+  flex-shrink: 0;
+  align-self: flex-start;
+  white-space: nowrap;
+  margin-left: auto;
 }
 
 .card-missao-timer-top i {
@@ -2059,32 +2061,88 @@
   color: var(--cor-texto-secundario);
 }
 
+/* ── Zoom / Pan compartilhado (Fruto + Obras) ── */
+.zoom-canvas {
+  position: relative;
+  width: 100%;
+  will-change: transform;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+.zoom-controls {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  z-index: 30;
+}
+
+.zoom-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.48);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.82rem;
+  line-height: 1;
+  transition: background 0.18s, transform 0.12s;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  padding: 0;
+}
+
+.zoom-btn:hover {
+  background: rgba(0, 0, 0, 0.72);
+  transform: scale(1.12);
+}
+
+.zoom-btn:active {
+  transform: scale(0.92);
+}
+
+.zoom-btn-reset {
+  font-size: 0.72rem;
+}
+
+/* Wrappers com overflow para clip do zoom */
+.obras-svg-wrapper,
+.fruto-arvore-wrapper {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
 /* Fruto do Espírito - Árvore SVG */
 .fruto-arvore-container {
   position: relative;
   display: flex;
   justify-content: center;
-  align-items: center;
-  padding: 1rem;
+  align-items: flex-start;
+  padding: 0.5rem;
   background: linear-gradient(to bottom, #87CEEB 0%, #98D8C8 50%, #7CB342 100%);
   border-radius: 16px;
   overflow: visible;
-  min-height: 600px;
-  max-height: 600px;
-  height: 600px;
+}
+
+.fruto-arvore-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
 }
 
 .fruto-arvore-svg {
-  width: 600px;
-  height: 600px;
-  max-width: 100%;
-  max-height: 100%;
+  width: 100%;
+  height: auto;
   display: block;
-  flex-shrink: 0;
-  object-fit: contain;
-  aspect-ratio: 1 / 1;
-  position: relative;
-  z-index: 1;
 }
 
 .fruto-labels-overlay {
@@ -2100,28 +2158,53 @@
 
 .fruto-label-overlay {
   position: absolute;
-  font-size: 0.7rem;
-  font-weight: 600;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  font-weight: 700;
   text-align: center;
-  color: var(--cor-texto);
-  background: rgba(255, 255, 255, 0.9);
-  padding: 0.2rem 0.4rem;
-  border-radius: 6px;
-  white-space: nowrap;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  color: #1a3d1f;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 0 0 2px rgba(92, 176, 135, 0.7), 0 3px 8px rgba(0, 0, 0, 0.2);
   pointer-events: auto;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: transform 0.2s, background 0.2s;
+  transform: translate(-50%, -50%);
+  overflow: hidden;
+  padding: 3px;
+}
+
+.fruto-label-nome {
+  font-size: 0.48rem;
+  line-height: 1.15;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+.fruto-label-percentual {
+  font-size: 0.46rem;
+  opacity: 0.75;
+  font-weight: 600;
 }
 
 .fruto-label-overlay:hover {
-  transform: scale(1.1);
+  transform: translate(-50%, -50%) scale(1.15);
   z-index: 10;
 }
 
 .fruto-label-overlay.desbloqueado {
-  background: rgba(39, 174, 96, 0.9);
+  background: rgba(39, 174, 96, 0.92);
   color: white;
+  box-shadow: 0 0 0 2px rgba(39, 174, 96, 0.9), 0 0 12px rgba(39, 174, 96, 0.4), 0 3px 8px rgba(0, 0, 0, 0.2);
+}
+
+.fruto-label-overlay.desbloqueado .fruto-label-percentual {
+  opacity: 0.85;
 }
 
 .fruto-grupo {
@@ -2185,37 +2268,38 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 1rem;
+  padding: 0.5rem;
   background: linear-gradient(135deg, #8b0000 0%, #ff4500 100%);
   border-radius: 16px;
-  overflow: hidden;
-  min-height: 600px;
+  overflow: visible;
+}
+
+.obras-svg-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
 }
 
 .obras-svg {
-  width: 600px;
-  height: 600px;
-  max-width: 100%;
-  max-height: 100%;
+  width: 100%;
+  height: auto;
   display: block;
-  flex-shrink: 0;
-  object-fit: contain;
 }
 
 .coracao-grande-pulsante {
-  transform: translate(256, 256) scale(2.2);
-  transform-origin: 0 0;
-  animation: pulso-coracao-grande 2s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pulso-coracao-grande 1.4s ease-in-out infinite;
 }
 
 @keyframes pulso-coracao-grande {
-  0%, 100% { 
-    transform: translate(256, 256) scale(2.2);
-    opacity: 0.7;
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.75;
   }
-  50% { 
-    transform: translate(256, 256) scale(2.25);
-    opacity: 0.9;
+  50% {
+    transform: scale(1.06);
+    opacity: 1;
   }
 }
 
@@ -2230,31 +2314,49 @@
 
 .obra-label-overlay {
   position: absolute;
-  font-size: 0.7rem;
-  font-weight: 600;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  font-weight: 700;
   text-align: center;
   color: white;
-  background: rgba(139, 0, 0, 0.9);
-  padding: 0.2rem 0.4rem;
-  border-radius: 6px;
-  white-space: nowrap;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  background: rgba(120, 0, 0, 0.93);
+  box-shadow: 0 0 0 2px rgba(255, 105, 180, 0.55), 0 3px 8px rgba(0, 0, 0, 0.5);
   pointer-events: auto;
   cursor: pointer;
-  transition: all 0.3s;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: transform 0.2s, background 0.2s;
+  transform: translate(-50%, -50%);
+  overflow: hidden;
+  padding: 3px;
+}
+
+.obra-label-nome {
+  font-size: 0.48rem;
+  line-height: 1.15;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+.obra-label-percentual {
+  font-size: 0.46rem;
+  opacity: 0.85;
+  font-weight: 600;
 }
 
 .obra-label-overlay:hover {
-  transform: scale(1.1);
+  transform: translate(-50%, -50%) scale(1.15);
   z-index: 10;
-  background: rgba(220, 20, 60, 0.95);
+  background: rgba(200, 0, 40, 0.97);
 }
 
 .obra-label-overlay.ativa {
-  background: rgba(220, 20, 60, 0.95);
-  border-color: #ff1493;
-  box-shadow: 0 0 8px rgba(255, 20, 147, 0.6);
+  background: rgba(220, 20, 60, 0.97);
+  box-shadow: 0 0 0 2px #ff1493, 0 0 14px rgba(255, 20, 147, 0.7), 0 3px 8px rgba(0, 0, 0, 0.5);
 }
 
 .obra-coracao-grupo {
@@ -2305,26 +2407,9 @@
     gap: 0.5rem;
   }
   
-  .fruto-arvore-container {
-    padding: 0.5rem;
-    min-height: 400px;
-    max-height: 400px;
-    height: 400px;
-    overflow: visible;
-  }
-  
-  .fruto-arvore-svg {
-    width: 400px !important;
-    height: 400px !important;
-    min-height: 400px;
-    position: relative;
-    z-index: 1;
-  }
-  
-  .obras-svg {
-    width: 400px !important;
-    height: 400px !important;
-    min-height: 400px;
+  .fruto-arvore-wrapper,
+  .obras-svg-wrapper {
+    max-width: 100%;
   }
   
   .fruto-label-overlay {
