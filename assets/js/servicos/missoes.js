@@ -22,34 +22,56 @@ async function listarMissoesAtivas(usuarioId) {
 
 async function listarTodasMissoes(usuarioId, filtroStatus = null, filtroTipo = null, limite = 10, offset = 0) {
   if (!supabase || !usuarioId) return { missoes: [], total: 0 };
-  
+
   // Expirar missões automaticamente antes de listar
   await expirarMissoesAutomaticamente(usuarioId);
-  
-  const { data, error } = await supabase.rpc('listar_todas_missoes_usuario', {
+
+  // Tentar RPC primeiro
+  let missoes = null;
+  const { data: rpcData, error: rpcError } = await supabase.rpc('listar_todas_missoes_usuario', {
     p_usuario_id: usuarioId,
     p_status: filtroStatus,
     p_tipo: filtroTipo,
     p_limit: limite,
     p_offset: offset
   });
-  if (error) {
-    console.error('Erro ao listar missões:', error);
-    return { missoes: [], total: 0 };
+
+  if (!rpcError && rpcData) {
+    missoes = rpcData;
+  } else {
+    // Fallback: query direta se RPC falhar
+    if (rpcError) console.warn('RPC listar_todas_missoes_usuario falhou, usando query direta:', rpcError.message);
+    let q = supabase
+      .from('missoes')
+      .select('*, modelos_missao(*)')
+      .eq('usuario_id', usuarioId);
+    if (filtroStatus) q = q.eq('status', filtroStatus);
+    if (filtroTipo) {
+      const { data: mods } = await supabase.from('modelos_missao').select('id').eq('tipo', filtroTipo);
+      if (mods && mods.length > 0) {
+        q = q.in('modelo_id', mods.map(m => m.id));
+      } else {
+        return { missoes: [], total: 0 };
+      }
+    }
+    q = q.order('iniciada_em', { ascending: false }).range(offset, offset + limite - 1);
+    const { data: fallback } = await q;
+    missoes = fallback;
   }
+
   // Contar total para paginação
-  let query = supabase.from('missoes').select('*', { count: 'exact', head: true }).eq('usuario_id', usuarioId);
-  if (filtroStatus) query = query.eq('status', filtroStatus);
+  let countQ = supabase.from('missoes').select('*', { count: 'exact', head: true }).eq('usuario_id', usuarioId);
+  if (filtroStatus) countQ = countQ.eq('status', filtroStatus);
   if (filtroTipo) {
-    const { data: modelos } = await supabase.from('modelos_missao').select('id').eq('tipo', filtroTipo);
-    if (modelos && modelos.length > 0) {
-      query = query.in('modelo_id', modelos.map(m => m.id));
+    const { data: mods2 } = await supabase.from('modelos_missao').select('id').eq('tipo', filtroTipo);
+    if (mods2 && mods2.length > 0) {
+      countQ = countQ.in('modelo_id', mods2.map(m => m.id));
     } else {
-      return { missoes: [], total: 0 };
+      return { missoes: missoes || [], total: 0 };
     }
   }
-  const { count } = await query;
-  return { missoes: data || [], total: count || 0 };
+  const { count } = await countQ;
+  return { missoes: missoes || [], total: count || 0 };
 }
 
 async function expirarMissoesAutomaticamente(usuarioId) {

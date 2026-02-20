@@ -64,42 +64,54 @@ body {
   padding-top: var(--safe-top);
 }
 
-/* Layout logado: header + área rolável + footer. Scroll APENAS no meio. */
+/*
+ * LAYOUT LOGADO
+ * ─────────────────────────────────────────────────────────────────
+ * Estrutura flex-column que preenche exatamente 100dvh:
+ *
+ *   ┌──────────────────────────┐  ← hud-topo   (flex: 0 0 auto)
+ *   │  HEADER  (fixo no topo)  │
+ *   ├──────────────────────────┤
+ *   │                          │
+ *   │  CONTEÚDO  (scroll aqui) │  ← area-principal (flex: 1 1 auto)
+ *   │                          │
+ *   ├──────────────────────────┤
+ *   │  NAVBAR  (fixo no fim)   │  ← nav-inferior  (flex: 0 0 auto)
+ *   └──────────────────────────┘
+ *
+ * Nada pode aparecer fora dessas três zonas.
+ * O scroll acontece SOMENTE na area-principal.
+ */
 .layout-logado {
   display: flex;
   flex-direction: column;
   height: 100dvh;
-  height: 100vh;
+  height: 100vh;  /* fallback para browsers antigos */
   overflow: hidden;
 }
 
+/* Header: altura fixa, não encolhe nem cresce */
 .layout-logado .hud-topo {
   flex: 0 0 auto;
-  position: relative;
-  top: auto;
-  left: auto;
-  right: auto;
+  position: relative; /* garante que position:sticky dos filhos funcione dentro dele */
 }
 
+/* Conteúdo: ocupa todo o espaço restante, rola internamente */
 .layout-logado .area-principal {
   flex: 1 1 auto;
-  min-height: 0;
+  min-height: 0;      /* essencial para o overflow-y funcionar dentro do flex */
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   padding: 1rem;
+  /* SEM padding-bottom extra — a nav ocupa o espaço no flex */
 }
 
-.layout-logado .nav-inferior {
-  flex: 0 0 auto;
-  position: relative;
-  bottom: auto;
-  left: auto;
-  right: auto;
-}
-
-/* Navegação inferior - altura fixa */
+/* Navbar inferior: altura fixa, fica grudada no fundo do flex */
 .nav-inferior {
+  flex: 0 0 auto;     /* não cresce nem encolhe */
+  position: relative; /* DENTRO do layout-logado: parte do fluxo flex, NÃO fixed */
+  width: 100%;
   height: var(--nav-inferior-altura);
   min-height: calc(56px + var(--safe-bottom));
   background: var(--cor-fundo-card);
@@ -110,6 +122,14 @@ body {
   align-items: center;
   z-index: 1000;
   box-shadow: 0 -2px 10px var(--sombra);
+}
+
+/* Fora do layout-logado (ex: páginas públicas), mantém fixed */
+body:not(:has(.layout-logado)) .nav-inferior {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 
 .nav-inferior a {

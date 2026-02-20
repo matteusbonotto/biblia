@@ -1225,83 +1225,79 @@
           <h2 class="titulo-pagina mb-1">Missões</h2>
           <p class="subtitulo-pagina mb-3">Cumpra missões e ganhe XP e ouro</p>
 
-          <!-- Resumo compacto: métricas inline + legenda colapsável -->
-          <div class="miss-resumo">
-            <!-- Métricas em linha única -->
-            <div class="miss-resumo-metricas">
-              <span class="miss-met">
-                <b x-text="filtroMissaoStatus === null ? (modelosMissoesFiltrados.length + totalMissoes) : totalMissoes"></b>
-                Total
-              </span>
-              <span class="miss-met-sep">·</span>
-              <span class="miss-met">
-                <b x-text="metricasMissoes?.ativas || 0"></b>
-                Ativas
-              </span>
-              <span class="miss-met-sep">·</span>
-              <span class="miss-met miss-met--ok">
-                <b x-text="metricasMissoes?.concluidas || 0"></b>
-                Concluídas
-              </span>
-              <span class="miss-met-sep">·</span>
-              <span class="miss-met miss-met--off">
-                <b x-text="(metricasMissoes?.abandonadas || 0) + (metricasMissoes?.expiradas || 0)"></b>
-                Não concluídas
-              </span>
-            </div>
-
-            <!-- Legenda colapsável -->
-            <details class="miss-legenda">
-              <summary class="miss-legenda-toggle">
-                <i class="bi bi-info-circle"></i> Ver legenda
-              </summary>
-              <div class="miss-legenda-corpo">
-                <div class="miss-legenda-linha">
-                  <span class="miss-leg-titulo">Status:</span>
-                  <span class="miss-leg-item" title="Disponível"><span class="miss-leg-cor" style="background:#fff;border:1px solid #e0e0e0"></span>Disponível</span>
-                  <span class="miss-leg-item" title="Em andamento"><span class="miss-leg-cor" style="background:#e3f2fd;border:1px solid #2196f3"></span>Andamento</span>
-                  <span class="miss-leg-item" title="Concluída"><span class="miss-leg-cor" style="background:#e8f5e9;border:1px solid #4caf50"></span>Concluída</span>
-                  <span class="miss-leg-item" title="Não concluída"><span class="miss-leg-cor" style="background:#fff3e0;border:1px solid #ff9800"></span>Não concluída</span>
-                </div>
-                <div class="miss-legenda-linha">
-                  <span class="miss-leg-titulo">Tipo:</span>
-                  <span class="miss-leg-item"><i class="bi bi-person-heart"></i>Humana</span>
-                  <span class="miss-leg-item"><i class="bi bi-heart"></i>Espiritual</span>
-                  <span class="miss-leg-item"><i class="bi bi-book"></i>Conhecimento</span>
-                  <span class="miss-leg-item"><i class="bi bi-check-circle"></i>Tarefa</span>
-                  <span class="miss-leg-item"><i class="bi bi-people"></i>Casal</span>
-                </div>
-              </div>
-            </details>
-          </div>
-
-          <!-- Filtros minimalistas -->
-          <div class="filtros-missoes">
-            <button type="button" class="filtro-btn" :class="{ ativo: filtroMissaoStatus === null }" @click="paginaMissoes = 1; filtroMissaoStatus = null; atualizarFiltrosMissoes()">Todas</button>
-            <button type="button" class="filtro-btn" :class="{ ativo: filtroMissaoStatus === 'ativa' }" @click="paginaMissoes = 1; filtroMissaoStatus = 'ativa'; atualizarFiltrosMissoes()">Ativas</button>
-            <button type="button" class="filtro-btn" :class="{ ativo: filtroMissaoStatus === 'concluida' }" @click="paginaMissoes = 1; filtroMissaoStatus = 'concluida'; atualizarFiltrosMissoes()">Concluídas</button>
-            <button type="button" class="filtro-btn" :class="{ ativo: filtroMissaoStatus === 'nao_concluidas' }" @click="paginaMissoes = 1; filtroMissaoStatus = 'nao_concluidas'; atualizarFiltrosMissoes()">Não Concluídas</button>
-            <button type="button" class="filtro-btn" :class="{ ativo: filtroMissaoTipo !== null }" @click="mostrarFiltroTipo = !mostrarFiltroTipo">
-              <i class="bi bi-funnel me-1"></i> Tipo
+          <!-- Métricas clicáveis — funcionam como filtro rápido de status -->
+          <div class="miss-stats-row">
+            <button type="button" class="miss-stat-card"
+                    :class="filtroMissaoStatus === null ? 'miss-stat-card--sel' : ''"
+                    @click="paginaMissoes=1; filtroMissaoStatus=null; atualizarFiltrosMissoes()">
+              <i class="bi bi-grid-fill miss-stat-icon"></i>
+              <span class="miss-stat-num" x-text="metricasMissoes?.total || 0"></span>
+              <span class="miss-stat-label">Minhas missões</span>
+            </button>
+            <button type="button" class="miss-stat-card miss-stat-card--ativa"
+                    :class="filtroMissaoStatus === 'ativa' ? 'miss-stat-card--sel' : ''"
+                    @click="paginaMissoes=1; filtroMissaoStatus='ativa'; atualizarFiltrosMissoes()">
+              <i class="bi bi-lightning-fill miss-stat-icon"></i>
+              <span class="miss-stat-num" x-text="metricasMissoes?.ativas || 0"></span>
+              <span class="miss-stat-label">Ativas</span>
+            </button>
+            <button type="button" class="miss-stat-card miss-stat-card--ok"
+                    :class="filtroMissaoStatus === 'concluida' ? 'miss-stat-card--sel' : ''"
+                    @click="paginaMissoes=1; filtroMissaoStatus='concluida'; atualizarFiltrosMissoes()">
+              <i class="bi bi-check-circle-fill miss-stat-icon"></i>
+              <span class="miss-stat-num" x-text="metricasMissoes?.concluidas || 0"></span>
+              <span class="miss-stat-label">Concluídas</span>
+            </button>
+            <button type="button" class="miss-stat-card miss-stat-card--off"
+                    :class="filtroMissaoStatus === 'nao_concluidas' ? 'miss-stat-card--sel' : ''"
+                    @click="paginaMissoes=1; filtroMissaoStatus='nao_concluidas'; atualizarFiltrosMissoes()">
+              <i class="bi bi-x-circle-fill miss-stat-icon"></i>
+              <span class="miss-stat-num" x-text="(metricasMissoes?.abandonadas||0) + (metricasMissoes?.expiradas||0)"></span>
+              <span class="miss-stat-label">Não concluídas</span>
             </button>
           </div>
 
-          <!-- Filtro por tipo (dropdown) -->
-          <div x-show="mostrarFiltroTipo" class="mb-3">
-            <div class="d-flex gap-2 flex-wrap">
-              <button type="button" class="filtro-btn" :class="{ ativo: filtroMissaoTipo === null }" @click="filtroMissaoTipo = null; atualizarFiltrosMissoes()">Todos</button>
-              <button type="button" class="filtro-btn" :class="{ ativo: filtroMissaoTipo === 'humana' }" @click="filtroMissaoTipo = 'humana'; atualizarFiltrosMissoes()">Humanas</button>
-              <button type="button" class="filtro-btn" :class="{ ativo: filtroMissaoTipo === 'espiritual' }" @click="filtroMissaoTipo = 'espiritual'; atualizarFiltrosMissoes()">Espirituais</button>
-              <button type="button" class="filtro-btn" :class="{ ativo: filtroMissaoTipo === 'conhecimento' }" @click="filtroMissaoTipo = 'conhecimento'; atualizarFiltrosMissoes()">Conhecimento</button>
-              <button type="button" class="filtro-btn" :class="{ ativo: filtroMissaoTipo === 'tarefa' }" @click="filtroMissaoTipo = 'tarefa'; atualizarFiltrosMissoes()">Tarefa</button>
-              <button type="button" class="filtro-btn" :class="{ ativo: filtroMissaoTipo === 'casal' }" @click="filtroMissaoTipo = 'casal'; atualizarFiltrosMissoes()">Casal</button>
-            </div>
+          <!-- Filtro por tipo — barra horizontal sempre visível -->
+          <div class="miss-tipo-row">
+            <button type="button" class="miss-tipo-pill"
+                    :class="filtroMissaoTipo === null ? 'miss-tipo-pill--ativo' : ''"
+                    @click="filtroMissaoTipo=null; paginaMissoes=1; atualizarFiltrosMissoes()">
+              <i class="bi bi-asterisk"></i> Todos
+            </button>
+            <button type="button" class="miss-tipo-pill"
+                    :class="filtroMissaoTipo === 'humana' ? 'miss-tipo-pill--ativo' : ''"
+                    @click="filtroMissaoTipo='humana'; paginaMissoes=1; atualizarFiltrosMissoes()">
+              <i class="bi bi-person-heart"></i> Humana
+            </button>
+            <button type="button" class="miss-tipo-pill"
+                    :class="filtroMissaoTipo === 'espiritual' ? 'miss-tipo-pill--ativo' : ''"
+                    @click="filtroMissaoTipo='espiritual'; paginaMissoes=1; atualizarFiltrosMissoes()">
+              <i class="bi bi-heart"></i> Espiritual
+            </button>
+            <button type="button" class="miss-tipo-pill"
+                    :class="filtroMissaoTipo === 'conhecimento' ? 'miss-tipo-pill--ativo' : ''"
+                    @click="filtroMissaoTipo='conhecimento'; paginaMissoes=1; atualizarFiltrosMissoes()">
+              <i class="bi bi-book"></i> Conhecimento
+            </button>
+            <button type="button" class="miss-tipo-pill"
+                    :class="filtroMissaoTipo === 'tarefa' ? 'miss-tipo-pill--ativo' : ''"
+                    @click="filtroMissaoTipo='tarefa'; paginaMissoes=1; atualizarFiltrosMissoes()">
+              <i class="bi bi-check2-square"></i> Tarefa
+            </button>
+            <button type="button" class="miss-tipo-pill"
+                    :class="filtroMissaoTipo === 'casal' ? 'miss-tipo-pill--ativo' : ''"
+                    @click="filtroMissaoTipo='casal'; paginaMissoes=1; atualizarFiltrosMissoes()">
+              <i class="bi bi-people"></i> Casal
+            </button>
           </div>
 
           <!-- Cards de missões disponíveis (modelos) - só mostra quando não há filtro de status -->
           <template x-if="filtroMissaoStatus === null">
             <div>
-              <p class="subtitulo-secao mb-3">Novas missões disponíveis <span class="texto-secundario fs-menor" x-text="'(' + modelosMissoesFiltrados.length + ')'"></span></p>
+              <p class="miss-secao-titulo">
+                <i class="bi bi-stars"></i> Disponíveis para iniciar
+                <span class="miss-secao-contagem" x-text="modelosMissoesFiltrados.length"></span>
+              </p>
               <div class="cards-missoes-grid">
                 <template x-for="mod in modelosMissoesFiltrados" :key="mod.id">
                   <div class="card-missao disponivel">
@@ -1371,10 +1367,17 @@
 
           <!-- Cards de missões (todas quando sem filtro, ou filtradas) -->
           <div>
-            <p class="subtitulo-secao mb-3" x-show="filtroMissaoStatus !== null" x-text="(filtroMissaoStatus === 'ativa' ? 'Missões em andamento' : filtroMissaoStatus === 'concluida' ? 'Missões concluídas' : 'Missões não concluídas') + ' (' + totalMissoes + ')'"></p>
-            <p class="subtitulo-secao mb-3" x-show="filtroMissaoStatus === null && missoesFiltradas.length > 0" x-text="'Suas missões (' + totalMissoes + ')'"></p>
+            <p class="miss-secao-titulo" x-show="filtroMissaoStatus !== null">
+              <i :class="filtroMissaoStatus === 'ativa' ? 'bi bi-lightning-fill' : filtroMissaoStatus === 'concluida' ? 'bi bi-check-circle-fill' : 'bi bi-x-circle-fill'"></i>
+              <span x-text="filtroMissaoStatus === 'ativa' ? 'Em andamento' : filtroMissaoStatus === 'concluida' ? 'Concluídas' : 'Não concluídas'"></span>
+              <span class="miss-secao-contagem" x-text="totalMissoes"></span>
+            </p>
+            <p class="miss-secao-titulo" x-show="filtroMissaoStatus === null && missoesFiltradas.length > 0">
+              <i class="bi bi-flag-fill"></i> Suas missões
+              <span class="miss-secao-contagem" x-text="totalMissoes"></span>
+            </p>
             <div class="cards-missoes-grid">
-              <template x-for="m in (missoesFiltradas || [])" :key="m?.id || Math.random()">
+              <template x-for="(m, _midx) in (missoesFiltradas || [])" :key="(m?.id || 'miss') + '_' + _midx">
                 <div class="card-missao" :class="m.status === 'ativa' ? 'ativa' : m.status === 'concluida' ? 'concluida' : (m.status === 'expirada' || m.status === 'abandonada') ? (m.status === 'expirada' ? 'expirada' : 'abandonada') : 'disponivel'">
                   <!-- Header com ícone, título e status -->
                   <div class="card-missao-header">
@@ -1501,27 +1504,75 @@
                   </div>
               </template>
             </div>
-            <p x-show="missoesFiltradas.length === 0 && filtroMissaoStatus !== null" class="texto-secundario text-center py-3">Nenhuma missão encontrada.</p>
+            <!-- Estado vazio -->
+            <div x-show="missoesFiltradas.length === 0 && modelosMissoesFiltrados.length === 0" class="miss-vazio">
+              <i class="bi bi-inbox miss-vazio-icon"></i>
+              <p class="miss-vazio-titulo">Nenhuma missão encontrada</p>
+              <p class="miss-vazio-sub" x-show="filtroMissaoStatus !== null || filtroMissaoTipo !== null">
+                Tente remover os filtros aplicados.
+              </p>
+              <button type="button" class="miss-vazio-limpar"
+                      x-show="filtroMissaoStatus !== null || filtroMissaoTipo !== null"
+                      @click="filtroMissaoStatus=null; filtroMissaoTipo=null; paginaMissoes=1; atualizarFiltrosMissoes()">
+                <i class="bi bi-x-circle me-1"></i> Limpar filtros
+              </button>
+            </div>
           </div>
 
           <!-- Paginação -->
-          <div class="paginacao-missoes" x-show="totalMissoes > limiteMissoes">
-            <button type="button" class="paginacao-btn" @click="paginaMissoes = Math.max(1, paginaMissoes - 1); atualizarFiltrosMissoes()" :disabled="paginaMissoes === 1">
-              <i class="bi bi-chevron-left"></i>
-            </button>
-            <template x-for="p in paginasMissoes" :key="p">
-              <button type="button" class="paginacao-btn" :class="{ ativo: p === paginaMissoes }" @click="if (p !== '...') { paginaMissoes = p; atualizarFiltrosMissoes(); }" x-text="p === '...' ? '...' : p"></button>
-            </template>
-            <button type="button" class="paginacao-btn" @click="paginaMissoes = Math.min(totalPaginasMissoes, paginaMissoes + 1); atualizarFiltrosMissoes()" :disabled="paginaMissoes === totalPaginasMissoes">
-              <i class="bi bi-chevron-right"></i>
-            </button>
-            <span class="paginacao-info" x-text="paginaMissoes + '/' + totalPaginasMissoes"></span>
-            <select class="form-select form-select-sm" style="width: auto; min-width: 70px;" @change="limiteMissoes = parseInt($event.target.value); paginaMissoes = 1; atualizarFiltrosMissoes()">
-              <option value="10" :selected="limiteMissoes === 10">10</option>
-              <option value="20" :selected="limiteMissoes === 20">20</option>
-              <option value="50" :selected="limiteMissoes === 50">50</option>
-              <option value="999" :selected="limiteMissoes === 999">Todos</option>
-            </select>
+          <div class="miss-pag" x-show="totalMissoes > 0">
+
+            <!-- ESQUERDA: seletor de itens por página + contagem -->
+            <div class="miss-pag-esq">
+              <label class="miss-pag-label">Mostrar</label>
+              <select class="miss-pag-select"
+                      @change="limiteMissoes = parseInt($event.target.value); paginaMissoes = 1; atualizarFiltrosMissoes()">
+                <option value="10"  :selected="limiteMissoes === 10">10</option>
+                <option value="20"  :selected="limiteMissoes === 20">20</option>
+                <option value="50"  :selected="limiteMissoes === 50">50</option>
+                <option value="999" :selected="limiteMissoes === 999">Todos</option>
+              </select>
+              <span class="miss-pag-label">por pág &nbsp;·&nbsp; <b x-text="totalMissoes"></b> <span x-text="totalMissoes === 1 ? 'item' : 'itens'"></span></span>
+            </div>
+
+            <!-- DIREITA: navegação <<  <  1 … n … last  >  >> -->
+            <div class="miss-pag-dir" x-show="totalPaginasMissoes > 1">
+              <!-- Primeira página -->
+              <button type="button" class="miss-pag-btn" title="Primeira página"
+                      :disabled="paginaMissoes === 1"
+                      @click="paginaMissoes = 1; atualizarFiltrosMissoes()">
+                <i class="bi bi-chevron-double-left"></i>
+              </button>
+              <!-- Anterior -->
+              <button type="button" class="miss-pag-btn" title="Página anterior"
+                      :disabled="paginaMissoes === 1"
+                      @click="paginaMissoes = Math.max(1, paginaMissoes - 1); atualizarFiltrosMissoes()">
+                <i class="bi bi-chevron-left"></i>
+              </button>
+
+              <!-- Números de página com ellipsis -->
+              <template x-for="p in paginasMissoes" :key="'pg_' + p">
+                <button type="button" class="miss-pag-page"
+                        :class="{ 'miss-pag-page--ativo': p === paginaMissoes, 'miss-pag-page--dots': p === '...' }"
+                        :disabled="p === '...'"
+                        @click="if (p !== '...') { paginaMissoes = p; atualizarFiltrosMissoes(); }"
+                        x-text="p"></button>
+              </template>
+
+              <!-- Próxima -->
+              <button type="button" class="miss-pag-btn" title="Próxima página"
+                      :disabled="paginaMissoes === totalPaginasMissoes"
+                      @click="paginaMissoes = Math.min(totalPaginasMissoes, paginaMissoes + 1); atualizarFiltrosMissoes()">
+                <i class="bi bi-chevron-right"></i>
+              </button>
+              <!-- Última página -->
+              <button type="button" class="miss-pag-btn" title="Última página"
+                      :disabled="paginaMissoes === totalPaginasMissoes"
+                      @click="paginaMissoes = totalPaginasMissoes; atualizarFiltrosMissoes()">
+                <i class="bi bi-chevron-double-right"></i>
+              </button>
+            </div>
+
           </div>
         </div>
 
@@ -1616,17 +1667,26 @@
           <!-- Tabs de Navegação -->
           <div class="inventario-tabs mb-4">
             <button class="tab-btn" :class="{ ativo: viewInventario === 'equipamentos' }" @click="viewInventario = 'equipamentos'">
-              <i class="bi bi-shield"></i> Equipamentos
+              <i class="bi bi-shield-fill"></i>
+              <span>Armadura</span>
             </button>
             <button class="tab-btn" :class="{ ativo: viewInventario === 'consumiveis' }" @click="viewInventario = 'consumiveis'">
-              <i class="bi bi-flask"></i> Consumíveis
+              <i class="bi bi-droplet-fill"></i>
+              <span>Consumíveis</span>
             </button>
             <button class="tab-btn" :class="{ ativo: viewInventario === 'fruto' }" @click="viewInventario = 'fruto'; setTimeout(() => renderizarFrutosSVG(), 100)">
-              <i class="bi bi-tree"></i> Fruto do Espírito
+              <i class="bi bi-tree-fill"></i>
+              <span>Fruto</span>
             </button>
             <button class="tab-btn" :class="{ ativo: viewInventario === 'obras' }" @click="viewInventario = 'obras'; setTimeout(() => renderizarObrasSVG(), 100)">
-              <i class="bi bi-exclamation-triangle"></i> Obras da Carne
+              <i class="bi bi-heart-fill"></i>
+              <span>Obras</span>
             </button>
+            <!-- Batalha Espiritual — oculta, disponível via botão "Saiba mais" -->
+            <!-- <button class="tab-btn" :class="{ ativo: viewInventario === 'batalha' }" @click="viewInventario = 'batalha'">
+              <i class="bi bi-yin-yang"></i>
+              <span>Batalha</span>
+            </button> -->
           </div>
 
           <!-- Aba: Equipamentos -->
@@ -1763,13 +1823,12 @@
                   <g id="frutos-container"></g>
                 </svg>
                 
-                <!-- Labels HTML sobrepostos -->
+                <!-- Labels HTML sobrepostos — apenas visuais -->
                 <div class="fruto-labels-overlay">
                   <template x-for="(fruto, index) in FRUTO_DO_ESPIRITO" :key="index">
                     <div class="fruto-label-overlay" 
                          :style="getPosicaoLabelFruto(index)"
-                         :class="{ 'desbloqueado': isFrutoDesbloqueado(index) }"
-                         :title="fruto + (isFrutoDesbloqueado(index) ? ' (Desbloqueado)' : ' (Bloqueado)')">
+                         :class="{ 'desbloqueado': isFrutoDesbloqueado(index) }">
                       <div class="fruto-label-nome" x-text="fruto"></div>
                       <div class="fruto-label-percentual" x-text="getPercentualFruto(index) + '/100'"></div>
                     </div>
@@ -1784,6 +1843,13 @@
                 </div>
                 </div><!-- /fruto-arvore-wrapper -->
               </div>
+
+              <!-- Botão "Saiba mais" -->
+              <button class="esp-saiba-mais-btn esp-saiba-mais-btn--fruto" @click="abrirInfoListEsp('fruto')">
+                <i class="bi bi-book-half"></i>
+                <span>Saiba mais sobre o Fruto do Espírito</span>
+                <i class="bi bi-chevron-right"></i>
+              </button>
             </div>
           </div>
 
@@ -1831,13 +1897,12 @@
                   <g id="obras-coracoes-container"></g>
                 </svg>
                 
-                <!-- Labels HTML sobrepostos -->
+                <!-- Labels HTML sobrepostos — apenas visuais -->
                 <div class="obras-labels-overlay">
                   <template x-for="(obra, index) in OBRAS_DA_CARNE" :key="index">
                     <div class="obra-label-overlay" 
                          :style="getPosicaoLabelObra(index)"
-                         :class="{ 'ativa': isObraAtiva(index) }"
-                         :title="obra + (isObraAtiva(index) ? ' (Ativa)' : ' (Inativa)')">
+                         :class="{ 'ativa': isObraAtiva(index) }">
                       <div class="obra-label-nome" x-text="obra"></div>
                       <div class="obra-label-percentual" x-text="getPercentualObra(index) + '/100'"></div>
                     </div>
@@ -1852,8 +1917,79 @@
                 </div>
                 </div><!-- /obras-svg-wrapper -->
               </div>
+
+              <!-- Botão "Saiba mais" -->
+              <button class="esp-saiba-mais-btn esp-saiba-mais-btn--obra" @click="abrirInfoListEsp('obra')">
+                <i class="bi bi-exclamation-circle"></i>
+                <span>Saiba mais sobre as Obras da Carne</span>
+                <i class="bi bi-chevron-right"></i>
+              </button>
             </div>
           </div>
+
+          <!-- Aba: Batalha Espiritual -->
+          <div x-show="viewInventario === 'batalha'">
+            <div class="inventario-secao">
+              <h3 class="secao-titulo">
+                <i class="bi bi-yin-yang"></i>
+                Batalha Espiritual
+                <span class="ref-biblica" title="Gálatas 5.16-23">Gálatas 5.16-23</span>
+              </h3>
+              <p class="batalha-subtitulo">
+                <i class="bi bi-info-circle"></i>
+                O Espírito e a carne se opõem — cada fruto do Espírito vence uma obra da carne.
+              </p>
+
+              <!-- Cards de batalha -->
+              <div class="batalha-grid">
+                <template x-for="(par, idx) in BATALHA_ESPIRITUAL" :key="idx">
+                  <div class="batalha-card">
+                    <!-- Lado Fruto (verde) — clique abre tooltip do fruto -->
+                    <div class="batalha-lado batalha-lado--fruto"
+                         @click="abrirTooltipEsp('fruto', idx)"
+                         style="cursor: pointer;" title="Saiba mais sobre este fruto">
+                      <div class="batalha-icone batalha-icone--fruto">
+                        <i :class="'bi ' + par.icone"></i>
+                      </div>
+                      <div class="batalha-info">
+                        <span class="batalha-nome" x-text="par.fruto"></span>
+                        <span class="batalha-ref" x-text="par.versiculoFruto"></span>
+                        <span class="batalha-desc" x-text="par.descFruto"></span>
+                        <span class="batalha-hint-info"><i class="bi bi-info-circle"></i> Saiba mais</span>
+                      </div>
+                    </div>
+
+                    <!-- VS central -->
+                    <div class="batalha-vs">
+                      <span class="batalha-vs-texto">×</span>
+                    </div>
+
+                    <!-- Lado Obra (vermelho) — clique abre tooltip da obra -->
+                    <div class="batalha-lado batalha-lado--obra"
+                         @click="abrirTooltipEsp('obra', idx)"
+                         style="cursor: pointer;" title="Saiba mais sobre esta obra">
+                      <div class="batalha-info batalha-info--direita">
+                        <span class="batalha-nome" x-text="par.obra"></span>
+                        <span class="batalha-ref" x-text="par.versiculoObra"></span>
+                        <span class="batalha-desc" x-text="par.descObra"></span>
+                        <span class="batalha-hint-info batalha-hint-info--dir"><i class="bi bi-info-circle"></i> Saiba mais</span>
+                      </div>
+                      <div class="batalha-icone batalha-icone--obra">
+                        <i :class="'bi ' + getIconeObra(idx)"></i>
+                      </div>
+                    </div>
+                  </div>
+                </template>
+              </div>
+
+              <!-- Rodapé bíblico -->
+              <div class="batalha-rodape">
+                <i class="bi bi-book-fill"></i>
+                <em>"Andai no Espírito e não cumprireis os desejos da carne." — Gálatas 5.16</em>
+              </div>
+            </div>
+          </div>
+
         </div>
 
         <!-- Leitura Bíblia -->
@@ -2272,6 +2408,8 @@
             </div>
           </div>
 
+          <!-- Modais movidos para fora do layout-logado (ver final do body) -->
+
           <!-- Quiz do livro -->
           <template x-if="viewBiblia === 'quiz' && quizLivroAtivo">
             <div>
@@ -2652,6 +2790,115 @@
     <p>Abra o projeto com um <strong>servidor local</strong>. Na pasta do projeto, no terminal:</p>
     <pre style="background: #eee; padding: 1rem; border-radius: 8px;">npx serve .</pre>
     <p>Depois acesse <strong>http://localhost:3000</strong> (ou a porta que aparecer).</p>
+  </div>
+
+  <!-- ══ Modal "Saiba Mais" — lista completa Fruto / Obras ══
+       Colocado direto no body (dentro do x-data="app") para escapar do
+       overflow:hidden do .layout-logado e garantir position:fixed correto. -->
+  <div x-show="infoListEsp.aberto"
+       x-transition:enter="tesp-enter"
+       x-transition:enter-start="tesp-enter-start"
+       x-transition:enter-end="tesp-enter-end"
+       x-transition:leave="tesp-leave"
+       class="tesp-overlay"
+       @click.self="fecharInfoListEsp()"
+       style="display:none">
+    <div class="tesp-sheet tesp-sheet--lista" role="dialog" aria-modal="true">
+      <div class="tesp-handle"></div>
+      <div class="tesp-header"
+           :class="infoListEsp.tipo === 'fruto' ? 'tesp-header--fruto' : 'tesp-header--obra'">
+        <div class="tesp-header-icone">
+          <i :class="infoListEsp.tipo === 'fruto' ? 'bi bi-tree-fill' : 'bi bi-heart-fill'"></i>
+        </div>
+        <div class="tesp-header-texto">
+          <h3 class="tesp-titulo"
+              x-text="infoListEsp.tipo === 'fruto' ? 'Fruto do Espírito' : 'Obras da Carne'"></h3>
+          <span class="tesp-tipo-badge"
+                x-text="infoListEsp.tipo === 'fruto' ? 'Gálatas 5.22-23' : 'Gálatas 5.19-21'"></span>
+        </div>
+        <button class="tesp-fechar" @click="fecharInfoListEsp()" aria-label="Fechar">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="tesp-lista">
+        <template x-for="(item, idx) in (infoListEsp.tipo === 'fruto' ? TOOLTIPS_FRUTO : TOOLTIPS_OBRA)" :key="idx">
+          <div class="tesp-acord" :class="{ 'tesp-acord--aberto': infoListEsp.expandido === idx }">
+            <button class="tesp-acord-btn" @click="toggleInfoListItem(idx)">
+              <div class="tesp-acord-icone"
+                   :class="infoListEsp.tipo === 'fruto' ? 'tesp-acord-icone--fruto' : 'tesp-acord-icone--obra'">
+                <i :class="'bi ' + item.icone"></i>
+              </div>
+              <div class="tesp-acord-titulo">
+                <span class="tesp-acord-nome" x-text="item.titulo"></span>
+                <span class="tesp-acord-ref" x-text="item.versiculo"></span>
+              </div>
+              <i class="bi tesp-acord-seta"
+                 :class="infoListEsp.expandido === idx ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+            </button>
+            <div class="tesp-acord-corpo" x-show="infoListEsp.expandido === idx">
+              <div x-show="infoListEsp.tipo === 'obra' && item.termos" class="tesp-acord-termos">
+                <i class="bi bi-collection-fill"></i> Inclui: <span x-text="item.termos"></span>
+              </div>
+              <div class="tesp-acord-secao">
+                <p class="tesp-acord-label"><i class="bi bi-journal-text"></i> O que a Bíblia diz</p>
+                <p class="tesp-acord-texto" x-text="item.descricao"></p>
+              </div>
+              <div class="tesp-acord-secao tesp-acord-aplicacao"
+                   :class="infoListEsp.tipo === 'fruto' ? 'tesp-acord-aplicacao--fruto' : 'tesp-acord-aplicacao--obra'">
+                <p class="tesp-acord-label"><i class="bi bi-lightning-charge-fill"></i> Na prática</p>
+                <p class="tesp-acord-texto" x-text="item.aplicacao"></p>
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
+      <button class="tesp-btn-fechar" @click="fecharInfoListEsp()">Fechar</button>
+    </div>
+  </div>
+
+  <!-- ══ Modal Tooltip Espiritual (item individual) ══ -->
+  <div x-show="tooltipEsp.aberto"
+       class="tesp-overlay"
+       @click.self="fecharTooltipEsp()"
+       x-transition:enter="tesp-enter"
+       x-transition:enter-start="tesp-enter-start"
+       x-transition:enter-end="tesp-enter-end"
+       x-transition:leave="tesp-leave"
+       x-transition:leave-start="tesp-leave-end"
+       x-transition:leave-end="tesp-leave-start"
+       style="display:none">
+    <div class="tesp-sheet" role="dialog" aria-modal="true">
+      <div class="tesp-handle"></div>
+      <div class="tesp-header" :class="tooltipEsp.tipo === 'fruto' ? 'tesp-header--fruto' : 'tesp-header--obra'">
+        <div class="tesp-header-icone">
+          <i :class="'bi ' + (tooltipEsp.dados?.icone || 'bi-info-circle')"></i>
+        </div>
+        <div class="tesp-header-texto">
+          <h3 class="tesp-titulo" x-text="tooltipEsp.dados?.titulo"></h3>
+          <span class="tesp-tipo-badge" x-text="tooltipEsp.tipo === 'fruto' ? 'Fruto do Espírito' : 'Obra da Carne'"></span>
+        </div>
+        <button class="tesp-fechar" @click="fecharTooltipEsp()" aria-label="Fechar">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div x-show="tooltipEsp.tipo === 'obra' && tooltipEsp.dados?.termos" class="tesp-termos">
+        <i class="bi bi-collection-fill"></i>
+        <span>Inclui: </span><span x-text="tooltipEsp.dados?.termos"></span>
+      </div>
+      <div class="tesp-versiculo">
+        <i class="bi bi-book-fill"></i>
+        <span x-text="tooltipEsp.dados?.versiculo"></span>
+      </div>
+      <div class="tesp-secao">
+        <p class="tesp-secao-titulo"><i class="bi bi-journal-text"></i> O que a Bíblia diz</p>
+        <p class="tesp-descricao" x-text="tooltipEsp.dados?.descricao"></p>
+      </div>
+      <div class="tesp-secao tesp-secao--aplicacao" :class="tooltipEsp.tipo === 'fruto' ? 'tesp-secao--fruto' : 'tesp-secao--obra'">
+        <p class="tesp-secao-titulo"><i class="bi bi-lightning-charge-fill"></i> Na prática</p>
+        <p class="tesp-aplicacao" x-text="tooltipEsp.dados?.aplicacao"></p>
+      </div>
+      <button class="tesp-btn-fechar" @click="fecharTooltipEsp()">Entendi</button>
+    </div>
   </div>
 
   <!-- VLibras — Tradução para Libras (Acessibilidade) -->

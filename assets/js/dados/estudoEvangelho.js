@@ -21,14 +21,253 @@ export const ARMADURA_DEUS_SLOTS = [
   { id: 'espada', nome: 'Espada do Espírito', ref: 'Efésios 6.17b' }
 ];
 
-/** Obras da carne (atributos negativos) — Gálatas 5.19-21 */
+/**
+ * Obras da carne — 9 termos agrupados (Gálatas 5.19-21).
+ * Agrupamentos: Imoralidade (Prostituição+Impureza+Lascívia),
+ * Idolatria, Feitiçaria, Ódio (Inimizades+Contendas),
+ * Inveja (Ciúmes+Invejas), Ira, Discórdia (Discórdias+Dissensões),
+ * Sectarismo (Facções), Excessos (Bebedices+Gluttonias).
+ */
 export const OBRAS_DA_CARNE = [
-  'Prostituição', 'Impureza', 'Lascívia', 'Idolatria', 'Feitiçaria', 'Inimizades', 'Contendas', 'Ciúmes', 'Iras', 'Discórdias', 'Dissensões', 'Facções', 'Invejas', 'Bebedices', 'Gluttonias'
+  'Imoralidade', 'Idolatria', 'Feitiçaria',
+  'Ódio',        'Inveja',    'Ira',
+  'Discórdia',   'Sectarismo','Excessos'
+];
+
+/** Tooltips detalhados — Fruto do Espírito (Gl 5.22-23) */
+export const TOOLTIPS_FRUTO = [
+  {
+    titulo: 'Amor',
+    icone: 'bi-heart-fill',
+    cor: '#16a34a',
+    versiculo: 'Gálatas 5.22 · Romanos 5.5 · 1 Coríntios 13.4-7',
+    descricao: 'O "amor" aqui é o grego ágape — não o amor romântico ou afeto natural, mas o amor incondicional e sacrificial de Deus derramado no coração do crente pelo Espírito Santo (Rm 5.5). É um amor que age pelo bem do outro mesmo sem reciprocidade, mesmo diante de inimigos. Não é sentimento, é decisão.',
+    aplicacao: 'Servir sem esperar reconhecimento, perdoar quem nos feriu profundamente, amar quem é difícil de amar. É ação, não apenas emoção. "O amor é paciente, é benigno; o amor não inveja..." (1 Co 13.4).'
+  },
+  {
+    titulo: 'Alegria',
+    icone: 'bi-emoji-smile-fill',
+    cor: '#16a34a',
+    versiculo: 'Gálatas 5.22 · Filipenses 4.4 · João 15.11',
+    descricao: 'Não é felicidade dependente de circunstâncias externas. É um gozo profundo que brota do relacionamento com Deus, mesmo no sofrimento. Paulo escreveu "alegrai-vos sempre no Senhor" (Fp 4.4) de dentro de uma prisão. Jesus quis que "a minha alegria permaneça em vós" (Jo 15.11) — uma alegria que nem a morte pode tirar.',
+    aplicacao: 'Cultivar gratidão diária, louvar a Deus na tribulação, não deixar que tristezas temporárias roubem a esperança eterna. A alegria cristã é uma escolha sustentada pelo Espírito — não depende das circunstâncias, mas de Cristo.'
+  },
+  {
+    titulo: 'Paz',
+    icone: 'bi-wind',
+    cor: '#16a34a',
+    versiculo: 'Gálatas 5.22 · Filipenses 4.7 · Romanos 5.1 · João 14.27',
+    descricao: 'Três dimensões: (1) Paz com Deus — reconciliação pela justificação pela fé (Rm 5.1). (2) A paz de Deus — equilíbrio interior que "excede todo entendimento" (Fp 4.7). (3) Paz com os homens — ser pacificador (Mt 5.9). "Deixo-vos a paz, a minha paz vos dou; não vo-la dou como o mundo a dá" (Jo 14.27). Não é ausência de conflito, mas estabilidade no meio dele.',
+    aplicacao: 'Não se agitar com notícias ruins, não alimentar ansiedade sobre o futuro, buscar reconciliação nos relacionamentos quebrados. Quando a paz interna desaparece, pergunte: o que estou colocando no lugar de Deus?'
+  },
+  {
+    titulo: 'Longanimidade',
+    icone: 'bi-hourglass-split',
+    cor: '#16a34a',
+    versiculo: 'Gálatas 5.22 · Tiago 1.3-4 · 2 Pedro 3.9',
+    descricao: 'Do grego makrothumia — literalmente "alma longa". É a paciência de longo prazo: suportar injustiças e pessoas difíceis sem se vingar, esperar as promessas de Deus sem desesperar. Diferente da paciência com circunstâncias — é paciência com pessoas que nos machucam repetidamente. Deus mesmo é makrothumos: "tardio em irar-se" (Sl 103.8).',
+    aplicacao: 'Não reagir impulsivamente a provocações, esperar a justiça de Deus ao invés de buscar vingança própria, persistir na fé mesmo quando Deus parece silencioso. A maturidade espiritual se mede muito pela longanimidade.'
+  },
+  {
+    titulo: 'Benignidade',
+    icone: 'bi-hand-heart-fill',
+    cor: '#16a34a',
+    versiculo: 'Gálatas 5.22 · Efésios 4.32 · Tito 3.4',
+    descricao: 'Do grego chrestotes — bondade prática em ação; uma disposição de coração que trata o próximo com cuidado, ternura e gentileza ativa. É a bondade que vai até o outro, que se incomoda com a necessidade alheia e age. "Sede bondosos uns para com os outros, compassivos, perdoando-vos mutuamente" (Ef 4.32). Deus mesmo exerce chrestotes ao nos salvar (Tt 3.4).',
+    aplicacao: 'Ser gentil no tom de voz, nos gestos do dia a dia, ajudar quem está ao redor mesmo quando não é conveniente, tratar todas as pessoas — inclusive as difíceis — com cortesia e cuidado. Pequenas bondades importam muito.'
+  },
+  {
+    titulo: 'Bondade',
+    icone: 'bi-stars',
+    cor: '#16a34a',
+    versiculo: 'Gálatas 5.22 · Salmo 34.8 · Mateus 21.12',
+    descricao: 'Do grego agathosune — caráter moralmente bom, integridade interior que se expressa em generosidade. Vai além da benignidade (gentileza) por incluir a disposição de confrontar o erro quando necessário, por amor ao bem. Jesus expulsou os vendilhões do templo por bondade (agathosune) — foi severo por amor à santidade. A bondade cristã não é passividade; inclui coragem moral.',
+    aplicacao: 'Agir com integridade mesmo quando não há testemunhas, ser generoso com o próximo, ter coragem de dizer a verdade com amor. Não confundir bondade com omissão: às vezes a ação mais bondosa é a mais difícil.'
+  },
+  {
+    titulo: 'Fidelidade',
+    icone: 'bi-shield-fill-check',
+    cor: '#16a34a',
+    versiculo: 'Gálatas 5.22 · Mateus 25.21 · Lamentações 3.23',
+    descricao: 'Do grego pistis — confiabilidade, lealdade, consistência. É ser digno de confiança: cumprir o que prometeu, ser o mesmo em público e em privado, permanecer fiel a Deus e às responsabilidades mesmo sob pressão. "Bem está, servo bom e fiel; foste fiel no pouco, sobre o muito te colocarei" (Mt 25.21). As misericórdias de Deus são "novas cada manhã; grande é a tua fidelidade" (Lm 3.23).',
+    aplicacao: 'Chegar no horário combinado, cumprir promessas mesmo quando custa, ser consistente na leitura bíblica e na oração, não abandonar compromissos quando surgem dificuldades. A fidelidade no pequeno abre portas para o grande.'
+  },
+  {
+    titulo: 'Mansidão',
+    icone: 'bi-feather',
+    cor: '#16a34a',
+    versiculo: 'Gálatas 5.23 · Mateus 5.5 · 11.29 · Números 12.3',
+    descricao: 'Do grego prautes — humildade e suavidade, mas jamais fraqueza. É força controlada, poder submetido. Moisés era "o mais manso de todos os homens" (Nm 12.3), mas confrontou Faraó corajosamente. Jesus era "manso e humilde de coração" (Mt 11.29), mas expulsou mercadores do templo. Mansidão é a ausência de arrogância e a disposição genuína de servir e aprender.',
+    aplicacao: 'Não insistir em ter razão, aceitar correção sem contra-atacar, não reagir com agressividade a críticas, servir sem exigir reconhecimento, tratar os outros como mais importantes do que si mesmo (Fp 2.3). Os mansos herdarão a terra (Mt 5.5).'
+  },
+  {
+    titulo: 'Domínio Próprio',
+    icone: 'bi-lightning-charge-fill',
+    cor: '#16a34a',
+    versiculo: 'Gálatas 5.23 · 1 Coríntios 9.27 · 2 Pedro 1.6',
+    descricao: 'Do grego egkrateia — autocontrole, temperança, disciplina. É o governo do espírito sobre os apetites da carne: desejos, vícios, raiva, impulsos de consumo, uso do tempo. Paulo "domina o corpo e o escraviza" (1 Co 9.27). Não é repressão malsã nem legalismo — é a liberdade de quem não é escravo dos seus instintos. O Espírito nos dá "poder, amor e domínio próprio" (2 Tm 1.7).',
+    aplicacao: 'Resistir ao impulso de comer em excesso, controlar o que assiste e o tempo no celular, não deixar a raiva determinar as palavras, resistir a compras por impulso. Pequenas disciplinas diárias formam o caráter ao longo do tempo.'
+  },
+];
+
+/** Tooltips detalhados — Obras da Carne agrupadas (Gl 5.19-21) */
+export const TOOLTIPS_OBRA = [
+  {
+    titulo: 'Imoralidade',
+    icone: 'bi-fire',
+    cor: '#dc2626',
+    termos: 'Prostituição · Impureza · Lascívia',
+    versiculo: 'Gálatas 5.19 · 1 Coríntios 6.18-20 · Mateus 5.28',
+    descricao: 'Do grego porneia (prostituição), akatharsia (impureza) e aselgeia (lascívia/devassidão). Engloba toda forma de pecado sexual: adultério, fornicação, pornografia, luxúria no pensamento (Mt 5.28 — "quem olha para uma mulher com desejo já adulterou no coração"), relações fora do casamento, qualquer uso do corpo contrário ao plano de Deus. Não é apenas o ato físico — inclui o olhar, o pensamento cultivado, o entretenimento que alimenta a lascívia. "O corpo não é para a imoralidade, mas para o Senhor" (1 Co 6.13).',
+    aplicacao: '⚠️ Atenção: pornografia, conversas sensuais, séries com conteúdo explícito, "ficar" sem compromisso, adultério emocional — tudo entra nessa categoria. O remédio bíblico é radical: "Fugi da imoralidade sexual" (1 Co 6.18) — não negociar, mas fugir.'
+  },
+  {
+    titulo: 'Idolatria',
+    icone: 'bi-diamond-half',
+    cor: '#dc2626',
+    termos: 'Idolatria',
+    versiculo: 'Gálatas 5.20 · Colossenses 3.5 · Mateus 6.24 · Ezequiel 14.3',
+    descricao: 'Não precisa ser uma estátua de pedra. Ídolo é qualquer coisa que ocupa o lugar de Deus no coração: dinheiro, sucesso profissional, a opinião dos outros, a família, um relacionamento, o celular, o esporte favorito. Colossenses 3.5 chama a cobiça de "idolatria". Ezequiel fala de "ídolos no coração" (Ez 14.3). "Ninguém pode servir a dois senhores" (Mt 6.24) — sempre haverá uma lealdade dominante.',
+    aplicacao: '⚠️ Atenção: se você não consegue viver sem algo além de Deus — seja aprovação nas redes sociais, um relacionamento, dinheiro ou entretenimento — aquilo provavelmente é um ídolo. Pergunte: "O que ocupa mais meus pensamentos? O que me gera mais ansiedade perder?"'
+  },
+  {
+    titulo: 'Feitiçaria',
+    icone: 'bi-eye-fill',
+    cor: '#dc2626',
+    termos: 'Feitiçaria · Magia',
+    versiculo: 'Gálatas 5.20 · Deuteronômio 18.10-12 · Isaías 8.19',
+    descricao: 'Do grego pharmakeia (origem da palavra "farmácia" — uso de substâncias em rituais ocultistas). Não inclui apenas bruxaria declarada, mas qualquer busca de poder, orientação espiritual ou "proteção" fora de Deus: horóscopo, tarô, búzios, simpatias, uso de cristais com intenção espiritual, numerologia, jogos de azar como esperança de vida, superstições ("bater na madeira", "sal grosso", "amuletos"). "Por que irieis consultar os mortos em favor dos vivos?" (Is 8.19). Deus condena todas essas práticas em Deuteronômio 18.10-12.',
+    aplicacao: '⚠️ Atenção: consultar o horóscopo "só por curiosidade", usar simpatias "inofensivas", confiar na sorte ou no destino, ver tarô online, usar pulseirinhas com "proteção" — são práticas que substituem a dependência de Deus por fontes que Ele condena. A alternativa: buscar orientação somente na Palavra e na oração (Tg 1.5).'
+  },
+  {
+    titulo: 'Ódio',
+    icone: 'bi-x-octagon-fill',
+    cor: '#dc2626',
+    termos: 'Inimizades · Contendas',
+    versiculo: 'Gálatas 5.20 · Mateus 5.21-22 · 1 João 3.15 · Hebreus 12.15',
+    descricao: 'Do grego echtrai (inimizades) e ereis (contendas e brigas). Não é só sentimento extremo de ódio declarado — é nutrir hostilidade, guardar rancor, recusar reconciliação, criar brigas, buscar destruir a reputação do outro. Jesus foi radical: equiparou a raiva injusta ao assassinato (Mt 5.21-22). "Quem odeia ao seu irmão é homicida" (1 Jo 3.15). A raiz amarga contamina a muitos (Hb 12.15).',
+    aplicacao: '⚠️ Atenção: falar mal de alguém repetidamente, alimentar mágoa antiga, evitar um irmão na fé sem buscar reconciliação, criar "lados" em conflitos relacionais. Não há adoração aceitável enquanto há ódio não resolvido: "Reconciliai-vos primeiro com teu irmão, e então vem oferecer tua dádiva" (Mt 5.24).'
+  },
+  {
+    titulo: 'Inveja',
+    icone: 'bi-arrow-repeat',
+    cor: '#dc2626',
+    termos: 'Ciúmes · Invejas',
+    versiculo: 'Gálatas 5.21 · Provérbios 14.30 · Tiago 3.14-16 · Romanos 12.15',
+    descricao: 'Do grego zelos (ciúmes, rivalidade) e phthonoi (invejas). É o ressentimento pelo bem alheio: sentir amargura pelo sucesso, beleza, relacionamento ou bênção do próximo, querer o que o outro tem acompanhado de amargor. "A inveja é podridão dos ossos" (Pv 14.30) — literalmente corrói o ser. Tiago liga diretamente a inveja a "toda perturbação e toda obra maligna" (Tg 3.16). Foi a inveja que levou Caim a matar Abel, e os irmãos de José a vendê-lo.',
+    aplicacao: '⚠️ Atenção: comparar-se nas redes sociais e sentir amargura, torcer silenciosamente contra alguém que prosperou, sentir-se ameaçado pelo sucesso de um colega ou irmão de fé, celebrar as quedas alheias. O remédio: "Alegrai-vos com os que se alegram" (Rm 12.15) e cultivar gratidão pelo que Deus deu a você.'
+  },
+  {
+    titulo: 'Ira',
+    icone: 'bi-lightning-fill',
+    cor: '#dc2626',
+    termos: 'Iras · Raiva descontrolada',
+    versiculo: 'Gálatas 5.20 · Efésios 4.26-27 · Tiago 1.20 · Provérbios 14.17',
+    descricao: 'Do grego thumoi — explosões de raiva descontrolada, acessos de fúria, violência verbal ou física. É diferente da "ira justa" (que reage ao pecado por amor à justiça — Jesus e Deus a possuem). A ira da carne é egoísta: nasce de orgulho ferido, de não conseguir o que se quer, de frustração acumulada. "A ira do homem não produz a justiça de Deus" (Tg 1.20). "Irai-vos, mas não pequeis; não deixeis que o sol se ponha sobre a vossa ira" (Ef 4.26).',
+    aplicacao: '⚠️ Atenção: gritar em discussões, bater objetos, xingar, dizer coisas cruéis para ferir, guardar raiva por dias. A raiva em si não é pecado — o pecado está em perder o controle. Estratégia bíblica: "Todo homem seja pronto para ouvir, tardio para falar e tardio para irar-se" (Tg 1.19). Pausar antes de reagir salva relacionamentos.'
+  },
+  {
+    titulo: 'Discórdia',
+    icone: 'bi-exclamation-triangle-fill',
+    cor: '#dc2626',
+    termos: 'Discórdias · Dissensões · Intrigas',
+    versiculo: 'Gálatas 5.20 · Provérbios 6.16-19 · Romanos 16.17',
+    descricao: 'Do grego eritheiai (ambição egoísta, intriga) e dichostasiai (divisões). É criar conflito por interesse próprio, usar a discordância para se promover, semear desentendimentos entre pessoas, fazer fofoca que divide. Deus "odeia" quem "semeia discórdias entre irmãos" — aparece na lista das 7 coisas que Deus odeia (Pv 6.16-19). Paulo instrui: "notai os que causam divisões... e desviai-vos deles" (Rm 16.17).',
+    aplicacao: '⚠️ Atenção: fofoca que divide a família ou a Igreja, "jogar" uma pessoa contra outra, criar polêmica desnecessária em grupos de WhatsApp para chamar atenção, usar informações de outros para se destacar. O remédio: ir diretamente à pessoa com quem há conflito (Mt 18.15), não espalhar para terceiros.'
+  },
+  {
+    titulo: 'Sectarismo',
+    icone: 'bi-people-fill',
+    cor: '#dc2626',
+    termos: 'Facções · Cismas · Partidarismos',
+    versiculo: 'Gálatas 5.20 · 1 Coríntios 1.10-13 · 3.3-4 · João 17.21',
+    descricao: 'Do grego haireseis — facções, partidos, cismas dentro do Corpo de Cristo. É dividir a Igreja por lealdades humanas, denominações, estilos de louvor, preferências de pregadores ou doutrinas secundárias, quebrando a unidade que pertence somente a Cristo. Corinto se dividiu: "eu sou de Paulo", "eu sou de Apolo", "eu sou de Cristo" (1 Co 1.12). Jesus orou para que todos sejam um (Jo 17.21) — o sectarismo crucifica essa oração.',
+    aplicacao: '⚠️ Atenção: "minha denominação é a única certa", rejeitar irmãos em Cristo por não serem do mesmo estilo de culto, brigar por instrumentos musicais, dias de culto ou metodologias de evangelismo a ponto de dividir o corpo. Questões secundárias não devem romper a unidade primária em Cristo.'
+  },
+  {
+    titulo: 'Excessos',
+    icone: 'bi-cup-fill',
+    cor: '#dc2626',
+    termos: 'Bebedices · Glutonarias · Orgias',
+    versiculo: 'Gálatas 5.21 · Efésios 5.18 · 1 Coríntios 6.12 · Romanos 13.13',
+    descricao: 'Do grego methai (embriaguez) e komoi (glutonarias, festas desregradas). Não é proibição de prazer, mas condenação da perda de controle: embriaguez que altera o juízo, uso de drogas, compulsão alimentar, festas que levam ao pecado. "Não vos embriagueis com vinho... mas enchei-vos do Espírito" (Ef 5.18). O princípio geral é: "Tudo me é lícito, mas nem tudo convém; tudo me é lícito, mas eu não me deixarei dominar por coisa alguma" (1 Co 6.12).',
+    aplicacao: '⚠️ Atenção: o vício não é só álcool — vício em séries, jogos, celular, comida, compras, pornografia ou qualquer coisa que te "domina" (1 Co 6.12) entra nessa categoria. O crente não deve ser escravo de nada além de Cristo. Quando algo começa a controlar você, é sinal de alarme espiritual.'
+  },
 ];
 
 /** Fruto do Espírito (atributos positivos) — Gálatas 5.22-23 */
 export const FRUTO_DO_ESPIRITO = [
   'Amor', 'Alegria', 'Paz', 'Longanimidade', 'Benignidade', 'Bondade', 'Fidelidade', 'Mansidão', 'Domínio próprio'
+];
+
+/**
+ * Batalha Espiritual — 9 confrontos equilibrados (Fruto do Espírito × Obras da Carne).
+ * Cada par é uma luta espiritual: a virtude que vence o vício oposto.
+ */
+export const BATALHA_ESPIRITUAL = [
+  {
+    fruto: 'Amor',           obra: 'Ódio',
+    versiculoFruto: 'Gl 5.22', versiculoObra: 'Gl 5.20',
+    descFruto: 'Amar a Deus e ao próximo com sinceridade.',
+    descObra:  'Inimizades e contendas que destroem relacionamentos.',
+    icone: 'bi-heart-fill'
+  },
+  {
+    fruto: 'Alegria',        obra: 'Inveja',
+    versiculoFruto: 'Gl 5.22', versiculoObra: 'Gl 5.21',
+    descFruto: 'Alegria plena no Espírito, independente das circunstâncias.',
+    descObra:  'Ciúmes e invejas que consomem e roubam a paz interior.',
+    icone: 'bi-emoji-smile-fill'
+  },
+  {
+    fruto: 'Paz',            obra: 'Discórdia',
+    versiculoFruto: 'Gl 5.22', versiculoObra: 'Gl 5.20',
+    descFruto: 'Paz que excede todo entendimento e reconcilia.',
+    descObra:  'Discórdias e dissensões que fragmentam a unidade.',
+    icone: 'bi-wind'
+  },
+  {
+    fruto: 'Longanimidade',  obra: 'Ira',
+    versiculoFruto: 'Gl 5.22', versiculoObra: 'Gl 5.20',
+    descFruto: 'Paciência e perseverança mesmo sob pressão.',
+    descObra:  'Explosões de ira e violência que afastam o próximo.',
+    icone: 'bi-hourglass-split'
+  },
+  {
+    fruto: 'Benignidade',    obra: 'Imoralidade',
+    versiculoFruto: 'Gl 5.22', versiculoObra: 'Gl 5.19',
+    descFruto: 'Bondade e compaixão que servem ao próximo com pureza.',
+    descObra:  'Prostituição, impureza e lascívia que corrompem o corpo.',
+    icone: 'bi-hand-heart-fill'
+  },
+  {
+    fruto: 'Bondade',        obra: 'Feitiçaria',
+    versiculoFruto: 'Gl 5.22', versiculoObra: 'Gl 5.20',
+    descFruto: 'Bondade genuína que vem de Deus e age com integridade.',
+    descObra:  'Práticas ocultas e manipulação espiritual contra Deus.',
+    icone: 'bi-stars'
+  },
+  {
+    fruto: 'Fidelidade',     obra: 'Idolatria',
+    versiculoFruto: 'Gl 5.22', versiculoObra: 'Gl 5.20',
+    descFruto: 'Fidelidade a Deus e às suas promessas acima de tudo.',
+    descObra:  'Servir a outros deuses e colocar coisas antes de Deus.',
+    icone: 'bi-shield-fill-check'
+  },
+  {
+    fruto: 'Mansidão',       obra: 'Sectarismo',
+    versiculoFruto: 'Gl 5.23', versiculoObra: 'Gl 5.20',
+    descFruto: 'Espírito manso e humilde que promove a unidade no corpo.',
+    descObra:  'Facções e divisões que destroem a comunhão entre irmãos.',
+    icone: 'bi-feather'
+  },
+  {
+    fruto: 'Domínio próprio',obra: 'Excessos',
+    versiculoFruto: 'Gl 5.23', versiculoObra: 'Gl 5.21',
+    descFruto: 'Autocontrole e temperança que guardam o corpo e a mente.',
+    descObra:  'Bebedices e glutonarias que escravizam os sentidos.',
+    icone: 'bi-lightning-charge-fill'
+  },
 ];
 
 export const TRILHAS_ESTUDO = [

@@ -29,7 +29,7 @@ import { registrarAcao } from './servicos/acoesJogador.js';
 import { listarItensLoja, comprarItem as comprarItemLoja } from './servicos/loja.js';
 import { formatarTempoRestante } from './componentes/hud.js';
 import { VERSAO_TERMOS } from './dados/constantes.js';
-import { TRILHAS_ESTUDO, ARMADURA_DEUS_SLOTS, REFS_BIBLICAS, OBRAS_DA_CARNE, FRUTO_DO_ESPIRITO } from './dados/estudoEvangelho.js';
+import { TRILHAS_ESTUDO, ARMADURA_DEUS_SLOTS, REFS_BIBLICAS, OBRAS_DA_CARNE, FRUTO_DO_ESPIRITO, BATALHA_ESPIRITUAL, TOOLTIPS_FRUTO, TOOLTIPS_OBRA } from './dados/estudoEvangelho.js';
 
 function rotaAtual() {
   return (window.location.hash || '#login').replace('#', '');
@@ -48,6 +48,7 @@ document.addEventListener('alpine:init', () => {
     missoesAtivas: [],
     modelosMissoes: [],
     todasMissoes: [],
+    _demoTodasMissoes: [],
     missoesFiltradas: [],
     modelosMissoesFiltrados: [],
     metricasMissoes: null,
@@ -160,6 +161,13 @@ document.addEventListener('alpine:init', () => {
     REFS_BIBLICAS,
     OBRAS_DA_CARNE,
     FRUTO_DO_ESPIRITO,
+    BATALHA_ESPIRITUAL,
+    TOOLTIPS_FRUTO,
+    TOOLTIPS_OBRA,
+    // Modal tooltip — item individual
+    tooltipEsp: { aberto: false, tipo: null, dados: null },
+    // Modal "Saiba mais" — lista completa de frutos ou obras
+    infoListEsp: { aberto: false, tipo: null, expandido: null },
 
     // Estado de zoom/pan para Obras da Carne e Fruto do Espírito
     obrasZoom: { scale: 1, tx: 0, ty: 0, dragging: false, startX: 0, startY: 0 },
@@ -654,8 +662,10 @@ document.addEventListener('alpine:init', () => {
         this.ranking = dados.ranking || [];
         this.progressoLeitura = [];
         this.livrosAprovadosQuiz = [];
-        // Inicializar variáveis de missões - usar apenas todasMissoes (missoesAtivas foi removido)
+        // Inicializar variáveis de missões
         this.todasMissoes = dados.todasMissoes || [];
+        // Cópia profunda para que mutações de status (ex: expiração) não afetem a fonte dos filtros
+        this._demoTodasMissoes = JSON.parse(JSON.stringify(dados.todasMissoes || []));
         this.missoesFiltradas = dados.todasMissoes || [];
         this.modelosMissoesFiltrados = dados.modelosMissoes || [];
         // Calcular missoesAtivas a partir de todasMissoes
@@ -1006,71 +1016,69 @@ document.addEventListener('alpine:init', () => {
       }
       // Carregar métricas
       this.metricasMissoes = await obterMetricasMissoes(this.usuario.id);
-      // Carregar modelos de missões disponíveis (só se não houver filtro de status ou se for null)
-      if (this.filtroMissaoStatus === null) {
-        this.modelosMissoes = await listarModelosMissoes();
-        // Filtrar modelos que o usuário ainda não iniciou
-        this.modelosMissoesFiltrados = this.modelosMissoes.filter(mod => {
-          if (this.filtroMissaoTipo && mod.tipo !== this.filtroMissaoTipo) return false;
-          return true;
-        });
-      } else {
-        this.modelosMissoes = [];
-        this.modelosMissoesFiltrados = [];
-      }
       // Carregar missões do usuário
       let statusFiltro = this.filtroMissaoStatus;
-      if (this.filtroMissaoStatus === 'nao_concluidas') {
-        statusFiltro = null; // Buscar todas para filtrar depois
-      }
-      
-      // Para filtro de ativas, garantir que buscamos todas para contar corretamente
+
       if (this.filtroMissaoStatus === 'ativa') {
-        // Primeiro buscar todas as ativas para contar o total
+        this.modelosMissoes = [];
+        this.modelosMissoesFiltrados = [];
         const { missoes: todasAtivas, total: totalAtivas } = await listarTodasMissoes(
-          this.usuario.id,
-          'ativa',
-          this.filtroMissaoTipo,
-          9999,
-          0
+          this.usuario.id, 'ativa', this.filtroMissaoTipo, 9999, 0
         );
-        this.totalMissoes = totalAtivas || (todasAtivas || []).filter(m => m.status === 'ativa').length;
-        
-        // Aplicar paginação localmente
+        const ativas = todasAtivas || [];
+        if (ativas.length > 0) this.todasMissoes = ativas;
+        this.totalMissoes = totalAtivas || ativas.length;
         const inicio = (this.paginaMissoes - 1) * this.limiteMissoes;
-        const fim = inicio + this.limiteMissoes;
-        this.missoesFiltradas = (todasAtivas || []).filter(m => m.status === 'ativa').slice(inicio, fim);
-        this.todasMissoes = todasAtivas || [];
-      } else {
+        this.missoesFiltradas = ativas.slice(inicio, inicio + this.limiteMissoes);
+
+      } else if (this.filtroMissaoStatus === 'nao_concluidas') {
+        this.modelosMissoes = [];
+        this.modelosMissoesFiltrados = [];
+        const [{ missoes: abandonadas }, { missoes: expiradas }] = await Promise.all([
+          listarTodasMissoes(this.usuario.id, 'abandonada', this.filtroMissaoTipo, 9999, 0),
+          listarTodasMissoes(this.usuario.id, 'expirada',  this.filtroMissaoTipo, 9999, 0)
+        ]);
+        const naoConcluidas = [...(abandonadas || []), ...(expiradas || [])];
+        naoConcluidas.sort((a, b) => new Date(b.iniciada_em) - new Date(a.iniciada_em));
+        if (naoConcluidas.length > 0) this.todasMissoes = naoConcluidas;
+        this.totalMissoes = naoConcluidas.length;
+        const inicio = (this.paginaMissoes - 1) * this.limiteMissoes;
+        this.missoesFiltradas = naoConcluidas.slice(inicio, inicio + this.limiteMissoes);
+
+      } else if (this.filtroMissaoStatus === 'concluida') {
+        this.modelosMissoes = [];
+        this.modelosMissoesFiltrados = [];
         const { missoes, total } = await listarTodasMissoes(
-          this.usuario.id,
-          statusFiltro,
-          this.filtroMissaoTipo,
-          this.limiteMissoes,
-          (this.paginaMissoes - 1) * this.limiteMissoes
+          this.usuario.id, 'concluida', this.filtroMissaoTipo, 9999, 0
         );
-        this.todasMissoes = missoes || [];
-        this.totalMissoes = total || 0;
-        
-        // Filtrar missões por status se necessário
-        if (this.filtroMissaoStatus === 'nao_concluidas') {
-          this.missoesFiltradas = this.todasMissoes.filter(m => 
-            m.status === 'abandonada' || m.status === 'expirada'
-          );
-          // Recontar total para paginação - buscar todas e filtrar
-          const { missoes: todas } = await listarTodasMissoes(
-            this.usuario.id,
-            null,
-            this.filtroMissaoTipo,
-            9999,
-            0
-          );
-          this.totalMissoes = (todas || []).filter(m => 
-            m.status === 'abandonada' || m.status === 'expirada'
-          ).length;
-        } else {
-          this.missoesFiltradas = this.todasMissoes;
-        }
+        const lista = missoes || [];
+        if (lista.length > 0) this.todasMissoes = lista;
+        this.totalMissoes = total || lista.length;
+        const inicio = (this.paginaMissoes - 1) * this.limiteMissoes;
+        this.missoesFiltradas = lista.slice(inicio, inicio + this.limiteMissoes);
+
+      } else {
+        // filtroMissaoStatus === null  →  mostrar tudo (modelos + missões do usuário), paginados juntos
+        const [modelosData, { missoes: todasUser }] = await Promise.all([
+          listarModelosMissoes(),
+          listarTodasMissoes(this.usuario.id, null, this.filtroMissaoTipo, 9999, 0)
+        ]);
+        this.modelosMissoes = modelosData || [];
+        const missoes = todasUser || [];
+        if (missoes.length > 0) this.todasMissoes = missoes;
+
+        // Filtrar modelos por tipo
+        let modelos = this.modelosMissoes.slice();
+        if (this.filtroMissaoTipo) modelos = modelos.filter(m => m?.tipo === this.filtroMissaoTipo);
+
+        // Paginação UNIFICADA: modelos primeiro, depois missões do usuário
+        const combinado = [...modelos, ...missoes];
+        this.totalMissoes = combinado.length;
+        const inicio = (this.paginaMissoes - 1) * this.limiteMissoes;
+        const paginaItems = combinado.slice(inicio, inicio + this.limiteMissoes);
+
+        this.modelosMissoesFiltrados = paginaItems.filter(item => !item.status);
+        this.missoesFiltradas       = paginaItems.filter(item =>  item.status);
       }
       // Atualizar missões ativas para o HUD
       this.missoesAtivas = this.todasMissoes.filter(m => m.status === 'ativa');
@@ -1380,140 +1388,56 @@ document.addEventListener('alpine:init', () => {
 
     atualizarFiltrosMissoes() {
       if (this.modoDemo) {
-        // FORÇAR: Garantir que todasMissoes está inicializado - se estiver vazio, recarregar do demo
-        if (!this.todasMissoes || this.todasMissoes.length === 0) {
-          // Tentar recarregar dados do demo se disponível
-          if (this.missoesAtivas && this.missoesAtivas.length > 0) {
-            this.todasMissoes = this.missoesAtivas;
-          } else {
-            this.modelosMissoesFiltrados = [];
-            this.missoesFiltradas = [];
-            this.totalMissoes = 0;
-            return;
-          }
-        }
-        
-        // Debug: verificar quantas missões existem
-        console.log('atualizarFiltrosMissoes - Total missões:', this.todasMissoes.length, 'Filtro status:', this.filtroMissaoStatus, 'Filtro tipo:', this.filtroMissaoTipo);
-        console.log('Status das missões:', this.todasMissoes.map(m => ({ id: m.id, status: m.status })));
-        
-        // Filtrar modelos
-        let modelosFiltrados = (this.modelosMissoes || []).filter(mod => {
-          if (this.filtroMissaoTipo && mod.tipo !== this.filtroMissaoTipo) return false;
-          return true;
-        });
-        
-        // Filtrar missões - sempre usar uma cópia do array original
-        // IMPORTANTE: Quando filtro é null (Todos), incluir TODAS as missões sem filtrar por status
-        let todasMissoesFiltradas = [...(this.todasMissoes || [])];
-        
-        // Aplicar filtro de status (apenas se não for null - quando null, mostra todas)
+        // Sempre usar cópia de segurança completa do demo como fonte
+        const fonte = (this._demoTodasMissoes && this._demoTodasMissoes.length > 0)
+          ? this._demoTodasMissoes
+          : this.todasMissoes;
+        let filtradas = [...(fonte || [])];
+
+        // Filtro por status
         if (this.filtroMissaoStatus === 'ativa') {
-          // Filtrar apenas missões com status 'ativa' - FORÇAR exibição no modo demo
-          todasMissoesFiltradas = todasMissoesFiltradas.filter(m => {
-            if (!m) return false;
-            // No modo demo, sempre mostrar missões com status 'ativa', mesmo que tenham expirado
-            return m.status === 'ativa';
-          });
-          
-          // Se não encontrou nenhuma, tentar usar missoesAtivas como fallback
-          if (todasMissoesFiltradas.length === 0 && this.missoesAtivas && this.missoesAtivas.length > 0) {
-            todasMissoesFiltradas = [...this.missoesAtivas];
-          }
-          
-          // Não mostrar modelos quando filtrando por ativas
-          modelosFiltrados = [];
+          filtradas = filtradas.filter(m => m?.status === 'ativa');
         } else if (this.filtroMissaoStatus === 'concluida') {
-          todasMissoesFiltradas = todasMissoesFiltradas.filter(m => m && m.status === 'concluida');
-          modelosFiltrados = [];
+          filtradas = filtradas.filter(m => m?.status === 'concluida');
         } else if (this.filtroMissaoStatus === 'nao_concluidas') {
-          todasMissoesFiltradas = todasMissoesFiltradas.filter(m => m && (m.status === 'abandonada' || m.status === 'expirada'));
-          modelosFiltrados = [];
+          filtradas = filtradas.filter(m => m?.status === 'abandonada' || m?.status === 'expirada');
         }
-        // Se filtroMissaoStatus === null, não filtrar por status - mostrar TODAS as missões
-        
-        // Aplicar filtro de tipo (sempre, mesmo quando filtro de status é null)
+        // null = todas, sem filtro de status
+
+        // Filtro por tipo
         if (this.filtroMissaoTipo) {
-          todasMissoesFiltradas = todasMissoesFiltradas.filter(m => m && m.modelos_missao?.tipo === this.filtroMissaoTipo);
+          filtradas = filtradas.filter(m => {
+            const tipo = m?.modelos_missao?.tipo || m?.tipo;
+            return tipo === this.filtroMissaoTipo;
+          });
         }
-        
-        // Quando sem filtro de status: combinar modelos + missões e paginar tudo junto
+
         if (this.filtroMissaoStatus === null) {
-          // IMPORTANTE: Garantir que todas as missões estão incluídas (sem filtro de status)
-          // todasMissoesFiltradas já foi filtrada por tipo acima (se necessário), mas não por status
-          // Combinar todos os itens (modelos + missões)
-          const todosItens = [...modelosFiltrados.map(m => ({ ...m, _tipo: 'modelo' })), ...todasMissoesFiltradas.map(m => ({ ...m, _tipo: 'missao' }))];
-          this.totalMissoes = todosItens.length;
-          
-          // Debug: verificar combinação e paginação
-          console.log('Filtro Todos - Modelos:', modelosFiltrados.length, 'Missões:', todasMissoesFiltradas.length, 'Total itens:', todosItens.length);
-          console.log('Página:', this.paginaMissoes, 'Limite:', this.limiteMissoes, 'Total páginas:', this.totalPaginasMissoes);
-          
-          // Aplicar paginação
+          // Filtrar modelos por tipo (se aplicável)
+          let modelos = [...(this.modelosMissoes || [])];
+          if (this.filtroMissaoTipo) {
+            modelos = modelos.filter(m => m?.tipo === this.filtroMissaoTipo);
+          }
+
+          // Paginação UNIFICADA: modelos primeiro, depois missões do usuário
+          // Assim o limite (10/20/50/Todos) se aplica ao total de cards visíveis na tela
+          const combinado = [...modelos, ...filtradas];
+          this.totalMissoes = combinado.length;
           const inicio = (this.paginaMissoes - 1) * this.limiteMissoes;
-          const fim = inicio + this.limiteMissoes;
-          const itensPaginados = todosItens.slice(inicio, fim);
-          
-          console.log('Itens paginados:', itensPaginados.length, 'De', inicio, 'até', fim, 'de', todosItens.length);
-          
-          // Separar modelos e missões para exibição
-          this.modelosMissoesFiltrados = itensPaginados.filter(i => i._tipo === 'modelo').map(i => {
-            const { _tipo, ...rest } = i;
-            return rest;
-          });
-          this.missoesFiltradas = itensPaginados.filter(i => i._tipo === 'missao').map(i => {
-            const { _tipo, ...rest } = i;
-            return rest;
-          });
-          
-          console.log('Exibindo - Modelos:', this.modelosMissoesFiltrados.length, 'Missões:', this.missoesFiltradas.length);
+          const paginaItems = combinado.slice(inicio, inicio + this.limiteMissoes);
+
+          // Separar de volta para os dois arrays de exibição:
+          // modelos = itens sem campo "status" (são modelos de missão, não missões do usuário)
+          this.modelosMissoesFiltrados = paginaItems.filter(item => !item.status);
+          this.missoesFiltradas       = paginaItems.filter(item =>  item.status);
         } else {
-          // Com filtro de status: só missões, paginadas normalmente
           this.modelosMissoesFiltrados = [];
-          this.totalMissoes = todasMissoesFiltradas.length;
+          this.totalMissoes = filtradas.length;
           const inicio = (this.paginaMissoes - 1) * this.limiteMissoes;
-          const fim = inicio + this.limiteMissoes;
-          // FORÇAR: Garantir que pelo menos as missões sejam atribuídas
-          this.missoesFiltradas = todasMissoesFiltradas.slice(inicio, fim);
+          this.missoesFiltradas = filtradas.slice(inicio, inicio + this.limiteMissoes);
         }
-        
-        // FORÇAR: Garantir que missoesFiltradas é um array válido e não está vazio quando deveria ter conteúdo
-        if (!Array.isArray(this.missoesFiltradas)) {
-          this.missoesFiltradas = [];
-        }
-        
-        // FORÇAR: Se o filtro é 'ativa' e não há missões, tentar usar missoesAtivas diretamente
-        if (this.filtroMissaoStatus === 'ativa' && this.missoesFiltradas.length === 0) {
-          // Tentar todas as fontes possíveis
-          let missoesAtivasParaExibir = [];
-          
-          // 1. Tentar de todasMissoes filtradas
-          if (this.todasMissoes && this.todasMissoes.length > 0) {
-            missoesAtivasParaExibir = this.todasMissoes.filter(m => m && m.status === 'ativa');
-          }
-          
-          // 2. Se ainda vazio, tentar de missoesAtivas
-          if (missoesAtivasParaExibir.length === 0 && this.missoesAtivas && this.missoesAtivas.length > 0) {
-            missoesAtivasParaExibir = this.missoesAtivas;
-          }
-          
-          // 3. Se encontrou, aplicar paginação e exibir
-          if (missoesAtivasParaExibir.length > 0) {
-            const inicio = (this.paginaMissoes - 1) * this.limiteMissoes;
-            const fim = inicio + this.limiteMissoes;
-            this.missoesFiltradas = missoesAtivasParaExibir.slice(inicio, fim);
-            this.totalMissoes = missoesAtivasParaExibir.length;
-            this.modelosMissoesFiltrados = [];
-          }
-        }
-        
-        // Reinicializar timers após atualizar filtros (modo demo)
-        // Usar $nextTick do Alpine.js para garantir que o DOM foi atualizado antes de reinicializar timers
-        this.$nextTick(() => {
-          setTimeout(() => {
-            this.reinicializarTimersMissoes();
-          }, 500);
-        });
+
+        this.$nextTick(() => setTimeout(() => this.reinicializarTimersMissoes(), 300));
       } else {
         this.carregarMissoes();
       }
@@ -2633,51 +2557,46 @@ document.addEventListener('alpine:init', () => {
     },
 
     getIconeObra(index) {
+      // Ícones temáticos para cada uma das 9 obras agrupadas
       const icones = [
-        'bi-x-circle-fill', 'bi-x-circle-fill', 'bi-x-circle-fill',
-        'bi-x-circle-fill', 'bi-x-circle-fill', 'bi-x-circle-fill',
-        'bi-x-circle-fill', 'bi-x-circle-fill', 'bi-x-circle-fill',
-        'bi-x-circle-fill', 'bi-x-circle-fill', 'bi-x-circle-fill',
-        'bi-x-circle-fill', 'bi-x-circle-fill', 'bi-x-circle-fill'
+        'bi-fire',            // Imoralidade
+        'bi-diamond-half',    // Idolatria
+        'bi-eye-fill',        // Feitiçaria
+        'bi-x-octagon-fill',  // Ódio
+        'bi-arrow-repeat',    // Inveja
+        'bi-lightning-fill',  // Ira
+        'bi-exclamation-triangle-fill', // Discórdia
+        'bi-people-fill',     // Sectarismo
+        'bi-cup-fill',        // Excessos
       ];
       return 'bi ' + (icones[index] || 'bi-exclamation-circle-fill');
     },
 
     getPosicaoObraSVG(index) {
-      // Posições dos corações centralizados dentro do coração grande (coordenadas no viewBox 512x512)
-      // Centro: 256, 256
-      // Distribuídos em círculo dentro do coração grande
+      // 9 obras distribuídas em círculo dentro do coração grande (viewBox 512x512)
       const centroX = 256;
       const centroY = 256;
-      const raio = 60; // Raio menor para ficar dentro do coração grande
-      const anguloInicial = -Math.PI / 2; // Começar do topo
-      const anguloPorItem = (2 * Math.PI) / 15; // 15 obras
-      
+      const raio = 60;
+      const anguloInicial = -Math.PI / 2;
+      const anguloPorItem = (2 * Math.PI) / 9; // 9 obras
       const angulo = anguloInicial + (index * anguloPorItem);
-      const x = centroX + (raio * Math.cos(angulo));
-      const y = centroY + (raio * Math.sin(angulo));
-      
-      return { x, y };
+      return { x: centroX + raio * Math.cos(angulo), y: centroY + raio * Math.sin(angulo) };
     },
 
     getPosicaoLabelObra(index) {
       // Posições fixas calibradas para o formato do coração SVG (viewBox 512×512).
-      // Distribuição: 2 + 3 + 3 + 3 + 2 + 2 = 15 itens, sem sobreposição.
+      // Distribuição: 2 + 3 + 2 + 2 = 9 itens, sem sobreposição.
       // Valores em % relativos ao .obras-svg-wrapper (quadrado, mesmo tamanho do SVG).
       // O CSS aplica transform: translate(-50%, -50%) para centralizar cada label.
       const posicoes = [
-        // Fileira 1 — topo, área dos dois lobos (2 itens)
-        [32, 19], [68, 19],
-        // Fileira 2 (3 itens)
-        [18, 32], [50, 32], [82, 32],
-        // Fileira 3 — meio (3 itens)
-        [14, 46], [50, 46], [86, 46],
-        // Fileira 4 (3 itens)
-        [21, 59], [50, 59], [79, 59],
-        // Fileira 5 — começa a afunilar (2 itens)
-        [34, 71], [66, 71],
-        // Fileira 6 — base da ponta do coração (2 itens)
-        [42, 82], [58, 82],
+        // Fileira 1 — topo, lobos do coração (2 itens)
+        [30, 22], [70, 22],
+        // Fileira 2 — meio superior, mais larga (3 itens)
+        [16, 38], [50, 38], [84, 38],
+        // Fileira 3 — meio inferior (2 itens)
+        [28, 56], [72, 56],
+        // Fileira 4 — afunilando até a ponta (2 itens)
+        [38, 72], [62, 72],
       ];
       const [left, top] = posicoes[index] || [50, 50];
       return `left: ${left}%; top: ${top}%;`;
@@ -2698,6 +2617,38 @@ document.addEventListener('alpine:init', () => {
     
     ajustarPosicoesObras() {
       // Posições fixas definidas em getPosicaoLabelObra — nenhum ajuste dinâmico necessário.
+    },
+
+    // ── Modal "Saiba mais" — lista completa ───────────────────────────────
+    abrirInfoListEsp(tipo) {
+      this.infoListEsp.tipo = tipo;
+      this.infoListEsp.expandido = null;
+      this.infoListEsp.aberto = true;
+    },
+    fecharInfoListEsp() {
+      this.infoListEsp.aberto = false;
+      this.infoListEsp.tipo = null;
+      this.infoListEsp.expandido = null;
+    },
+    toggleInfoListItem(index) {
+      this.infoListEsp.expandido = this.infoListEsp.expandido === index ? null : index;
+    },
+    getInfoListDados() {
+      return this.infoListEsp.tipo === 'fruto' ? this.TOOLTIPS_FRUTO : this.TOOLTIPS_OBRA;
+    },
+
+    // ── Tooltips informativos — Fruto e Obras ──────────────────────────────
+    abrirTooltipEsp(tipo, index) {
+      const dados = tipo === 'fruto'
+        ? this.TOOLTIPS_FRUTO[index]
+        : this.TOOLTIPS_OBRA[index];
+      if (!dados) return;
+      this.tooltipEsp = { aberto: true, tipo, dados };
+      document.body.style.overflow = 'hidden';
+    },
+    fecharTooltipEsp() {
+      this.tooltipEsp = { aberto: false, tipo: null, dados: null };
+      document.body.style.overflow = '';
     },
 
     toggleObraInfo(index) {
