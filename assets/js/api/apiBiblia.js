@@ -4,9 +4,9 @@
  *   • api.getbible.net → AA (Almeida Atualizada), Bíblia Livre
  *
  * Traduções disponíveis:
- *   'arib'  → Almeida Imprensa Bíblica  (bible-api.com / almeida)
- *   'aa'    → Almeida Atualizada         (getbible.net  / almeida)
- *   'livre' → Bíblia Livre               (getbible.net  / livre)
+ *   'arib'  → Almeida Imprensa Bíblica  (bible-api.com / almeida)  — PT moderno ✓
+ *   'livre' → Bíblia Livre               (getbible.net  / livre)   — PT moderno ✓
+ *   'aa'    → Almeida Clássica           (getbible.net  / almeida) — ortografia arcaica
  */
 
 const URL_BASE_BIBLIA  = 'https://bible-api.com';

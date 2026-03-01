@@ -466,6 +466,30 @@ body:not(:has(.layout-logado)) .nav-inferior {
   flex-shrink: 0;
 }
 
+/* Separador dentro do painel */
+.btrad-separador {
+  height: 1px;
+  background: var(--cor-borda);
+  margin: 4px 0;
+}
+
+/* Opção bloqueada */
+.btrad-opcao--bloqueada {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.btrad-opcao-badge--lock {
+  background: rgba(120,120,120,0.12);
+  color: #888;
+  font-size: 0.65rem;
+}
+.btrad-opcao-em-breve {
+  color: #aaa;
+  font-size: 0.78rem;
+  flex-shrink: 0;
+}
+
 /* Animações Alpine (classes CSS puras) — abre de cima pra baixo */
 .btrad-enter       { transition: opacity 0.18s ease, transform 0.18s ease; }
 .btrad-enter-start { opacity: 0; transform: scale(0.94) translateY(-6px); }

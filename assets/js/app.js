@@ -101,12 +101,12 @@ document.addEventListener('alpine:init', () => {
     abaTestamentoBiblia: 'AT',       // 'AT' | 'NT'
     filtroBiblia: '',                // busca reativa de livro
     filtroCategoriaBiblia: 'canonico', // filtro/ordem ativa (ver GRUPOS_BIBLIA)
-    traducaoBiblia: 'arib',          // tradução ativa ('arib' | 'aa' | 'livre')
+    traducaoBiblia: 'arib',          // tradução ativa ('arib' | 'livre' | 'aa')
     dropdownTraducaoAberto: false,   // estado do dropdown customizado de tradução
     traducoesBiblia: [
-      { valor: 'arib',  label: 'ARIB', nome: 'Almeida Imprensa Bíblica' },
-      { valor: 'aa',    label: 'AA',   nome: 'Almeida Atualizada' },
-      { valor: 'livre', label: 'BL',   nome: 'Bíblia Livre' },
+      { valor: 'arib',  label: 'ARIB', nome: 'Almeida Imprensa Bíblica'  },
+      { valor: 'livre', label: 'BL',   nome: 'Bíblia Livre'              },
+      { valor: 'aa',    label: 'AC',   nome: 'Almeida Clássica'          },
     ],
     // Quiz do livro (estado da tela de quiz)
     quizLivroAtivo: null,
