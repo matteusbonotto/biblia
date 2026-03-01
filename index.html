@@ -2020,38 +2020,32 @@
                 </div>
               </div>
 
-              <!-- Tabs AT / NT (esconde durante a busca) -->
-              <div class="bliv-tabs" x-show="!filtroBiblia" x-transition>
-                <button class="bliv-tab"
-                        :class="{ 'bliv-tab--on': abaTestamentoBiblia === 'AT' }"
-                        @click="abaTestamentoBiblia = 'AT'">
-                  Antigo Testamento
-                  <span class="bliv-tab-pill" x-text="livrosAT.length"></span>
-                </button>
-                <button class="bliv-tab"
-                        :class="{ 'bliv-tab--on': abaTestamentoBiblia === 'NT' }"
-                        @click="abaTestamentoBiblia = 'NT'">
-                  Novo Testamento
-                  <span class="bliv-tab-pill" x-text="livrosNT.length"></span>
-                </button>
+              <!-- Filtros de categoria (esconde durante a busca) -->
+              <div class="bliv-filtros-wrap" x-show="!filtroBiblia" x-transition>
+                <div class="bliv-filtros-scroll">
+                  <template x-for="grupo in gruposBiblia" :key="grupo.id">
+                    <button class="bliv-filtro-chip"
+                            :class="{ 'bliv-filtro-chip--on': filtroCategoriaBiblia === grupo.id }"
+                            @click="filtroCategoriaBiblia = grupo.id">
+                      <i :class="'bi ' + grupo.icone"></i>
+                      <span x-text="grupo.label"></span>
+                    </button>
+                  </template>
+                </div>
               </div>
 
-              <!-- Progresso do testamento (esconde na busca) -->
-              <div class="biblia-prog-wrap mb-3" x-show="!filtroBiblia">
+              <!-- Progresso da seleção atual (esconde na busca) -->
+              <div class="biblia-prog-wrap mb-3" x-show="!filtroBiblia && livrosFiltrados.length > 0">
                 <div class="biblia-prog-track">
                   <div class="biblia-prog-fill"
                        :style="'width:' + Math.round(
-                         (abaTestamentoBiblia === 'AT' ? livrosAT : livrosNT)
-                           .filter(l => percentualLivro(l.codigo) >= 100).length
-                         / (abaTestamentoBiblia === 'AT' ? livrosAT.length : livrosNT.length)
-                         * 100) + '%'">
+                         livrosFiltrados.filter(l => percentualLivro(l.codigo) >= 100).length
+                         / livrosFiltrados.length * 100) + '%'">
                   </div>
                 </div>
                 <span class="biblia-prog-pct"
-                      x-text="(abaTestamentoBiblia === 'AT' ? livrosAT : livrosNT)
-                                .filter(l => percentualLivro(l.codigo) >= 100).length
-                              + '/' + (abaTestamentoBiblia === 'AT' ? livrosAT.length : livrosNT.length)
-                              + ' livros'">
+                      x-text="livrosFiltrados.filter(l => percentualLivro(l.codigo) >= 100).length
+                              + '/' + livrosFiltrados.length + ' livros'">
                 </span>
               </div>
 
@@ -2175,7 +2169,7 @@
           <template x-if="viewBiblia === 'leitura'">
             <div>
 
-              <!-- ── Cabeçalho: voltar + livro/capítulo ── -->
+              <!-- ── Cabeçalho: voltar + livro/capítulo + tradução ── -->
               <div class="biblia-leitura-topo">
                 <button class="btopo-voltar" @click="voltarParaCapitulosBiblia()" title="Voltar para capítulos">
                   <i class="bi bi-arrow-left"></i>
@@ -2184,7 +2178,46 @@
                   <span class="btopo-livro" x-text="livrosBiblia.find(l => l.codigo === livroSelecionado)?.nome || livroSelecionado"></span>
                   <span class="btopo-cap" x-text="'Capítulo ' + capituloSelecionado"></span>
                 </div>
+
+                <!-- Dropdown de tradução — sempre visível no cabeçalho -->
+                <div class="btrad-wrap"
+                     @keydown.escape.window="dropdownTraducaoAberto = false">
+
+                  <button class="btrad-trigger"
+                          @click.stop="dropdownTraducaoAberto = !dropdownTraducaoAberto"
+                          :aria-expanded="dropdownTraducaoAberto"
+                          title="Mudar tradução da Bíblia">
+                    <i class="bi bi-translate btrad-ico"></i>
+                    <span class="btrad-label"
+                          x-text="traducoesBiblia.find(t => t.valor === traducaoBiblia)?.label || 'ARIB'">
+                    </span>
+                    <i class="bi btrad-seta"
+                       :class="dropdownTraducaoAberto ? 'bi-chevron-up' : 'bi-chevron-down'">
+                    </i>
+                  </button>
+
+                  <!-- Painel flutuante — para baixo, alinhado à direita -->
+                  <div class="btrad-panel"
+                       x-show="dropdownTraducaoAberto"
+                       x-transition
+                       @click.outside="dropdownTraducaoAberto = false">
+
+                    <p class="btrad-panel-titulo">Tradução</p>
+
+                    <template x-for="t in traducoesBiblia" :key="t.valor">
+                      <button class="btrad-opcao"
+                              :class="{ 'btrad-opcao--ativa': traducaoBiblia === t.valor }"
+                              @click="traducaoBiblia = t.valor; dropdownTraducaoAberto = false; carregarCapituloBiblia()">
+                        <span class="btrad-opcao-badge" x-text="t.label"></span>
+                        <span class="btrad-opcao-nome" x-text="t.nome"></span>
+                        <i class="bi bi-check2 btrad-opcao-check"
+                           x-show="traducaoBiblia === t.valor"></i>
+                      </button>
+                    </template>
+                  </div>
+                </div><!-- /btrad-wrap -->
               </div>
+
               <!-- Toolbar de leitura -->
               <div x-show="capituloBiblia && !carregandoCapitulo" class="biblia-leitura-controles">
 
@@ -2230,6 +2263,7 @@
                     <i class="bi bi-hand-index-thumb"></i>
                     <span>LIBRAS</span>
                   </button>
+
 
                 </div><!-- /biblia-toolbar -->
 
@@ -2379,6 +2413,19 @@
                 <span class="bctx-acao-txt">Inserir nota</span>
                 <i class="bi bi-chevron-right bctx-acao-seta"></i>
               </button>
+              <!-- Remover marcação: só aparece se o trecho selecionado tem highlight ou nota com cor -->
+              <button class="bctx-acao bctx-acao--perigo"
+                      x-show="bibleContextMenu.pendente && notacoesCapitulo.some(n =>
+                        n.verse === bibleContextMenu.pendente.verse &&
+                        n.end > bibleContextMenu.pendente.start &&
+                        n.start < bibleContextMenu.pendente.end &&
+                        (n.type === 'highlight' || (n.type === 'note' && n.highlightColor))
+                      )"
+                      @click.stop="removerMarcadorSelecao()">
+                <span class="bctx-acao-ico bctx-ico-remover"><i class="bi bi-eraser-fill"></i></span>
+                <span class="bctx-acao-txt">Remover marcação</span>
+                <i class="bi bi-chevron-right bctx-acao-seta"></i>
+              </button>
               <button class="bctx-acao" @click.stop="copiarSelecao()">
                 <span class="bctx-acao-ico bctx-ico-copiar"><i class="bi bi-clipboard"></i></span>
                 <span class="bctx-acao-txt">Copiar texto</span>
@@ -2396,17 +2443,60 @@
 
           </div><!-- /bctx-container -->
 
-          <!-- Popup de nota (marca-texto) -->
+          <!-- Popup de nota — visual post-it -->
           <div x-show="notaPopup.aberto" class="modal-nota-overlay" @click.self="fecharNotaPopup()" x-transition>
-            <div class="modal-nota card-tema p-3" role="dialog" aria-label="Nota">
-              <h3 class="fs-6 fw-600 mb-2" x-text="notaPopup.id ? 'Sua nota' : 'Nova nota'"></h3>
-              <p x-show="notaPopup.textoRef" class="fs-menor texto-secundario mb-2"><em x-text="'Trecho: ' + (notaPopup.textoRef || '')"></em></p>
-              <textarea class="form-control mb-3" rows="4" x-model="notaPopup.conteudo" placeholder="Escreva sua nota..."></textarea>
-              <div class="d-flex gap-2 justify-content-end">
-                <button type="button" class="btn btn-outline-secondary btn-sm" @click="fecharNotaPopup()">Fechar</button>
-                <button x-show="notaPopup.id" type="button" class="btn btn-outline-danger btn-sm" @click="removerNotacao(notaPopup.id)">Excluir</button>
-                <button type="button" class="btn btn-primario btn-sm" @click="salvarEdicaoNota()" x-text="notaPopup.id ? 'Salvar' : 'Criar nota'"></button>
+            <div class="postit" :style="`--postit-bg: ${notaPopup.corFundo || '#fef08a'}`" role="dialog" aria-label="Nota">
+
+              <!-- Fita decorativa no topo -->
+              <div class="postit-fita"></div>
+
+              <!-- Cabeçalho: título + seletor de cores -->
+              <div class="postit-cabecalho">
+                <span class="postit-titulo">
+                  <i class="bi bi-sticky-fill"></i>
+                  <span x-text="notaPopup.id ? 'Sua nota' : 'Nova nota'"></span>
+                </span>
+                <div class="postit-cores" title="Cor do post-it">
+                  <template x-for="cor in CORES_MARCADOR" :key="cor.valor">
+                    <button class="postit-cor-btn"
+                            :style="`background:${cor.valor}`"
+                            :class="{ 'postit-cor-btn--ativa': (notaPopup.corFundo || '#fef08a') === cor.valor }"
+                            @click.stop="notaPopup.corFundo = cor.valor"
+                            :title="cor.nome">
+                    </button>
+                  </template>
+                </div>
               </div>
+
+              <!-- Trecho bíblico referenciado -->
+              <p x-show="notaPopup.textoRef" class="postit-trecho">
+                «<em x-text="notaPopup.textoRef"></em>»
+              </p>
+
+              <!-- Área de texto (sem borda, fundo transparente) -->
+              <textarea class="postit-textarea"
+                        rows="5"
+                        x-model="notaPopup.conteudo"
+                        placeholder="Escreva sua nota…"></textarea>
+
+              <!-- Rodapé -->
+              <div class="postit-footer">
+                <button type="button" class="postit-btn postit-btn--cancelar" @click="fecharNotaPopup()">Cancelar</button>
+                <button x-show="notaPopup.id" type="button" class="postit-btn postit-btn--excluir"
+                        @click="removerNotacao(notaPopup.id)"
+                        :title="notacoesCapitulo.find(n => n.id === notaPopup.id)?.highlightColor
+                          ? 'A marcação de cor será mantida' : 'Excluir nota'"
+                        x-text="notacoesCapitulo.find(n => n.id === notaPopup.id)?.highlightColor
+                          ? 'Remover nota' : 'Excluir'">
+                </button>
+                <button type="button" class="postit-btn postit-btn--salvar"
+                        @click="salvarEdicaoNota()"
+                        x-text="notaPopup.id ? 'Salvar' : 'Criar nota'">
+                </button>
+              </div>
+
+              <!-- Dobra no canto inferior direito (efeito decorativo) -->
+              <div class="postit-dobra"></div>
             </div>
           </div>
 
@@ -2769,6 +2859,7 @@
   <script>
     window.SUPABASE_URL = ''; // Substitua pela URL do seu projeto Supabase
     window.SUPABASE_ANON_KEY = ''; // Substitua pela chave anon do Supabase
+    window.ABIBLIADIGITAL_TOKEN = ''; // Token gratuito da NVI — cadastre-se em abibliadigital.com.br
   </script>
   <!-- Supabase UMD: expõe window.supabase (use createClient dele) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>

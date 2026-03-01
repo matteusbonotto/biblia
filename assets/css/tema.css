@@ -358,6 +358,121 @@ body:not(:has(.layout-logado)) .nav-inferior {
   font-weight: 700;
 }
 .bctrl-libras i { font-size: 0.9rem; }
+/* ── Dropdown de tradução customizado (tela de leitura) ─────────────── */
+.btrad-wrap {
+  position: relative;
+}
+.btrad-trigger {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border: 1.5px solid var(--cor-borda);
+  border-radius: 999px;
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.18s, background 0.18s, box-shadow 0.18s;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+}
+.btrad-trigger:hover {
+  border-color: var(--cor-primaria);
+  background: rgba(var(--rgb-primaria, 34,139,34), 0.06);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+.btrad-trigger:focus-visible {
+  outline: 2px solid var(--cor-primaria);
+  outline-offset: 2px;
+}
+.btrad-ico { font-size: 0.78rem; color: var(--cor-primaria); }
+.btrad-label { font-size: 0.7rem; font-weight: 800; letter-spacing: 0.05em; }
+.btrad-seta { font-size: 0.65rem; color: var(--cor-texto-secundario); transition: transform 0.2s; }
+
+/* Painel flutuante */
+.btrad-panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  min-width: 230px;
+  background: var(--cor-fundo-card);
+  border: 1.5px solid var(--cor-borda);
+  border-radius: 16px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.08);
+  z-index: 999;
+  overflow: hidden;
+  transform-origin: top right;
+}
+[data-bs-theme="dark"] .btrad-panel {
+  box-shadow: 0 8px 28px rgba(0,0,0,0.45);
+}
+.btrad-panel-titulo {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--cor-texto-secundario);
+  padding: 10px 14px 6px;
+  margin: 0;
+  border-bottom: 1px solid var(--cor-borda);
+}
+
+/* Opções individuais */
+.btrad-opcao {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.14s;
+  position: relative;
+}
+.btrad-opcao:hover { background: rgba(var(--rgb-primaria, 34,139,34), 0.07); }
+.btrad-opcao--ativa { background: rgba(var(--rgb-primaria, 34,139,34), 0.1); }
+.btrad-opcao--ativa .btrad-opcao-badge {
+  background: var(--cor-primaria);
+  color: #fff;
+}
+.btrad-opcao-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  background: rgba(var(--rgb-primaria, 34,139,34), 0.12);
+  color: var(--cor-primaria);
+  flex-shrink: 0;
+  min-width: 38px;
+  text-align: center;
+  transition: background 0.15s, color 0.15s;
+}
+.btrad-opcao-nome {
+  flex: 1;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--cor-texto);
+}
+.btrad-opcao-check {
+  color: var(--cor-primaria);
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+/* Animações Alpine (classes CSS puras) — abre de cima pra baixo */
+.btrad-enter       { transition: opacity 0.18s ease, transform 0.18s ease; }
+.btrad-enter-start { opacity: 0; transform: scale(0.94) translateY(-6px); }
+.btrad-enter-end   { opacity: 1; transform: scale(1) translateY(0); }
+.btrad-leave       { transition: opacity 0.14s ease, transform 0.14s ease; }
+.btrad-leave-start { opacity: 1; transform: scale(1) translateY(0); }
+.btrad-leave-end   { opacity: 0; transform: scale(0.94) translateY(-6px); }
 /* Controle de velocidade (inline, ao lado do botão Narrar) */
 .bctrl-speed {
   display: flex;
@@ -488,6 +603,9 @@ body:not(:has(.layout-logado)) .nav-inferior {
 .nota-link { color: var(--cor-nota-link, #2563eb); text-decoration: underline; cursor: pointer; }
 .nota-link:hover { color: var(--cor-nota-link-hover, #1d4ed8); }
 [data-bs-theme="dark"] .nota-link { --cor-nota-link: #7eb8f5; --cor-nota-link-hover: #a3cdf7; }
+/* Nota sobre texto marcado: mantém o highlight e adiciona sublinhado de nota */
+.nota-marcada-com-nota { padding: 0 1px; border-radius: 2px; }
+.nota-marcada-com-nota .nota-link { text-decoration: underline dotted 2px; }
 
 /* ═══════════════════════════════════════════════════════════════════════
    MENU DE CONTEXTO — Bottom Sheet (mobile) / Popup (desktop)
@@ -670,9 +788,16 @@ body:not(:has(.layout-logado)) .nav-inferior {
   font-size: 0.95rem;
   flex-shrink: 0;
 }
-.bctx-ico-nota   { background: rgba(74, 175, 120, 0.15); color: #1a6640; }
-.bctx-ico-copiar { background: rgba(59,  130, 246, 0.15); color: #1d4ed8; }
-.bctx-ico-tudo   { background: rgba(37,  99,  59,  0.12); color: var(--cor-primaria); }
+.bctx-ico-nota    { background: rgba(74, 175, 120, 0.15); color: #1a6640; }
+.bctx-ico-copiar  { background: rgba(59,  130, 246, 0.15); color: #1d4ed8; }
+.bctx-ico-tudo    { background: rgba(37,  99,  59,  0.12); color: var(--cor-primaria); }
+.bctx-ico-remover { background: rgba(220, 53,  69,  0.12); color: #b91c1c; }
+
+/* Botão de ação variante perigo */
+.bctx-acao--perigo .bctx-acao-txt { color: #b91c1c; }
+.bctx-acao--perigo:hover { background: rgba(220, 53, 69, 0.06); }
+[data-bs-theme="dark"] .bctx-acao--perigo .bctx-acao-txt { color: #f87171; }
+[data-bs-theme="dark"] .bctx-ico-remover { background: rgba(220, 53, 69, 0.18); color: #f87171; }
 
 .bctx-acao-txt {
   flex: 1;
@@ -708,6 +833,7 @@ body:not(:has(.layout-logado)) .nav-inferior {
   align-items: center;
   gap: 10px;
   margin-bottom: 14px;
+  position: relative;
 }
 
 /* Botão voltar: quadrado arredondado com borda */
@@ -732,11 +858,12 @@ body:not(:has(.layout-logado)) .nav-inferior {
   color: var(--cor-primaria);
 }
 
-/* Info: livro em cima, capítulo embaixo */
+/* Info: livro em cima, capítulo embaixo — ocupa o espaço restante */
 .btopo-info {
   display: flex;
   flex-direction: column;
   gap: 1px;
+  flex: 1;
 }
 .btopo-livro {
   font-size: 1.05rem;
@@ -1070,6 +1197,7 @@ body:not(:has(.layout-logado)) .nav-inferior {
   margin: 0;
 }
 
+
 /* ── Campo de busca ─────────────────────────────────────────────────── */
 .bliv-busca {
   position: relative;
@@ -1154,6 +1282,50 @@ body:not(:has(.layout-logado)) .nav-inferior {
   flex-shrink: 0;
 }
 .bliv-tab--on .bliv-tab-pill { background: rgba(255, 255, 255, 0.25); }
+
+/* ── Filtros de categoria (chips scrolláveis) ───────────────────────── */
+.bliv-filtros-wrap {
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.bliv-filtros-scroll {
+  display: flex;
+  gap: 7px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.bliv-filtros-scroll::-webkit-scrollbar { display: none; }
+.bliv-filtro-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  scroll-snap-align: start;
+  flex-shrink: 0;
+  border: 1.5px solid var(--cor-borda);
+  background: var(--cor-fundo);
+  color: var(--cor-texto-secundario);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.bliv-filtro-chip i { font-size: 0.8rem; }
+.bliv-filtro-chip--on {
+  background: var(--cor-primaria);
+  color: #fff;
+  border-color: var(--cor-primaria);
+  box-shadow: 0 2px 8px rgba(37, 99, 59, 0.28);
+}
+.bliv-filtro-chip:not(.bliv-filtro-chip--on):hover {
+  background: var(--cor-borda);
+  color: var(--cor-texto);
+}
 
 /* ── Grid de livros ─────────────────────────────────────────────────── */
 .bliv-grid {
@@ -1374,17 +1546,182 @@ body:not(:has(.layout-logado)) .nav-inferior {
 }
 
 /* Popup de nota */
+/* ── Modal Post-it ──────────────────────────────────────────────────── */
 .modal-nota-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0,0,0,0.45);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1100;
-  padding: 1rem;
+  padding: 1.25rem;
 }
-.modal-nota { max-width: 400px; width: 100%; }
+
+/* Post-it container */
+.postit {
+  --postit-bg: #fef08a;
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  background-color: var(--postit-bg);
+  /* Linhas pautadas horizontais, começam após o cabeçalho */
+  background-image: repeating-linear-gradient(
+    transparent,
+    transparent 27px,
+    rgba(0,0,0,0.07) 27px,
+    rgba(0,0,0,0.07) 28px
+  );
+  background-position: 0 82px;
+  border-radius: 2px 2px 4px 4px;
+  box-shadow:
+    0 2px 4px  rgba(0,0,0,0.12),
+    0 6px 18px rgba(0,0,0,0.20),
+    4px 5px 0  rgba(0,0,0,0.07);
+  padding-bottom: 14px;
+  transform: rotate(-0.5deg);
+  transition: background-color 0.22s ease;
+  overflow: hidden;
+}
+
+/* Fita adesiva no topo */
+.postit-fita {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 64px;
+  height: 22px;
+  background: rgba(255,255,255,0.5);
+  border-radius: 2px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.14);
+  z-index: 1;
+}
+
+/* Cabeçalho */
+.postit-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 14px 10px;
+  border-bottom: 1px solid rgba(0,0,0,0.09);
+}
+.postit-titulo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: rgba(0,0,0,0.55);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.postit-titulo i { font-size: 0.9rem; }
+
+/* Seletor de cores */
+.postit-cores {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+}
+.postit-cor-btn {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid rgba(0,0,0,0.15);
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  flex-shrink: 0;
+}
+.postit-cor-btn:hover   { transform: scale(1.18); }
+.postit-cor-btn--ativa  {
+  border-color: rgba(0,0,0,0.5);
+  transform: scale(1.28);
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.12);
+}
+
+/* Trecho bíblico */
+.postit-trecho {
+  font-size: 0.71rem;
+  color: rgba(0,0,0,0.45);
+  font-style: italic;
+  margin: 8px 14px 0;
+  padding-left: 8px;
+  border-left: 3px solid rgba(0,0,0,0.15);
+  line-height: 1.4;
+}
+
+/* Área de texto — sem borda visível, fundo transparente */
+.postit-textarea {
+  display: block;
+  width: 100%;
+  padding: 10px 14px;
+  background: transparent;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  resize: none;
+  font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+  font-size: 0.97rem;
+  line-height: 1.82rem; /* alinha com as linhas pautadas (28px) */
+  color: rgba(0,0,0,0.78);
+  min-height: 130px;
+}
+.postit-textarea:focus {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+.postit-textarea::placeholder { color: rgba(0,0,0,0.32); }
+
+/* Rodapé */
+.postit-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  padding: 6px 14px 0;
+}
+.postit-btn {
+  border: none;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 5px 13px;
+  cursor: pointer;
+  transition: opacity 0.15s, background 0.15s;
+}
+.postit-btn--cancelar {
+  background: rgba(0,0,0,0.09);
+  color: rgba(0,0,0,0.6);
+}
+.postit-btn--cancelar:hover { background: rgba(0,0,0,0.15); }
+.postit-btn--excluir  {
+  background: rgba(220,53,69,0.12);
+  color: #b91c1c;
+}
+.postit-btn--excluir:hover  { background: rgba(220,53,69,0.22); }
+.postit-btn--salvar   {
+  background: rgba(0,0,0,0.68);
+  color: #fff;
+}
+.postit-btn--salvar:hover   { background: rgba(0,0,0,0.82); }
+
+/* Dobra no canto inferior direito */
+.postit-dobra {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(
+    -135deg,
+    rgba(0,0,0,0) 50%,
+    rgba(0,0,0,0.13) 50%
+  );
+  border-radius: 0 0 4px 0;
+  pointer-events: none;
+}
 
 .progresso-xp {
   height: 6px;

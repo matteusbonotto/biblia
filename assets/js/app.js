@@ -16,7 +16,7 @@ import { listarInventario, listarEfeitosAtivos, usarItem, equiparItem } from './
 import { listarModelosMissoes, listarMissoesAtivas, listarTodasMissoes, obterMetricasMissoes, iniciarMissao, concluirMissao, desistirMissao } from './servicos/missoes.js';
 import { obterCapitulo } from './api/apiBiblia.js';
 import { montarUrlAvataaars, CONFIG_AVATAR_PADRAO } from './api/apiAvataaars.js';
-import { LIVROS_BIBLIA, obterLivrosAntigoTestamento, obterLivrosNovoTestamento } from './dados/livrosBiblia.js';
+import { LIVROS_BIBLIA, GRUPOS_BIBLIA, ORDEM_CRONOLOGICA, obterLivrosAntigoTestamento, obterLivrosNovoTestamento } from './dados/livrosBiblia.js';
 import { OPCOES_AVATAAARS, BACKGROUNDS_AVATAR } from './dados/opcoesAvataaars.js';
 import {
   salvarProgresso,
@@ -98,8 +98,16 @@ document.addEventListener('alpine:init', () => {
     viewBiblia: 'livros',
     gridOuListaBiblia: 'grid',
     livroSelecionadoParaCapitulos: null,
-    abaTestamentoBiblia: 'AT',   // 'AT' | 'NT'
-    filtroBiblia: '',             // busca reativa de livro
+    abaTestamentoBiblia: 'AT',       // 'AT' | 'NT'
+    filtroBiblia: '',                // busca reativa de livro
+    filtroCategoriaBiblia: 'canonico', // filtro/ordem ativa (ver GRUPOS_BIBLIA)
+    traducaoBiblia: 'arib',          // tradução ativa ('arib' | 'aa' | 'livre')
+    dropdownTraducaoAberto: false,   // estado do dropdown customizado de tradução
+    traducoesBiblia: [
+      { valor: 'arib',  label: 'ARIB', nome: 'Almeida Imprensa Bíblica' },
+      { valor: 'aa',    label: 'AA',   nome: 'Almeida Atualizada' },
+      { valor: 'livre', label: 'BL',   nome: 'Bíblia Livre' },
+    ],
     // Quiz do livro (estado da tela de quiz)
     quizLivroAtivo: null,
     quizTipo: null,
@@ -120,7 +128,7 @@ document.addEventListener('alpine:init', () => {
     mostrarCoresMarcador: false,
     _longPressTimer: null,
     _longPressAcionado: false,
-    notaPopup: { aberto: false, id: null, conteudo: '', textoRef: '' },
+    notaPopup: { aberto: false, id: null, conteudo: '', textoRef: '', corFundo: '#fef08a' },
     bibleContextMenu: { aberto: false, x: 0, y: 0, pendente: null, modoSheet: true },
     // Seleção customizada com pinos arrastáveis
     bibleSelecaoCustom: {
@@ -1451,7 +1459,12 @@ document.addEventListener('alpine:init', () => {
       window.getSelection()?.removeAllRanges();
       this.bibleSelecaoCustom.ativo = false;
       this.bibleContextMenu.aberto = false;
-      const dados = await obterCapitulo(this.livroSelecionado, this.capituloSelecionado, 'almeida');
+      const traducao = this.traducaoBiblia || 'arib';
+      this.dropdownTraducaoAberto = false;
+      const dados = await obterCapitulo(this.livroSelecionado, this.capituloSelecionado, traducao);
+      if (!dados) {
+        this.erro = 'Não foi possível carregar os versículos. Verifique sua conexão e tente novamente.';
+      }
       this.capituloBiblia = dados;
       this.carregandoCapitulo = false;
       this.progressoLeituraScroll = this.percentualCapitulo(this.livroSelecionado, this.capituloSelecionado);
@@ -1491,7 +1504,8 @@ document.addEventListener('alpine:init', () => {
 
     chaveNotacoesCapitulo() {
       const uid = this.modoDemo ? 'demo' : (this.usuario?.id || '');
-      return `notacoes_${uid}_${this.livroSelecionado}_${this.capituloSelecionado}`;
+      const trad = this.traducaoBiblia || 'arib';
+      return `notacoes_${uid}_${trad}_${this.livroSelecionado}_${this.capituloSelecionado}`;
     },
 
     carregarNotacoesCapitulo() {
@@ -1512,21 +1526,76 @@ document.addEventListener('alpine:init', () => {
     },
 
     adicionarMarcador(verse, start, end, text, color) {
-      const id = 'n-' + Date.now() + '-' + Math.random().toString(36).slice(2, 9);
-      this.notacoesCapitulo.push({ id, type: 'highlight', verse, start, end, text, color });
+      // Se houver nota sobreposta, atualiza a cor do highlight na nota (mantém o link)
+      // Se houver highlight puro sobreposto, descarta-o (será substituído)
+      let temNotaSobreposta = false;
+      const novas = [];
+      for (const n of this.notacoesCapitulo) {
+        const sobrepoe = n.verse === verse && n.end > start && n.start < end;
+        if (!sobrepoe) { novas.push(n); continue; }
+        if (n.type === 'note') {
+          temNotaSobreposta = true;
+          novas.push({ ...n, highlightColor: color }); // preserva nota, atualiza a cor
+        }
+        // highlight puro sobreposto: descarta (vai ser substituído)
+      }
+      if (!temNotaSobreposta) {
+        const id = 'n-' + Date.now() + '-' + Math.random().toString(36).slice(2, 9);
+        novas.push({ id, type: 'highlight', verse, start, end, text, color });
+      }
+      this.notacoesCapitulo = novas;
       this.salvarNotacoesCapitulo();
     },
 
-    adicionarNota(verse, start, end, text, noteContent) {
+    adicionarNota(verse, start, end, text, noteContent, corFundo) {
+      // Se há highlight sobreposto, herda a cor e remove o highlight (mantém visual + vira link)
+      const highlightExistente = this.notacoesCapitulo.find(
+        (n) => n.verse === verse && n.type === 'highlight' && n.start < end && n.end > start
+      );
+      const highlightColor = highlightExistente?.color || null;
+      // Remove anotações que se sobrepõem ao mesmo trecho
+      this.notacoesCapitulo = this.notacoesCapitulo.filter(
+        (n) => n.verse !== verse || n.end <= start || n.start >= end
+      );
       const id = 'n-' + Date.now() + '-' + Math.random().toString(36).slice(2, 9);
-      this.notacoesCapitulo.push({ id, type: 'note', verse, start, end, text, noteContent: noteContent || '' });
+      this.notacoesCapitulo.push({ id, type: 'note', verse, start, end, text, noteContent: noteContent || '', highlightColor, corFundo: corFundo || '#fef08a' });
       this.salvarNotacoesCapitulo();
     },
 
     removerNotacao(id) {
-      this.notacoesCapitulo = this.notacoesCapitulo.filter((n) => n.id !== id);
+      const n = this.notacoesCapitulo.find((x) => x.id === id);
+      if (n && n.type === 'note' && n.highlightColor) {
+        // Nota tinha marcação de cor → converte para highlight puro (mantém a cor, remove o link)
+        const novoId = 'n-' + Date.now() + '-' + Math.random().toString(36).slice(2, 9);
+        this.notacoesCapitulo = this.notacoesCapitulo
+          .filter((x) => x.id !== id)
+          .concat([{ id: novoId, type: 'highlight', verse: n.verse, start: n.start, end: n.end, text: n.text, color: n.highlightColor }]);
+      } else {
+        this.notacoesCapitulo = this.notacoesCapitulo.filter((x) => x.id !== id);
+      }
       this.salvarNotacoesCapitulo();
       this.notaPopup.aberto = false;
+    },
+
+    removerMarcadorSelecao() {
+      const p = this.bibleContextMenu.pendente;
+      if (!p) return;
+      // Para highlights puros: remove. Para notas com highlightColor: mantém a nota, remove a cor.
+      const novas = [];
+      for (const n of this.notacoesCapitulo) {
+        const sobrepoe = n.verse === p.verse && n.end > p.start && n.start < p.end;
+        if (!sobrepoe) { novas.push(n); continue; }
+        if (n.type === 'note' && n.highlightColor) {
+          novas.push({ ...n, highlightColor: null }); // mantém nota, remove a cor do fundo
+        }
+        // highlight puro: descarta
+      }
+      this.notacoesCapitulo = novas;
+      this.salvarNotacoesCapitulo();
+      this.bibleContextMenu.aberto = false;
+      this.bibleContextMenu.pendente = null;
+      this.bibleSelecaoCustom.ativo = false;
+      window.getSelection()?.removeAllRanges();
     },
 
     atualizarNota(id, novoConteudo) {
@@ -1546,7 +1615,14 @@ document.addEventListener('alpine:init', () => {
         if (n.start > last) out += esc(text.slice(last, n.start));
         const segment = esc(text.slice(n.start, n.end));
         if (n.type === 'highlight') out += `<mark class="marca-texto" style="background:${n.color}; border-radius:2px;">${segment}</mark>`;
-        else if (n.type === 'note') out += `<span class="nota-link" data-note-id="${esc(n.id)}" tabindex="0" role="button">${segment}</span>`;
+        else if (n.type === 'note') {
+          const noteSpan = `<span class="nota-link" data-note-id="${esc(n.id)}" tabindex="0" role="button">${segment}</span>`;
+          if (n.highlightColor) {
+            out += `<mark class="marca-texto nota-marcada-com-nota" style="background:${esc(n.highlightColor)}; border-radius:2px;">${noteSpan}</mark>`;
+          } else {
+            out += noteSpan;
+          }
+        }
         last = n.end;
       }
       if (last < text.length) out += esc(text.slice(last));
@@ -1699,7 +1775,8 @@ document.addEventListener('alpine:init', () => {
         this._pendenteNota.start,
         this._pendenteNota.end,
         this._pendenteNota.text,
-        this.notaPopup.conteudo
+        this.notaPopup.conteudo,
+        this.notaPopup.corFundo
       );
       this._pendenteNota = null;
       this.notaPopup.aberto = false;
@@ -1717,6 +1794,7 @@ document.addEventListener('alpine:init', () => {
       this.notaPopup.id = id;
       this.notaPopup.conteudo = n.noteContent || '';
       this.notaPopup.textoRef = n.text || '';
+      this.notaPopup.corFundo = n.corFundo || '#fef08a';
     },
 
     fecharNotaPopup() {
@@ -1724,12 +1802,22 @@ document.addEventListener('alpine:init', () => {
       this.notaPopup.id = null;
       this.notaPopup.conteudo = '';
       this.notaPopup.textoRef = '';
+      this.notaPopup.corFundo = '#fef08a';
       this._pendenteNota = null;
     },
 
     salvarEdicaoNota() {
-      if (this.notaPopup.id) this.atualizarNota(this.notaPopup.id, this.notaPopup.conteudo);
-      else this.salvarNotaPendente();
+      if (this.notaPopup.id) {
+        // Atualiza conteúdo + cor do post-it
+        const n = this.notacoesCapitulo.find((x) => x.id === this.notaPopup.id);
+        if (n && n.type === 'note') {
+          n.noteContent = this.notaPopup.conteudo;
+          n.corFundo = this.notaPopup.corFundo || '#fef08a';
+        }
+        this.salvarNotacoesCapitulo();
+      } else {
+        this.salvarNotaPendente();
+      }
       this.fecharNotaPopup();
     },
 
@@ -1819,16 +1907,35 @@ document.addEventListener('alpine:init', () => {
     livrosBiblia: LIVROS_BIBLIA,
     livrosAT: obterLivrosAntigoTestamento(),
     livrosNT: obterLivrosNovoTestamento(),
+    gruposBiblia: GRUPOS_BIBLIA,
 
-    // Computed: lista filtrada pela busca e aba ativa
+    // Computed: lista filtrada pela busca e categoria/ordem ativa
     get livrosFiltrados() {
       const q = (this.filtroBiblia || '').trim().toLowerCase();
+      const cat = this.filtroCategoriaBiblia || 'canonico';
+
+      // Busca textual: ignora filtro de categoria
       if (q) {
-        return [...this.livrosAT, ...this.livrosNT].filter(
-          (l) => l.nome.toLowerCase().includes(q)
-        );
+        return LIVROS_BIBLIA.filter((l) => l.nome.toLowerCase().includes(q));
       }
-      return this.abaTestamentoBiblia === 'AT' ? this.livrosAT : this.livrosNT;
+
+      // Ordem cronológica
+      if (cat === 'cronologico') {
+        return ORDEM_CRONOLOGICA.map((cod) => LIVROS_BIBLIA.find((l) => l.codigo === cod)).filter(Boolean);
+      }
+
+      // Testamentos
+      if (cat === 'AT') return this.livrosAT;
+      if (cat === 'NT') return this.livrosNT;
+
+      // Grupos temáticos (lei, historia, sabedoria, profetas, evangelhos, cartas-paulo, epistolas)
+      const gruposTemáticos = ['lei','historia','sabedoria','profetas','evangelhos','cartas-paulo','epistolas'];
+      if (gruposTemáticos.includes(cat)) {
+        return LIVROS_BIBLIA.filter((l) => l.grupo === cat);
+      }
+
+      // Padrão: canônico (ordem da Bíblia)
+      return LIVROS_BIBLIA;
     },
 
     // Retorna font-size inline baseado no comprimento do nome do livro.
