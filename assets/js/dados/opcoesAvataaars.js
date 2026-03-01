@@ -5,7 +5,6 @@
  */
 const OPCOES_AVATAAARS = {
   avatarStyle: [
-    { valor: 'Circle', label: 'Círculo' },
     { valor: 'Transparent', label: 'Transparente' }
   ],
   topType: [

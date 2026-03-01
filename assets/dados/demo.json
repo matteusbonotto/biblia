@@ -3,7 +3,7 @@
     "nome": "Demo",
     "sobrenome": "Usuário",
     "config_avatar": {
-      "avatarStyle": "Circle",
+      "avatarStyle": "Transparent",
       "topType": "LongHairStraight",
       "accessoriesType": "Blank",
       "hairColor": "BrownDark",

@@ -258,9 +258,6 @@
         <p x-show="erro" class="alert alert-danger py-2" x-text="erro"></p>
         <p x-show="sucesso" class="alert alert-success py-2" x-text="sucesso"></p>
 
-        <nav x-show="pagina !== 'home'" class="mb-2" aria-label="Voltar">
-          <a href="#home" class="btn btn-link btn-sm p-0 texto-primario"><i class="bi bi-arrow-left"></i> Início</a>
-        </nav>
 
         <!-- Home -->
         <div x-show="pagina === 'home'" style="display: none;">
@@ -1009,7 +1006,7 @@
                                     :style="bg.gradient ? 'background:' + bg.gradient : 'background:#65c9ff'"
                                     :class="configAvatarEditando.bgAvatar === bg.valor ? 'pedit-bg-swatch--ativo' : ''"
                                     :title="bg.label"
-                                    @click="selecionarOpcaoAvatarEdit('bgAvatar', bg.valor); if(bg.valor !== 'nenhum') selecionarOpcaoAvatarEdit('avatarStyle', 'Transparent'); else selecionarOpcaoAvatarEdit('avatarStyle', 'Circle')">
+                                    @click="selecionarOpcaoAvatarEdit('bgAvatar', bg.valor); selecionarOpcaoAvatarEdit('avatarStyle', 'Transparent')">
                               <i x-show="configAvatarEditando.bgAvatar === bg.valor" class="bi bi-check-lg pedit-bg-check"></i>
                             </button>
                             <span class="pedit-bg-swatch-label" x-text="bg.label"></span>
@@ -1018,21 +1015,6 @@
                       </div>
                     </div>
 
-                    <!-- Estilo do avatar -->
-                    <div class="pedit-opcao-row pedit-opcao-row--col">
-                      <span class="pedit-opcao-label">Estilo</span>
-                      <div class="pedit-chips-av">
-                        <template x-for="op in opcoesAvataaars.avatarStyle" :key="op.valor">
-                          <button class="pedit-chip-av"
-                                  :class="configAvatarEditando.avatarStyle === op.valor ? 'pedit-chip-av--ativo' : ''"
-                                  @click="selecionarOpcaoAvatarEdit('avatarStyle', op.valor)"
-                                  :title="op.label">
-                            <img :src="urlAvatarBaseComOpcao('avatarStyle', op.valor)" alt="" class="pedit-chip-av-img" loading="lazy" />
-                            <span class="pedit-chip-av-label" x-text="op.label"></span>
-                          </button>
-                        </template>
-                      </div>
-                    </div>
                   </div>
 
                   <!-- ── Grupo: Cabelo ── -->
@@ -1836,7 +1818,10 @@
                   <template x-for="(fruto, index) in FRUTO_DO_ESPIRITO" :key="index">
                     <div class="fruto-label-overlay" 
                          :style="getPosicaoLabelFruto(index)"
-                         :class="{ 'desbloqueado': isFrutoDesbloqueado(index) }">
+                         :class="{ 'desbloqueado': isFrutoDesbloqueado(index) }"
+                         @click.stop="abrirInfoListEsp('fruto', index)"
+                         style="cursor: pointer;"
+                         :title="'Ver explicação: ' + fruto">
                       <div class="fruto-label-nome" x-text="fruto"></div>
                       <div class="fruto-label-percentual" x-text="getPercentualFruto(index) + '/100'"></div>
                     </div>
@@ -1911,7 +1896,10 @@
                   <template x-for="(obra, index) in OBRAS_DA_CARNE" :key="index">
                     <div class="obra-label-overlay" 
                          :style="getPosicaoLabelObra(index)"
-                         :class="{ 'ativa': isObraAtiva(index) }">
+                         :class="{ 'ativa': isObraAtiva(index) }"
+                         @click.stop="abrirInfoListEsp('obra', index)"
+                         style="cursor: pointer;"
+                         :title="'Ver explicação: ' + obra">
                       <div class="obra-label-nome" x-text="obra"></div>
                       <div class="obra-label-percentual" x-text="getPercentualObra(index) + '/100'"></div>
                     </div>
@@ -2316,43 +2304,29 @@
                     <p class="mb-2 verso-biblia"><span class="texto-primario fw-600" x-text="v.verse + '.'"></span> <span class="verso-texto" :data-verse="v.verse" x-html="renderVersoHtml(v.verse, v.text)"></span></p>
                   </template>
                 </div>
-                <!-- ── Navegação do capítulo (sempre visível) ── -->
+                <!-- ── Navegação do capítulo ── -->
                 <div class="biblia-nav-footer">
+                  <div class="bnav-row-principal">
 
-                  <!-- Linha principal: Capítulos ←→ Avançar -->
-                  <div class="bnav-row-main">
-                    <button class="bnav-btn bnav-caps" @click="voltarParaCapitulosBiblia()">
-                      <i class="bi bi-grid-3x3-gap-fill"></i>
-                      <span>Capítulos</span>
+                    <!-- Voltar aos capítulos -->
+                    <button class="bnav-btn bnav-voltar" @click="voltarParaCapitulosBiblia()" title="Voltar para capítulos">
+                      <i class="bi bi-arrow-left"></i>
+                      <span>Voltar</span>
                     </button>
-                    <button class="bnav-btn bnav-prox" @click="avancarCapituloBiblia()">
-                      <span>Avançar</span>
+
+                    <!-- Quiz do capítulo (centro) -->
+                    <button class="bnav-btn bnav-quiz-center" @click="iniciarQuizCapitulo()" title="Fazer quiz do capítulo">
+                      <i class="bi bi-patch-question-fill"></i>
+                      <span>Quiz</span>
+                    </button>
+
+                    <!-- Próximo capítulo -->
+                    <button class="bnav-btn bnav-prox" @click="avancarCapituloBiblia()" title="Próximo capítulo">
+                      <span>Próximo</span>
                       <i class="bi bi-arrow-right"></i>
                     </button>
+
                   </div>
-
-                  <!-- Linha de quiz: aparece ao concluir a leitura -->
-                  <div x-show="Math.round(progressoLeituraScroll || 0) >= 100"
-                       class="bnav-row-quiz"
-                       x-transition>
-                    <button class="bnav-btn bnav-quiz-cap" @click="iniciarQuizCapitulo()">
-                      <i class="bi bi-patch-question-fill"></i>
-                      <span>Quiz do Capítulo</span>
-                    </button>
-                    <button x-show="quizDesbloqueado(livroSelecionado)"
-                            class="bnav-btn bnav-quiz-livro"
-                            @click="iniciarQuizLivro(livrosBiblia.find(l => l.codigo === livroSelecionado))">
-                      <i class="bi bi-journal-bookmark-fill"></i>
-                      <span>Quiz do Livro</span>
-                    </button>
-                  </div>
-
-                  <!-- Aviso de progresso do livro (sutil) -->
-                  <p x-show="!livroAprovado(livroSelecionado)" class="bnav-aviso">
-                    <i class="bi bi-info-circle"></i>
-                    Complete o quiz do livro com ≥70% para registrar o progresso
-                  </p>
-
                 </div><!-- /biblia-nav-footer -->
               </div>
             </div>
@@ -2637,103 +2611,335 @@
 
         <!-- Termos (dentro do layout: rola entre header e footer) -->
         <div x-show="pagina === 'termos'" class="pagina-conteudo" style="display: none;">
-          <a href="#configuracoes" class="nav-voltar"><i class="bi bi-arrow-left"></i> Voltar às configurações</a>
-          <h1 class="titulo-pagina">Termos de Uso e Política de Privacidade</h1>
-          <p class="meta-termos">Versão 1.0 · Última atualização: fevereiro de 2025</p>
-          <div class="card-tema conteudo-legal">
-            <p>Ao criar conta, você declara que <strong>leu, entendeu e aceitou</strong> estes Termos de Uso e a Política de Privacidade. O cadastro só é permitido após aceite explícito. Se não concordar, não utilize o serviço.</p>
-            <h2 class="subtitulo-secao">1. O que é o aplicativo</h2>
-            <p>Plataforma de crescimento espiritual e estudo bíblico com gamificação: missões (humanas, espirituais, conhecimento, tarefa, casal), leitura da Bíblia com progresso e quizzes, estudo do evangelho, pontos (XP), ouro, nível, streak, conquistas, itens e loja. O app é <strong>gratuito</strong> e de uso pessoal e não comercial.</p>
-            <h2 class="subtitulo-secao">2. Aceite dos termos</h2>
-            <p>É obrigatório aceitar estes Termos e a Política de Privacidade para criar conta. O aceite é registrado com data e hora. Menores de 18 anos devem ter autorização de responsável legal. Sem aceite, o cadastro não é realizado.</p>
-            <h2 class="subtitulo-secao">3. Dados que coletamos (LGPD)</h2>
-            <p>Em conformidade com a <strong>Lei Geral de Proteção de Dados (LGPD)</strong>:</p>
-            <table>
-              <thead><tr><th>Dado</th><th>Finalidade</th></tr></thead>
-              <tbody>
-                <tr><td>Nome, e-mail, senha</td><td>Identificação, login e segurança</td></tr>
-                <tr><td>Data de nascimento, estado civil</td><td>Personalização e missões de casal</td></tr>
-                <tr><td>Avatar, preferências (tema, notificações)</td><td>Experiência no app</td></tr>
-                <tr><td>Progresso (leitura, missões, quizzes)</td><td>Funcionamento do app (nível, XP, conquistas)</td></tr>
-              </tbody>
-            </table>
-            <p><strong>Não vendemos</strong> seus dados. Podem ser compartilhados apenas com: Supabase (hospedagem), APIs de conteúdo (texto bíblico, avatar) e autoridades quando exigido por lei.</p>
-            <h2 class="subtitulo-secao">4. Armazenamento e segurança</h2>
-            <p>Dados em servidores confiáveis, com criptografia onde aplicável (ex.: senhas). Medidas técnicas e organizacionais para reduzir riscos de acesso não autorizado ou vazamento.</p>
-            <h2 class="subtitulo-secao">5. Seus direitos</h2>
-            <p>Você tem direito a: confirmar e acessar seus dados, corrigir, anonimizar ou excluir, portabilidade e revogar consentimento. Para exercer, entre em contato pelo canal indicado ao final. Pode também recorrer à <strong>ANPD</strong> (Autoridade Nacional de Proteção de Dados).</p>
-            <h2 class="subtitulo-secao">6. Cookies e armazenamento local</h2>
-            <p>Usamos armazenamento local (localStorage/sessionStorage) para preferências e sessão. Não usamos cookies de rastreamento para publicidade de terceiros.</p>
-            <h2 class="subtitulo-secao">7. Retenção</h2>
-            <p>Mantemos os dados enquanto sua conta existir. Após exclusão, removemos ou anonimizamos em prazo compatível com a lei. O registro de aceite dos termos pode ser mantido para comprovação.</p>
-            <h2 class="subtitulo-secao">8. Alterações</h2>
-            <p>Podemos atualizar estes Termos quando necessário. A versão e a data ficam no topo. Alterações relevantes podem ser comunicadas por e-mail ou aviso no app. Recomendamos consultar esta página periodicamente.</p>
-            <h2 class="subtitulo-secao">9. Limitação de responsabilidade</h2>
-            <p>O aplicativo é oferecido "como está". Não nos responsabilizamos por danos indiretos. Conteúdo bíblico vem de APIs de terceiros; não garantimos exatidão teológica ou editorial. Você é responsável por manter sua senha em sigilo.</p>
-            <h2 class="subtitulo-secao">10. Conduta do usuário</h2>
-            <p>Compromete-se a fornecer informações verdadeiras, não usar o serviço para fins ilegais, não acessar dados de outros usuários e não usar bots para burlar regras. Descumprimento pode resultar em suspensão ou exclusão da conta.</p>
-            <h2 class="subtitulo-secao">11. Contato</h2>
-            <p>Para dúvidas, acesso, correção ou exclusão de dados e revogação de consentimento:</p>
-            <p><strong>E-mail:</strong> [inserir e-mail de contato do projeto]</p>
-            <p>O controlador dos dados é a pessoa ou entidade responsável pelo aplicativo (identificada na página Sobre).</p>
-            <h2 class="subtitulo-secao">12. Resumo do aceite</h2>
-            <p>Ao marcar que aceita os Termos no cadastro, você confirma que leu e entendeu este documento, concorda com a coleta e o uso dos dados (LGPD), que o aceite será registrado e que pode exercer seus direitos a qualquer momento. <strong>Sem o aceite, o cadastro não será realizado.</strong></p>
-            <p class="mb-0 mt-3"><a href="#configuracoes" class="texto-primario">Voltar às configurações</a></p>
+          <a href="#configuracoes" class="tleg-voltar"><i class="bi bi-arrow-left"></i> Configurações</a>
+
+          <!-- Hero -->
+          <div class="tleg-hero">
+            <div class="tleg-hero-icone"><i class="bi bi-shield-check-fill"></i></div>
+            <div class="tleg-hero-texto">
+              <h1 class="tleg-titulo">Termos &amp; Privacidade</h1>
+              <div class="tleg-meta">
+                <span class="tleg-badge">v1.0</span>
+                <span class="tleg-meta-sep">·</span>
+                <span>Atualizado em fev. 2025</span>
+                <span class="tleg-meta-sep">·</span>
+                <span class="tleg-lgpd"><i class="bi bi-patch-check-fill"></i> LGPD</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- TL;DR -->
+          <div class="tleg-resumo">
+            <div class="tleg-resumo-titulo"><i class="bi bi-lightning-charge-fill"></i> Em resumo</div>
+            <div class="tleg-resumo-lista">
+              <div class="tleg-resumo-item"><i class="bi bi-check-circle-fill tleg-ok"></i> App 100% gratuito, uso pessoal</div>
+              <div class="tleg-resumo-item"><i class="bi bi-lock-fill tleg-ok"></i> Seus dados protegidos pela LGPD</div>
+              <div class="tleg-resumo-item"><i class="bi bi-x-circle-fill tleg-nao"></i> Não vendemos seus dados</div>
+              <div class="tleg-resumo-item"><i class="bi bi-trash3-fill tleg-ok"></i> Exclua sua conta quando quiser</div>
+            </div>
+          </div>
+
+          <!-- Seções em accordion nativo -->
+          <div class="tleg-lista">
+
+            <details class="tleg-item">
+              <summary class="tleg-item-btn">
+                <span class="tleg-item-num">01</span>
+                <span class="tleg-item-nome">O que é o aplicativo</span>
+                <i class="bi bi-chevron-down tleg-item-seta"></i>
+              </summary>
+              <div class="tleg-item-corpo">
+                <p>Plataforma de crescimento espiritual e estudo bíblico com gamificação: missões (humanas, espirituais, conhecimento, tarefa e casal), leitura da Bíblia com progresso e quizzes, estudo do evangelho, pontos (XP), ouro, nível, streak, conquistas e itens. O app é <strong>gratuito</strong> e de uso pessoal e não comercial.</p>
+              </div>
+            </details>
+
+            <details class="tleg-item">
+              <summary class="tleg-item-btn">
+                <span class="tleg-item-num">02</span>
+                <span class="tleg-item-nome">Aceite dos termos</span>
+                <i class="bi bi-chevron-down tleg-item-seta"></i>
+              </summary>
+              <div class="tleg-item-corpo">
+                <p>É obrigatório aceitar estes Termos e a Política de Privacidade para criar conta. O aceite é registrado com data e hora. Menores de 18 anos devem ter autorização de responsável legal. Sem aceite, o cadastro não é realizado.</p>
+              </div>
+            </details>
+
+            <details class="tleg-item" open>
+              <summary class="tleg-item-btn">
+                <span class="tleg-item-num">03</span>
+                <span class="tleg-item-nome">Dados que coletamos <span class="tleg-item-badge">LGPD</span></span>
+                <i class="bi bi-chevron-down tleg-item-seta"></i>
+              </summary>
+              <div class="tleg-item-corpo">
+                <p>Em conformidade com a <strong>Lei Geral de Proteção de Dados (LGPD)</strong>, coletamos apenas o necessário:</p>
+                <div class="tleg-dados-grid">
+                  <div class="tleg-dado"><div class="tleg-dado-ico"><i class="bi bi-person-fill"></i></div><div><strong>Nome, e-mail, senha</strong><span>Identificação, login e segurança</span></div></div>
+                  <div class="tleg-dado"><div class="tleg-dado-ico"><i class="bi bi-calendar3"></i></div><div><strong>Data de nascimento, estado civil</strong><span>Personalização e missões de casal</span></div></div>
+                  <div class="tleg-dado"><div class="tleg-dado-ico"><i class="bi bi-palette-fill"></i></div><div><strong>Avatar e preferências</strong><span>Experiência no app</span></div></div>
+                  <div class="tleg-dado"><div class="tleg-dado-ico"><i class="bi bi-graph-up"></i></div><div><strong>Progresso (leitura, missões, quizzes)</strong><span>Funcionamento do app</span></div></div>
+                </div>
+                <p class="tleg-nota"><i class="bi bi-shield-fill-check"></i> <strong>Não vendemos seus dados.</strong> Compartilhamos apenas com: Supabase (hospedagem), APIs de conteúdo bíblico e avatar, e autoridades quando exigido por lei.</p>
+              </div>
+            </details>
+
+            <details class="tleg-item">
+              <summary class="tleg-item-btn">
+                <span class="tleg-item-num">04</span>
+                <span class="tleg-item-nome">Armazenamento e segurança</span>
+                <i class="bi bi-chevron-down tleg-item-seta"></i>
+              </summary>
+              <div class="tleg-item-corpo">
+                <p>Dados em servidores confiáveis com criptografia onde aplicável (ex.: senhas). Adotamos medidas técnicas e organizacionais para reduzir riscos de acesso não autorizado ou vazamento.</p>
+              </div>
+            </details>
+
+            <details class="tleg-item">
+              <summary class="tleg-item-btn">
+                <span class="tleg-item-num">05</span>
+                <span class="tleg-item-nome">Seus direitos</span>
+                <i class="bi bi-chevron-down tleg-item-seta"></i>
+              </summary>
+              <div class="tleg-item-corpo">
+                <div class="tleg-direitos">
+                  <div class="tleg-direito"><i class="bi bi-eye"></i> Acessar seus dados</div>
+                  <div class="tleg-direito"><i class="bi bi-pencil"></i> Corrigir informações</div>
+                  <div class="tleg-direito"><i class="bi bi-trash3"></i> Excluir sua conta</div>
+                  <div class="tleg-direito"><i class="bi bi-arrow-left-right"></i> Portabilidade</div>
+                  <div class="tleg-direito"><i class="bi bi-x-circle"></i> Revogar consentimento</div>
+                  <div class="tleg-direito"><i class="bi bi-building"></i> Recorrer à ANPD</div>
+                </div>
+              </div>
+            </details>
+
+            <details class="tleg-item">
+              <summary class="tleg-item-btn">
+                <span class="tleg-item-num">06</span>
+                <span class="tleg-item-nome">Cookies e armazenamento local</span>
+                <i class="bi bi-chevron-down tleg-item-seta"></i>
+              </summary>
+              <div class="tleg-item-corpo">
+                <p>Usamos armazenamento local (localStorage/sessionStorage) para preferências e sessão. <strong>Não usamos</strong> cookies de rastreamento para publicidade de terceiros.</p>
+              </div>
+            </details>
+
+            <details class="tleg-item">
+              <summary class="tleg-item-btn">
+                <span class="tleg-item-num">07</span>
+                <span class="tleg-item-nome">Retenção de dados</span>
+                <i class="bi bi-chevron-down tleg-item-seta"></i>
+              </summary>
+              <div class="tleg-item-corpo">
+                <p>Mantemos os dados enquanto sua conta existir. Após exclusão, removemos ou anonimizamos em prazo compatível com a lei. O registro de aceite dos termos pode ser mantido para comprovação legal.</p>
+              </div>
+            </details>
+
+            <details class="tleg-item">
+              <summary class="tleg-item-btn">
+                <span class="tleg-item-num">08</span>
+                <span class="tleg-item-nome">Alterações nestes termos</span>
+                <i class="bi bi-chevron-down tleg-item-seta"></i>
+              </summary>
+              <div class="tleg-item-corpo">
+                <p>Podemos atualizar estes Termos quando necessário. A versão e a data ficam no topo desta página. Alterações relevantes podem ser comunicadas por e-mail ou aviso no app.</p>
+              </div>
+            </details>
+
+            <details class="tleg-item">
+              <summary class="tleg-item-btn">
+                <span class="tleg-item-num">09</span>
+                <span class="tleg-item-nome">Limitação de responsabilidade</span>
+                <i class="bi bi-chevron-down tleg-item-seta"></i>
+              </summary>
+              <div class="tleg-item-corpo">
+                <p>O aplicativo é oferecido "como está". Conteúdo bíblico vem de APIs de terceiros; não garantimos exatidão teológica ou editorial. Você é responsável por manter sua senha em sigilo.</p>
+              </div>
+            </details>
+
+            <details class="tleg-item">
+              <summary class="tleg-item-btn">
+                <span class="tleg-item-num">10</span>
+                <span class="tleg-item-nome">Conduta do usuário</span>
+                <i class="bi bi-chevron-down tleg-item-seta"></i>
+              </summary>
+              <div class="tleg-item-corpo">
+                <p>Você se compromete a: fornecer informações verdadeiras, não usar o serviço para fins ilegais, não acessar dados de outros usuários e não usar bots para burlar regras. Descumprimento pode resultar em suspensão ou exclusão da conta.</p>
+              </div>
+            </details>
+
+          </div><!-- /tleg-lista -->
+
+          <!-- Contato -->
+          <div class="tleg-contato">
+            <div class="tleg-contato-ico"><i class="bi bi-envelope-fill"></i></div>
+            <div>
+              <div class="tleg-contato-titulo">Contato &amp; Exercício de Direitos</div>
+              <div class="tleg-contato-desc">Para dúvidas, correção, exclusão de dados ou revogação de consentimento, entre em contato pelo e-mail do projeto (indicado na página Sobre).</div>
+            </div>
           </div>
         </div>
 
         <!-- Sobre (dentro do layout) -->
         <div x-show="pagina === 'sobre'" class="pagina-conteudo" style="display: none;">
-          <a href="#configuracoes" class="nav-voltar"><i class="bi bi-arrow-left"></i> Voltar às configurações</a>
-          <div class="sobre-hero">
-            <div class="sobre-icone-app" aria-hidden="true"><i class="bi bi-book-heart"></i></div>
-            <h1 class="titulo-pagina">Sobre o projeto</h1>
-            <p class="subtitulo-pagina">Nossa história, missão e como nasceu este app de crescimento espiritual.</p>
+          <a href="#configuracoes" class="tleg-voltar"><i class="bi bi-arrow-left"></i> Configurações</a>
+
+          <!-- Hero -->
+          <div class="sobre2-hero">
+            <div class="sobre2-app-icone"><i class="bi bi-book-heart-fill"></i></div>
+            <h1 class="sobre2-titulo">Sobre o Projeto</h1>
+            <p class="sobre2-subtitulo">Uma plataforma de crescimento espiritual feita com carinho, em português e 100% gratuita.</p>
+            <div class="sobre2-badges">
+              <span class="sobre2-badge">100% Gratuito</span>
+              <span class="sobre2-badge sobre2-badge--verde">Em Português</span>
+              <span class="sobre2-badge sobre2-badge--roxo">Gamificado</span>
+            </div>
           </div>
-          <div class="sobre-secao">
-            <h2 class="subtitulo-secao"><i class="bi bi-heart"></i> Nossa missão</h2>
-            <p class="descricao">Queremos ajudar pessoas a organizar a vida de fé de forma leve e envolvente: leitura da Bíblia, oração, missões do dia a dia e estudo do evangelho. Tudo em português, com acessibilidade e, para quem gosta, uma pitada de gamificação — sem tirar o foco do que realmente importa.</p>
+
+          <!-- Feature cards -->
+          <div class="sobre2-features">
+            <div class="sobre2-feat">
+              <div class="sobre2-feat-ico sobre2-feat-ico--verde"><i class="bi bi-book-fill"></i></div>
+              <div class="sobre2-feat-titulo">Bíblia + Quiz</div>
+              <div class="sobre2-feat-desc">Leia, acompanhe seu progresso e consolide com quizzes por capítulo e livro.</div>
+            </div>
+            <div class="sobre2-feat">
+              <div class="sobre2-feat-ico sobre2-feat-ico--ouro"><i class="bi bi-flag-fill"></i></div>
+              <div class="sobre2-feat-titulo">Missões</div>
+              <div class="sobre2-feat-desc">Missões diárias humanas, espirituais, de conhecimento, tarefas e para casais.</div>
+            </div>
+            <div class="sobre2-feat">
+              <div class="sobre2-feat-ico sobre2-feat-ico--azul"><i class="bi bi-trophy-fill"></i></div>
+              <div class="sobre2-feat-titulo">Progresso</div>
+              <div class="sobre2-feat-desc">XP, ouro, níveis, streak, conquistas e inventário — tudo em português.</div>
+            </div>
           </div>
-          <div class="sobre-secao">
-            <h2 class="subtitulo-secao"><i class="bi bi-lightbulb"></i> Como nasceu</h2>
-            <p class="descricao">Este projeto nasceu da vontade de unir tecnologia e fé: um app gratuito onde você pode cumprir missões (humanas, espirituais, de conhecimento e de tarefa), acompanhar sua leitura da Bíblia com progresso e quizzes, ganhar XP e ouro, subir de nível e manter um streak. Para casais, há espaço para missões conjuntas. O objetivo é tornar o crescimento espiritual mais acessível, organizado e, quando fizer sentido, até divertido.</p>
+
+          <!-- Missão -->
+          <div class="sobre2-missao">
+            <i class="bi bi-quote sobre2-quote"></i>
+            <p>Queremos ajudar pessoas a organizar a vida de fé de forma leve e envolvente — leitura da Bíblia, oração, missões do dia a dia e estudo do evangelho. Tudo em português, acessível e, quando fizer sentido, até divertido.</p>
+            <div class="sobre2-missao-assinatura"><i class="bi bi-heart-fill"></i> Squidev</div>
           </div>
-          <div class="sobre-secao">
-            <h2 class="subtitulo-secao"><i class="bi bi-people"></i> Para quem é</h2>
-            <p class="descricao">Para quem quer organizar a vida de fé (leitura, oração, missões), para casais que desejam missões conjuntas e para quem curte gamificação sem deixar o foco no evangelho. O app é 100% gratuito; há espaço para doações para quem quiser apoiar o projeto.</p>
+
+          <!-- Equipe -->
+          <div class="sobre2-equipe-wrap">
+            <div class="sobre2-tech-titulo"><i class="bi bi-people-fill"></i> Equipe</div>
+            <div class="sobre2-equipe-card">
+              <div class="sobre2-equipe-avatar"><i class="bi bi-person-badge-fill"></i></div>
+              <div class="sobre2-equipe-info">
+                <div class="sobre2-equipe-nome">Matheus Bonotto</div>
+                <div class="sobre2-equipe-cargo">Fundador &amp; Desenvolvedor</div>
+              </div>
+              <div class="sobre2-equipe-ano">2026</div>
+            </div>
+            <div class="sobre2-equipe-marca">
+              <i class="bi bi-code-slash"></i>
+              <span>Desenvolvido por <strong>Squidev</strong></span>
+              <span class="sobre2-equipe-sep">·</span>
+              <span>© 2026</span>
+            </div>
           </div>
-          <div class="sobre-secao">
-            <h2 class="subtitulo-secao"><i class="bi bi-tools"></i> Créditos e tecnologia</h2>
-            <p class="descricao mb-2">Este app foi construído com as seguintes ferramentas e fontes de conteúdo:</p>
-            <ul class="mb-0">
-              <li><strong>bible-api.com</strong> — texto bíblico</li>
-              <li><strong>Avataaars</strong> — avatares personalizados</li>
-              <li><strong>Supabase</strong> — banco de dados e autenticação</li>
-              <li><strong>Bootstrap</strong> e <strong>Alpine.js</strong> — interface e interatividade</li>
-            </ul>
+
+          <!-- Stack tecnológico -->
+          <div class="sobre2-tech">
+            <div class="sobre2-tech-titulo"><i class="bi bi-box-seam"></i> Construído com</div>
+            <div class="sobre2-pills">
+              <span class="sobre2-pill">Alpine.js</span>
+              <span class="sobre2-pill">Bootstrap</span>
+              <span class="sobre2-pill">Supabase</span>
+              <span class="sobre2-pill">getbible.net</span>
+              <span class="sobre2-pill">bible-api.com</span>
+              <span class="sobre2-pill">Avataaars</span>
+            </div>
           </div>
-          <div class="card-tema p-3 mt-3">
-            <p class="mb-2"><a href="#termos" class="texto-primario">Termos de Uso e Política de Privacidade</a></p>
-            <p class="mb-0"><a href="#doacoes" class="texto-primario">Apoiar com doação</a></p>
+
+          <!-- CTAs -->
+          <div class="sobre2-ctas">
+            <a href="#termos" class="sobre2-cta-sec"><i class="bi bi-shield-check"></i> Termos &amp; Privacidade</a>
+            <a href="#doacoes" class="sobre2-cta-prim"><i class="bi bi-heart-fill"></i> Apoiar o projeto</a>
           </div>
         </div>
 
         <!-- Doações (dentro do layout) -->
         <div x-show="pagina === 'doacoes'" class="pagina-conteudo" style="display: none;">
-          <a href="#configuracoes" class="nav-voltar"><i class="bi bi-arrow-left"></i> Voltar às configurações</a>
-          <div class="sobre-hero">
-            <div class="sobre-icone-app" aria-hidden="true" style="background: linear-gradient(135deg, var(--cor-destaque) 0%, #b8923a 100%);"><i class="bi bi-heart"></i></div>
-            <h1 class="titulo-pagina">Doações</h1>
-            <p class="subtitulo-pagina">O projeto é gratuito. Sua doação ajuda a manter e melhorar o app.</p>
+          <a href="#configuracoes" class="tleg-voltar"><i class="bi bi-arrow-left"></i> Configurações</a>
+
+          <!-- Hero -->
+          <div class="apoio-hero">
+            <div class="apoio-hero-icone"><i class="bi bi-heart-fill"></i></div>
+            <h1 class="apoio-titulo">Apoie o Projeto</h1>
+            <p class="apoio-subtitulo">O app é e sempre será gratuito. Mas cada apoio nos ajuda a manter os servidores no ar e a lançar novas funcionalidades.</p>
           </div>
-          <div class="bloco-info">
-            <div class="bloco-info-icone"><i class="bi bi-currency-dollar"></i></div>
-            <div>
-              <div class="bloco-info-titulo">Como apoiar</div>
-              <p class="bloco-info-desc mb-0">Se você quiser apoiar com qualquer valor, em breve disponibilizaremos um link para doação (Pix). Sua contribuição será usada para custos de infraestrutura e melhorias no aplicativo. Obrigado por considerar apoiar!</p>
+
+          <!-- Sugestões de valor -->
+          <div class="apoio-sugestoes">
+            <div class="apoio-sugestoes-titulo">Quanto você consegue? 👇 (sem pressão!)</div>
+            <div class="apoio-sugestoes-grid">
+              <div class="apoio-sug apoio-sug--cafe">
+                <span class="apoio-sug-emoji">☕</span>
+                <span class="apoio-sug-valor">R$ 5</span>
+                <span class="apoio-sug-desc">Um cafezinho</span>
+                <span class="apoio-sug-msg">Já ajuda demais!</span>
+              </div>
+              <div class="apoio-sug apoio-sug--pizza">
+                <span class="apoio-sug-emoji">🍕</span>
+                <span class="apoio-sug-valor">R$ 20</span>
+                <span class="apoio-sug-desc">Uma fatia de pizza</span>
+                <span class="apoio-sug-msg">Você é incrível 🙌</span>
+              </div>
+              <div class="apoio-sug apoio-sug--acai">
+                <span class="apoio-sug-emoji">🍇</span>
+                <span class="apoio-sug-valor">R$ 15</span>
+                <span class="apoio-sug-desc">Um açaí</span>
+                <span class="apoio-sug-msg">Deus abençoe! ❤️</span>
+              </div>
+              <div class="apoio-sug apoio-sug--livre">
+                <span class="apoio-sug-emoji">💛</span>
+                <span class="apoio-sug-valor">Livre</span>
+                <span class="apoio-sug-desc">Qualquer valor</span>
+                <span class="apoio-sug-msg">Tudo vale muito!</span>
+              </div>
             </div>
           </div>
-          <p class="text-center mt-3"><a href="#sobre" class="texto-primario">Conhecer mais sobre o projeto</a></p>
+
+          <!-- Pix card -->
+          <div class="apoio-pix-card">
+            <div class="apoio-pix-header">
+              <div class="apoio-pix-ico"><i class="bi bi-qr-code"></i></div>
+              <div>
+                <div class="apoio-pix-titulo">Doação via Pix</div>
+                <div class="apoio-pix-sub">Qualquer valor é muito bem-vindo</div>
+              </div>
+              <span class="apoio-pix-badge">Em breve</span>
+            </div>
+            <div class="apoio-pix-aviso"><i class="bi bi-hourglass-split"></i> Estamos preparando o link de doação. Volte em breve!</div>
+          </div>
+
+          <!-- Outras formas de ajudar -->
+          <div class="apoio-secao-titulo">Outras formas de ajudar</div>
+          <div class="apoio-formas">
+            <div class="apoio-forma">
+              <div class="apoio-forma-ico"><i class="bi bi-share-fill"></i></div>
+              <div class="apoio-forma-titulo">Compartilhe</div>
+              <div class="apoio-forma-desc">Indique o app para amigos e família que buscam crescimento espiritual.</div>
+            </div>
+            <div class="apoio-forma">
+              <div class="apoio-forma-ico" style="background: rgba(99,102,241,0.12); color:#6366f1;"><i class="bi bi-chat-heart-fill"></i></div>
+              <div class="apoio-forma-titulo">Dê feedback</div>
+              <div class="apoio-forma-desc">Sugestões e críticas nos ajudam a melhorar. Entre em contato pela página Sobre.</div>
+            </div>
+            <div class="apoio-forma">
+              <div class="apoio-forma-ico" style="background: rgba(236,72,153,0.10); color:#ec4899;"><i class="bi bi-hand-thumbs-up-fill"></i></div>
+              <div class="apoio-forma-titulo">Ore pelo projeto</div>
+              <div class="apoio-forma-desc">Sua oração é o maior suporte que podemos receber. Obrigado de verdade.</div>
+            </div>
+          </div>
+
+          <!-- Gratidão -->
+          <div class="apoio-gratidao">
+            <i class="bi bi-heart-fill apoio-gratidao-ico"></i>
+            <p>Obrigado por usar, por se importar e por fazer parte dessa jornada.<br><strong>Deus abençoe você.</strong></p>
+            <a href="#sobre" class="apoio-link-sobre">Conhecer mais sobre o projeto <i class="bi bi-arrow-right"></i></a>
+          </div>
         </div>
       </main>
 
@@ -2750,120 +2956,242 @@
 
   <!-- Termos (somente quando NÃO logado: tela única, sem header/footer) -->
   <div x-show="!usuario && pagina === 'termos'" class="pagina-conteudo pagina-standalone" style="display: none;">
-    <a href="#login" class="nav-voltar"><i class="bi bi-arrow-left"></i> Voltar ao login</a>
-    <h1 class="titulo-pagina">Termos de Uso e Política de Privacidade</h1>
-    <p class="meta-termos">Versão 1.0 · Última atualização: fevereiro de 2025</p>
-    <div class="card-tema conteudo-legal">
-      <p>Ao criar conta, você declara que <strong>leu, entendeu e aceitou</strong> estes Termos de Uso e a Política de Privacidade. O cadastro só é permitido após aceite explícito. Se não concordar, não utilize o serviço.</p>
+    <a href="#login" class="tleg-voltar"><i class="bi bi-arrow-left"></i> Login</a>
 
-      <h2 class="subtitulo-secao">1. O que é o aplicativo</h2>
-      <p>Plataforma de crescimento espiritual e estudo bíblico com gamificação: missões (humanas, espirituais, conhecimento, tarefa, casal), leitura da Bíblia com progresso e quizzes, estudo do evangelho, pontos (XP), ouro, nível, streak, conquistas, itens e loja. O app é <strong>gratuito</strong> e de uso pessoal e não comercial.</p>
+    <div class="tleg-hero">
+      <div class="tleg-hero-icone"><i class="bi bi-shield-check-fill"></i></div>
+      <div class="tleg-hero-texto">
+        <h1 class="tleg-titulo">Termos &amp; Privacidade</h1>
+        <div class="tleg-meta">
+          <span class="tleg-badge">v1.0</span>
+          <span class="tleg-meta-sep">·</span>
+          <span>Atualizado em fev. 2025</span>
+          <span class="tleg-meta-sep">·</span>
+          <span class="tleg-lgpd"><i class="bi bi-patch-check-fill"></i> LGPD</span>
+        </div>
+      </div>
+    </div>
 
-      <h2 class="subtitulo-secao">2. Aceite dos termos</h2>
-      <p>É obrigatório aceitar estes Termos e a Política de Privacidade para criar conta. O aceite é registrado com data e hora. Menores de 18 anos devem ter autorização de responsável legal. Sem aceite, o cadastro não é realizado.</p>
+    <div class="tleg-resumo">
+      <div class="tleg-resumo-titulo"><i class="bi bi-lightning-charge-fill"></i> Em resumo</div>
+      <div class="tleg-resumo-lista">
+        <div class="tleg-resumo-item"><i class="bi bi-check-circle-fill tleg-ok"></i> App 100% gratuito, uso pessoal</div>
+        <div class="tleg-resumo-item"><i class="bi bi-lock-fill tleg-ok"></i> Seus dados protegidos pela LGPD</div>
+        <div class="tleg-resumo-item"><i class="bi bi-x-circle-fill tleg-nao"></i> Não vendemos seus dados</div>
+        <div class="tleg-resumo-item"><i class="bi bi-trash3-fill tleg-ok"></i> Exclua sua conta quando quiser</div>
+      </div>
+    </div>
 
-      <h2 class="subtitulo-secao">3. Dados que coletamos (LGPD)</h2>
-      <p>Em conformidade com a <strong>Lei Geral de Proteção de Dados (LGPD)</strong>:</p>
-      <table>
-        <thead><tr><th>Dado</th><th>Finalidade</th></tr></thead>
-        <tbody>
-          <tr><td>Nome, e-mail, senha</td><td>Identificação, login e segurança</td></tr>
-          <tr><td>Data de nascimento, estado civil</td><td>Personalização e missões de casal</td></tr>
-          <tr><td>Avatar, preferências (tema, notificações)</td><td>Experiência no app</td></tr>
-          <tr><td>Progresso (leitura, missões, quizzes)</td><td>Funcionamento do app (nível, XP, conquistas)</td></tr>
-        </tbody>
-      </table>
-      <p><strong>Não vendemos</strong> seus dados. Podem ser compartilhados apenas com: Supabase (hospedagem), APIs de conteúdo (texto bíblico, avatar) e autoridades quando exigido por lei.</p>
+    <div class="tleg-lista">
+      <details class="tleg-item">
+        <summary class="tleg-item-btn"><span class="tleg-item-num">01</span><span class="tleg-item-nome">O que é o aplicativo</span><i class="bi bi-chevron-down tleg-item-seta"></i></summary>
+        <div class="tleg-item-corpo"><p>Plataforma de crescimento espiritual e estudo bíblico com gamificação: missões (humanas, espirituais, conhecimento, tarefa e casal), leitura da Bíblia com progresso e quizzes, estudo do evangelho, pontos (XP), ouro, nível, streak, conquistas e itens. O app é <strong>gratuito</strong> e de uso pessoal e não comercial.</p></div>
+      </details>
+      <details class="tleg-item">
+        <summary class="tleg-item-btn"><span class="tleg-item-num">02</span><span class="tleg-item-nome">Aceite dos termos</span><i class="bi bi-chevron-down tleg-item-seta"></i></summary>
+        <div class="tleg-item-corpo"><p>É obrigatório aceitar estes Termos e a Política de Privacidade para criar conta. O aceite é registrado com data e hora. Menores de 18 anos devem ter autorização de responsável legal.</p></div>
+      </details>
+      <details class="tleg-item" open>
+        <summary class="tleg-item-btn"><span class="tleg-item-num">03</span><span class="tleg-item-nome">Dados que coletamos <span class="tleg-item-badge">LGPD</span></span><i class="bi bi-chevron-down tleg-item-seta"></i></summary>
+        <div class="tleg-item-corpo">
+          <p>Em conformidade com a <strong>Lei Geral de Proteção de Dados (LGPD)</strong>, coletamos apenas o necessário:</p>
+          <div class="tleg-dados-grid">
+            <div class="tleg-dado"><div class="tleg-dado-ico"><i class="bi bi-person-fill"></i></div><div><strong>Nome, e-mail, senha</strong><span>Identificação, login e segurança</span></div></div>
+            <div class="tleg-dado"><div class="tleg-dado-ico"><i class="bi bi-calendar3"></i></div><div><strong>Data de nascimento, estado civil</strong><span>Personalização e missões de casal</span></div></div>
+            <div class="tleg-dado"><div class="tleg-dado-ico"><i class="bi bi-palette-fill"></i></div><div><strong>Avatar e preferências</strong><span>Experiência no app</span></div></div>
+            <div class="tleg-dado"><div class="tleg-dado-ico"><i class="bi bi-graph-up"></i></div><div><strong>Progresso (leitura, missões, quizzes)</strong><span>Funcionamento do app</span></div></div>
+          </div>
+          <p class="tleg-nota"><i class="bi bi-shield-fill-check"></i> <strong>Não vendemos seus dados.</strong> Compartilhamos apenas com: Supabase (hospedagem), APIs de conteúdo bíblico e avatar, e autoridades quando exigido por lei.</p>
+        </div>
+      </details>
+      <details class="tleg-item">
+        <summary class="tleg-item-btn"><span class="tleg-item-num">04</span><span class="tleg-item-nome">Armazenamento e segurança</span><i class="bi bi-chevron-down tleg-item-seta"></i></summary>
+        <div class="tleg-item-corpo"><p>Dados em servidores confiáveis com criptografia onde aplicável (ex.: senhas). Adotamos medidas técnicas e organizacionais para reduzir riscos de acesso não autorizado ou vazamento.</p></div>
+      </details>
+      <details class="tleg-item">
+        <summary class="tleg-item-btn"><span class="tleg-item-num">05</span><span class="tleg-item-nome">Seus direitos</span><i class="bi bi-chevron-down tleg-item-seta"></i></summary>
+        <div class="tleg-item-corpo">
+          <div class="tleg-direitos">
+            <div class="tleg-direito"><i class="bi bi-eye"></i> Acessar seus dados</div>
+            <div class="tleg-direito"><i class="bi bi-pencil"></i> Corrigir informações</div>
+            <div class="tleg-direito"><i class="bi bi-trash3"></i> Excluir sua conta</div>
+            <div class="tleg-direito"><i class="bi bi-arrow-left-right"></i> Portabilidade</div>
+            <div class="tleg-direito"><i class="bi bi-x-circle"></i> Revogar consentimento</div>
+            <div class="tleg-direito"><i class="bi bi-building"></i> Recorrer à ANPD</div>
+          </div>
+        </div>
+      </details>
+      <details class="tleg-item">
+        <summary class="tleg-item-btn"><span class="tleg-item-num">06</span><span class="tleg-item-nome">Cookies e armazenamento local</span><i class="bi bi-chevron-down tleg-item-seta"></i></summary>
+        <div class="tleg-item-corpo"><p>Usamos armazenamento local (localStorage/sessionStorage) para preferências e sessão. <strong>Não usamos</strong> cookies de rastreamento para publicidade de terceiros.</p></div>
+      </details>
+      <details class="tleg-item">
+        <summary class="tleg-item-btn"><span class="tleg-item-num">07</span><span class="tleg-item-nome">Retenção de dados</span><i class="bi bi-chevron-down tleg-item-seta"></i></summary>
+        <div class="tleg-item-corpo"><p>Mantemos os dados enquanto sua conta existir. Após exclusão, removemos ou anonimizamos em prazo compatível com a lei.</p></div>
+      </details>
+      <details class="tleg-item">
+        <summary class="tleg-item-btn"><span class="tleg-item-num">08</span><span class="tleg-item-nome">Alterações nestes termos</span><i class="bi bi-chevron-down tleg-item-seta"></i></summary>
+        <div class="tleg-item-corpo"><p>Podemos atualizar estes Termos quando necessário. A versão e a data ficam no topo desta página. Alterações relevantes podem ser comunicadas por e-mail ou aviso no app.</p></div>
+      </details>
+      <details class="tleg-item">
+        <summary class="tleg-item-btn"><span class="tleg-item-num">09</span><span class="tleg-item-nome">Limitação de responsabilidade</span><i class="bi bi-chevron-down tleg-item-seta"></i></summary>
+        <div class="tleg-item-corpo"><p>O aplicativo é oferecido "como está". Conteúdo bíblico vem de APIs de terceiros; não garantimos exatidão teológica ou editorial. Você é responsável por manter sua senha em sigilo.</p></div>
+      </details>
+      <details class="tleg-item">
+        <summary class="tleg-item-btn"><span class="tleg-item-num">10</span><span class="tleg-item-nome">Conduta do usuário</span><i class="bi bi-chevron-down tleg-item-seta"></i></summary>
+        <div class="tleg-item-corpo"><p>Você se compromete a fornecer informações verdadeiras, não usar o serviço para fins ilegais e não acessar dados de outros usuários. Descumprimento pode resultar em suspensão ou exclusão da conta.</p></div>
+      </details>
+    </div>
 
-      <h2 class="subtitulo-secao">4. Armazenamento e segurança</h2>
-      <p>Dados em servidores confiáveis, com criptografia onde aplicável (ex.: senhas). Medidas técnicas e organizacionais para reduzir riscos de acesso não autorizado ou vazamento.</p>
-
-      <h2 class="subtitulo-secao">5. Seus direitos</h2>
-      <p>Você tem direito a: confirmar e acessar seus dados, corrigir, anonimizar ou excluir, portabilidade e revogar consentimento. Para exercer, entre em contato pelo canal indicado ao final. Pode também recorrer à <strong>ANPD</strong> (Autoridade Nacional de Proteção de Dados).</p>
-
-      <h2 class="subtitulo-secao">6. Cookies e armazenamento local</h2>
-      <p>Usamos armazenamento local (localStorage/sessionStorage) para preferências e sessão. Não usamos cookies de rastreamento para publicidade de terceiros.</p>
-
-      <h2 class="subtitulo-secao">7. Retenção</h2>
-      <p>Mantemos os dados enquanto sua conta existir. Após exclusão, removemos ou anonimizamos em prazo compatível com a lei. O registro de aceite dos termos pode ser mantido para comprovação.</p>
-
-      <h2 class="subtitulo-secao">8. Alterações</h2>
-      <p>Podemos atualizar estes Termos quando necessário. A versão e a data ficam no topo. Alterações relevantes podem ser comunicadas por e-mail ou aviso no app. Recomendamos consultar esta página periodicamente.</p>
-
-      <h2 class="subtitulo-secao">9. Limitação de responsabilidade</h2>
-      <p>O aplicativo é oferecido “como está”. Não nos responsabilizamos por danos indiretos. Conteúdo bíblico vem de APIs de terceiros; não garantimos exatidão teológica ou editorial. Você é responsável por manter sua senha em sigilo.</p>
-
-      <h2 class="subtitulo-secao">10. Conduta do usuário</h2>
-      <p>Compromete-se a fornecer informações verdadeiras, não usar o serviço para fins ilegais, não acessar dados de outros usuários e não usar bots para burlar regras. Descumprimento pode resultar em suspensão ou exclusão da conta.</p>
-
-      <h2 class="subtitulo-secao">11. Contato</h2>
-      <p>Para dúvidas, acesso, correção ou exclusão de dados e revogação de consentimento:</p>
-      <p><strong>E-mail:</strong> [inserir e-mail de contato do projeto]</p>
-      <p>O controlador dos dados é a pessoa ou entidade responsável pelo aplicativo (identificada na página Sobre).</p>
-
-      <h2 class="subtitulo-secao">12. Resumo do aceite</h2>
-      <p>Ao marcar que aceita os Termos no cadastro, você confirma que leu e entendeu este documento, concorda com a coleta e o uso dos dados (LGPD), que o aceite será registrado e que pode exercer seus direitos a qualquer momento. <strong>Sem o aceite, o cadastro não será realizado.</strong></p>
-      <p class="mb-0 mt-3"><a href="#login" class="texto-primario">Voltar ao login</a></p>
+    <div class="tleg-contato">
+      <div class="tleg-contato-ico"><i class="bi bi-envelope-fill"></i></div>
+      <div>
+        <div class="tleg-contato-titulo">Contato &amp; Exercício de Direitos</div>
+        <div class="tleg-contato-desc">Para dúvidas, correção, exclusão de dados ou revogação de consentimento, entre em contato pelo e-mail do projeto (indicado na página Sobre).</div>
+      </div>
     </div>
   </div>
 
   <!-- Sobre (somente quando NÃO logado) -->
   <div x-show="!usuario && pagina === 'sobre'" class="pagina-conteudo pagina-standalone" style="display: none;">
-    <a href="#login" class="nav-voltar"><i class="bi bi-arrow-left"></i> Voltar ao login</a>
-    <div class="sobre-hero">
-      <div class="sobre-icone-app" aria-hidden="true"><i class="bi bi-book-heart"></i></div>
-      <h1 class="titulo-pagina">Sobre o projeto</h1>
-      <p class="subtitulo-pagina">Nossa história, missão e como nasceu este app de crescimento espiritual.</p>
+    <a href="#login" class="tleg-voltar"><i class="bi bi-arrow-left"></i> Login</a>
+    <div class="sobre2-hero">
+      <div class="sobre2-app-icone"><i class="bi bi-book-heart-fill"></i></div>
+      <h1 class="sobre2-titulo">Sobre o Projeto</h1>
+      <p class="sobre2-subtitulo">Uma plataforma de crescimento espiritual feita com carinho, em português e 100% gratuita.</p>
+      <div class="sobre2-badges">
+        <span class="sobre2-badge">100% Gratuito</span>
+        <span class="sobre2-badge sobre2-badge--verde">Em Português</span>
+        <span class="sobre2-badge sobre2-badge--roxo">Gamificado</span>
+      </div>
     </div>
-
-    <div class="sobre-secao">
-      <h2 class="subtitulo-secao"><i class="bi bi-heart"></i> Nossa missão</h2>
-      <p class="descricao">Queremos ajudar pessoas a organizar a vida de fé de forma leve e envolvente: leitura da Bíblia, oração, missões do dia a dia e estudo do evangelho. Tudo em português, com acessibilidade e, para quem gosta, uma pitada de gamificação — sem tirar o foco do que realmente importa.</p>
+    <div class="sobre2-features">
+      <div class="sobre2-feat">
+        <div class="sobre2-feat-ico sobre2-feat-ico--verde"><i class="bi bi-book-fill"></i></div>
+        <div class="sobre2-feat-titulo">Bíblia + Quiz</div>
+        <div class="sobre2-feat-desc">Leia, acompanhe seu progresso e consolide com quizzes por capítulo e livro.</div>
+      </div>
+      <div class="sobre2-feat">
+        <div class="sobre2-feat-ico sobre2-feat-ico--ouro"><i class="bi bi-flag-fill"></i></div>
+        <div class="sobre2-feat-titulo">Missões</div>
+        <div class="sobre2-feat-desc">Missões diárias humanas, espirituais, de conhecimento, tarefas e para casais.</div>
+      </div>
+      <div class="sobre2-feat">
+        <div class="sobre2-feat-ico sobre2-feat-ico--azul"><i class="bi bi-trophy-fill"></i></div>
+        <div class="sobre2-feat-titulo">Progresso</div>
+        <div class="sobre2-feat-desc">XP, ouro, níveis, streak, conquistas e inventário — tudo em português.</div>
+      </div>
     </div>
-
-    <div class="sobre-secao">
-      <h2 class="subtitulo-secao"><i class="bi bi-lightbulb"></i> Como nasceu</h2>
-      <p class="descricao">Este projeto nasceu da vontade de unir tecnologia e fé: um app gratuito onde você pode cumprir missões (humanas, espirituais, de conhecimento e de tarefa), acompanhar sua leitura da Bíblia com progresso e quizzes, ganhar XP e ouro, subir de nível e manter um streak. Para casais, há espaço para missões conjuntas. O objetivo é tornar o crescimento espiritual mais acessível, organizado e, quando fizer sentido, até divertido.</p>
+    <div class="sobre2-missao">
+      <i class="bi bi-quote sobre2-quote"></i>
+      <p>Queremos ajudar pessoas a organizar a vida de fé de forma leve e envolvente — leitura da Bíblia, oração, missões do dia a dia e estudo do evangelho. Tudo em português, acessível e, quando fizer sentido, até divertido.</p>
+      <div class="sobre2-missao-assinatura"><i class="bi bi-heart-fill"></i> Squidev</div>
     </div>
-
-    <div class="sobre-secao">
-      <h2 class="subtitulo-secao"><i class="bi bi-people"></i> Para quem é</h2>
-      <p class="descricao">Para quem quer organizar a vida de fé (leitura, oração, missões), para casais que desejam missões conjuntas e para quem curte gamificação sem deixar o foco no evangelho. O app é 100% gratuito; há espaço para doações para quem quiser apoiar o projeto.</p>
+    <div class="sobre2-equipe-wrap">
+      <div class="sobre2-tech-titulo"><i class="bi bi-people-fill"></i> Equipe</div>
+      <div class="sobre2-equipe-card">
+        <div class="sobre2-equipe-avatar"><i class="bi bi-person-badge-fill"></i></div>
+        <div class="sobre2-equipe-info">
+          <div class="sobre2-equipe-nome">Matheus Bonotto</div>
+          <div class="sobre2-equipe-cargo">Fundador &amp; Desenvolvedor</div>
+        </div>
+        <div class="sobre2-equipe-ano">2026</div>
+      </div>
+      <div class="sobre2-equipe-marca">
+        <i class="bi bi-code-slash"></i>
+        <span>Desenvolvido por <strong>Squidev</strong></span>
+        <span class="sobre2-equipe-sep">·</span>
+        <span>© 2026</span>
+      </div>
     </div>
-
-    <div class="sobre-secao">
-      <h2 class="subtitulo-secao"><i class="bi bi-tools"></i> Créditos e tecnologia</h2>
-      <p class="descricao mb-2">Este app foi construído com as seguintes ferramentas e fontes de conteúdo:</p>
-      <ul class="mb-0">
-        <li><strong>bible-api.com</strong> — texto bíblico</li>
-        <li><strong>Avataaars</strong> — avatares personalizados</li>
-        <li><strong>Supabase</strong> — banco de dados e autenticação</li>
-        <li><strong>Bootstrap</strong> e <strong>Alpine.js</strong> — interface e interatividade</li>
-      </ul>
+    <div class="sobre2-tech">
+      <div class="sobre2-tech-titulo"><i class="bi bi-box-seam"></i> Construído com</div>
+      <div class="sobre2-pills">
+        <span class="sobre2-pill">Alpine.js</span>
+        <span class="sobre2-pill">Bootstrap</span>
+        <span class="sobre2-pill">Supabase</span>
+        <span class="sobre2-pill">getbible.net</span>
+        <span class="sobre2-pill">bible-api.com</span>
+        <span class="sobre2-pill">Avataaars</span>
+      </div>
     </div>
-
-    <div class="card-tema p-3 mt-3">
-      <p class="mb-2"><a href="#termos" class="texto-primario">Termos de Uso e Política de Privacidade</a></p>
-      <p class="mb-0"><a href="#doacoes" class="texto-primario">Apoiar com doação</a></p>
+    <div class="sobre2-ctas">
+      <a href="#termos" class="sobre2-cta-sec"><i class="bi bi-shield-check"></i> Termos &amp; Privacidade</a>
+      <a href="#doacoes" class="sobre2-cta-prim"><i class="bi bi-heart-fill"></i> Apoiar o projeto</a>
     </div>
   </div>
 
   <!-- Doações (somente quando NÃO logado) -->
   <div x-show="!usuario && pagina === 'doacoes'" class="pagina-conteudo pagina-standalone" style="display: none;">
-    <a href="#login" class="nav-voltar"><i class="bi bi-arrow-left"></i> Voltar ao login</a>
-    <div class="sobre-hero">
-      <div class="sobre-icone-app" aria-hidden="true" style="background: linear-gradient(135deg, var(--cor-destaque) 0%, #b8923a 100%);"><i class="bi bi-heart"></i></div>
-      <h1 class="titulo-pagina">Doações</h1>
-      <p class="subtitulo-pagina">O projeto é gratuito. Sua doação ajuda a manter e melhorar o app.</p>
+    <a href="#login" class="tleg-voltar"><i class="bi bi-arrow-left"></i> Login</a>
+    <div class="apoio-hero">
+      <div class="apoio-hero-icone"><i class="bi bi-heart-fill"></i></div>
+      <h1 class="apoio-titulo">Apoie o Projeto</h1>
+      <p class="apoio-subtitulo">O app é e sempre será gratuito. Mas cada apoio nos ajuda a manter os servidores no ar e a lançar novas funcionalidades.</p>
     </div>
-    <div class="bloco-info">
-      <div class="bloco-info-icone"><i class="bi bi-currency-dollar"></i></div>
-      <div>
-        <div class="bloco-info-titulo">Como apoiar</div>
-        <p class="bloco-info-desc mb-0">Se você quiser apoiar com qualquer valor, em breve disponibilizaremos um link para doação (Pix). Sua contribuição será usada para custos de infraestrutura e melhorias no aplicativo. Obrigado por considerar apoiar!</p>
+    <div class="apoio-sugestoes">
+      <div class="apoio-sugestoes-titulo">Quanto você consegue? 👇 (sem pressão!)</div>
+      <div class="apoio-sugestoes-grid">
+        <div class="apoio-sug apoio-sug--cafe">
+          <span class="apoio-sug-emoji">☕</span>
+          <span class="apoio-sug-valor">R$ 5</span>
+          <span class="apoio-sug-desc">Um cafezinho</span>
+          <span class="apoio-sug-msg">Já ajuda demais!</span>
+        </div>
+        <div class="apoio-sug apoio-sug--pizza">
+          <span class="apoio-sug-emoji">🍕</span>
+          <span class="apoio-sug-valor">R$ 20</span>
+          <span class="apoio-sug-desc">Uma fatia de pizza</span>
+          <span class="apoio-sug-msg">Você é incrível 🙌</span>
+        </div>
+        <div class="apoio-sug apoio-sug--acai">
+          <span class="apoio-sug-emoji">🍇</span>
+          <span class="apoio-sug-valor">R$ 15</span>
+          <span class="apoio-sug-desc">Um açaí</span>
+          <span class="apoio-sug-msg">Deus abençoe! ❤️</span>
+        </div>
+        <div class="apoio-sug apoio-sug--livre">
+          <span class="apoio-sug-emoji">💛</span>
+          <span class="apoio-sug-valor">Livre</span>
+          <span class="apoio-sug-desc">Qualquer valor</span>
+          <span class="apoio-sug-msg">Tudo vale muito!</span>
+        </div>
       </div>
     </div>
-    <p class="text-center mt-3"><a href="#sobre" class="texto-primario">Conhecer mais sobre o projeto</a></p>
+    <div class="apoio-pix-card">
+      <div class="apoio-pix-header">
+        <div class="apoio-pix-ico"><i class="bi bi-qr-code"></i></div>
+        <div>
+          <div class="apoio-pix-titulo">Doação via Pix</div>
+          <div class="apoio-pix-sub">Qualquer valor é muito bem-vindo</div>
+        </div>
+        <span class="apoio-pix-badge">Em breve</span>
+      </div>
+      <div class="apoio-pix-aviso"><i class="bi bi-hourglass-split"></i> Estamos preparando o link de doação. Volte em breve!</div>
+    </div>
+    <div class="apoio-secao-titulo">Outras formas de ajudar</div>
+    <div class="apoio-formas">
+      <div class="apoio-forma">
+        <div class="apoio-forma-ico"><i class="bi bi-share-fill"></i></div>
+        <div class="apoio-forma-titulo">Compartilhe</div>
+        <div class="apoio-forma-desc">Indique o app para amigos e família que buscam crescimento espiritual.</div>
+      </div>
+      <div class="apoio-forma">
+        <div class="apoio-forma-ico" style="background: rgba(99,102,241,0.12); color:#6366f1;"><i class="bi bi-chat-heart-fill"></i></div>
+        <div class="apoio-forma-titulo">Dê feedback</div>
+        <div class="apoio-forma-desc">Sugestões e críticas nos ajudam a melhorar. Entre em contato pela página Sobre.</div>
+      </div>
+      <div class="apoio-forma">
+        <div class="apoio-forma-ico" style="background: rgba(236,72,153,0.10); color:#ec4899;"><i class="bi bi-hand-thumbs-up-fill"></i></div>
+        <div class="apoio-forma-titulo">Ore pelo projeto</div>
+        <div class="apoio-forma-desc">Sua oração é o maior suporte que podemos receber. Obrigado de verdade.</div>
+      </div>
+    </div>
+    <div class="apoio-gratidao">
+      <i class="bi bi-heart-fill apoio-gratidao-ico"></i>
+      <p>Obrigado por usar, por se importar e por fazer parte dessa jornada.<br><strong>Deus abençoe você.</strong></p>
+      <a href="#sobre" class="apoio-link-sobre">Conhecer mais sobre o projeto <i class="bi bi-arrow-right"></i></a>
+    </div>
   </div>
 
   <script>

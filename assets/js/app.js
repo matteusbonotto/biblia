@@ -838,7 +838,7 @@ document.addEventListener('alpine:init', () => {
     // com APENAS o campo de opção sobreposto — para previews individuais de cada opção
     urlAvatarBaseComOpcao(campo, valor) {
       const BASE_NEUTRO = {
-        avatarStyle:      'Circle',
+        avatarStyle:      'Transparent',
         topType:          'NoHair',
         accessoriesType:  'Blank',
         hairColor:        'BrownDark',
@@ -2727,10 +2727,17 @@ document.addEventListener('alpine:init', () => {
     },
 
     // ── Modal "Saiba mais" — lista completa ───────────────────────────────
-    abrirInfoListEsp(tipo) {
+    abrirInfoListEsp(tipo, index = null) {
       this.infoListEsp.tipo = tipo;
-      this.infoListEsp.expandido = null;
+      this.infoListEsp.expandido = index;
       this.infoListEsp.aberto = true;
+      // Se um item específico foi solicitado, rola até ele após o Alpine renderizar
+      if (index !== null) {
+        this.$nextTick(() => {
+          const el = document.querySelector('.tesp-acord--aberto');
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      }
     },
     fecharInfoListEsp() {
       this.infoListEsp.aberto = false;
