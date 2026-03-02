@@ -1,4 +1,4 @@
-/* Alpine: esconder até inicializar */
+﻿/* Alpine: esconder até inicializar */
 [x-cloak] { display: none !important; }
 
 /* Tema - mobile-first, paleta harmoniosa */
@@ -2823,3 +2823,331 @@ body:not(:has(.layout-logado)) .nav-inferior {
   font-weight: 700;
   color: var(--cor-texto);
 }
+
+/* ══════════════════════════════════════════════════════
+   HARPA CRISTÃ
+   ══════════════════════════════════════════════════════ */
+
+/* Nav: 6 itens — reduz padding e fonte */
+.nav-inferior a {
+  font-size: 0.62rem;
+  padding: 4px 5px;
+  gap: 3px;
+}
+.nav-inferior a i {
+  font-size: 1.1rem;
+}
+
+/* Cabeçalho da Harpa */
+.harpa-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.harpa-header-titulo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.harpa-logo-ico {
+  font-size: 2rem;
+  color: var(--cor-primaria);
+  line-height: 1;
+}
+.harpa-titulo {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--cor-texto);
+  margin: 0;
+  line-height: 1.2;
+}
+.harpa-subtitulo {
+  font-size: 0.72rem;
+  color: var(--cor-texto-secundario);
+}
+
+/* Busca */
+.harpa-busca-wrap {
+  position: relative;
+}
+.harpa-busca-ico {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--cor-texto-secundario);
+  font-size: 0.85rem;
+  pointer-events: none;
+}
+.harpa-busca-input {
+  width: 100%;
+  border: 1.5px solid var(--cor-borda);
+  border-radius: 999px;
+  padding: 9px 14px 9px 34px;
+  font-size: 0.9rem;
+  background: var(--cor-fundo-card);
+  color: var(--cor-texto);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.harpa-busca-input:focus {
+  border-color: var(--cor-primaria);
+}
+
+/* Contador */
+.harpa-contador {
+  margin-bottom: 8px;
+}
+
+/* Grid de hinos */
+.harpa-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.harpa-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  background: var(--cor-fundo-card);
+  border: 1px solid var(--cor-borda);
+  border-radius: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+}
+.harpa-card:hover, .harpa-card:active {
+  background: color-mix(in srgb, var(--cor-primaria) 8%, var(--cor-fundo-card));
+  border-color: var(--cor-primaria);
+  transform: translateX(2px);
+}
+.harpa-card-num {
+  min-width: 38px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--cor-primaria);
+  background: color-mix(in srgb, var(--cor-primaria) 12%, transparent);
+  border-radius: 8px;
+  padding: 4px 8px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.harpa-card-titulo {
+  flex: 1;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--cor-texto);
+  line-height: 1.3;
+}
+.harpa-card-seta {
+  color: var(--cor-texto-secundario);
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+/* Paginação */
+.harpa-paginacao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 16px;
+  padding: 8px 0;
+}
+.harpa-pag-btn {
+  background: var(--cor-fundo-card);
+  border: 1.5px solid var(--cor-borda);
+  border-radius: 50%;
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  color: var(--cor-texto);
+  transition: all 0.15s;
+}
+.harpa-pag-btn:hover:not(:disabled) {
+  border-color: var(--cor-primaria);
+  color: var(--cor-primaria);
+}
+.harpa-pag-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Leitura do hino — botão YouTube no topo */
+.harpa-yt-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--cor-primaria) 15%, transparent);
+  color: var(--cor-primaria);
+  border: 1.5px solid var(--cor-primaria);
+  font-size: 1rem;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.harpa-yt-btn:hover,
+.harpa-yt-btn--on {
+  background: var(--cor-primaria);
+  color: #fff;
+}
+
+/* === Harpa Crista - Player de audio Deezer + YouTube === */
+.harpa-player-painel {
+  background: var(--cor-fundo-card);
+  border: 1.5px solid var(--cor-borda);
+  border-radius: 16px;
+  padding: 14px 16px 12px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.hap-carregando {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--cor-texto-secundario);
+  font-size: 0.88rem;
+  justify-content: center;
+  padding: 8px 0;
+}
+@keyframes harpaVinylSpin { to { transform: rotate(360deg); } }
+.hap-spin-vinyl {
+  font-size: 1.4rem;
+  color: var(--cor-primaria);
+  animation: harpaVinylSpin 1.2s linear infinite;
+}
+.hap-player { display: flex; flex-direction: column; gap: 6px; }
+.hap-cabecalho { display: flex; align-items: center; gap: 10px; }
+.hap-ico-nota { font-size: 1.3rem; color: var(--cor-primaria); flex-shrink: 0; }
+.hap-info { display: flex; flex-direction: column; min-width: 0; }
+.hap-titulo {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--cor-texto);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hap-badge { font-size: 0.7rem; color: var(--cor-texto-secundario); margin-top: 1px; }
+.hap-barra-wrap { cursor: pointer; padding: 6px 0; }
+.hap-barra-bg {
+  height: 5px;
+  border-radius: 99px;
+  background: var(--cor-borda);
+  position: relative;
+  overflow: hidden;
+}
+.hap-barra-fill {
+  position: absolute;
+  top: 0; left: 0;
+  height: 100%;
+  border-radius: 99px;
+  background: var(--cor-primaria);
+  transition: width 0.3s linear;
+}
+.hap-controles { display: flex; align-items: center; gap: 8px; }
+.hap-tempo {
+  font-size: 0.72rem;
+  color: var(--cor-texto-secundario);
+  font-variant-numeric: tabular-nums;
+  min-width: 32px;
+}
+.hap-tempo-fim { text-align: right; }
+.hap-btns { flex: 1; display: flex; justify-content: center; }
+.hap-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s, opacity 0.15s;
+}
+.hap-btn-pp { background: var(--cor-primaria); color: #fff; font-size: 1.2rem; }
+.hap-btn-pp:hover { transform: scale(1.08); }
+.hap-nao-encontrado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 0;
+  color: var(--cor-texto-secundario);
+  font-size: 0.82rem;
+  text-align: center;
+}
+.hap-nao-encontrado i { font-size: 1.6rem; color: var(--cor-borda); }
+.hap-nao-encontrado p { margin: 0; line-height: 1.5; }
+.hap-rodape {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--cor-borda);
+  padding-top: 10px;
+  gap: 8px;
+}
+.hap-link-yt {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #cc0000;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+.hap-link-yt:hover { opacity: 0.78; text-decoration: underline; }
+.hap-btn-fechar {
+  background: none;
+  border: none;
+  color: var(--cor-texto-secundario);
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 8px;
+  transition: color 0.15s;
+}
+.hap-btn-fechar:hover { color: var(--cor-texto); }
+
+/* Seção de letra (Coro / Estrofe) */
+.harpa-secao {
+  border-left: 3px solid var(--cor-primaria);
+  padding-left: 12px;
+}
+.harpa-secao-label {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--cor-primaria);
+  background: color-mix(in srgb, var(--cor-primaria) 10%, transparent);
+  border-radius: 6px;
+  padding: 2px 8px;
+  margin-bottom: 6px;
+}
+
+/* Letras com quebra de linha real (\n => quebra visivel) */
+.harpa-secao .verso-texto {
+  white-space: pre-line;
+  line-height: 1.7;
+}
+
+/* Coro -- visualmente diferente da estrofe */
+.harpa-secao--coro {
+  border-radius: 0 10px 10px 0;
+  padding: 10px 12px;
+}
+.harpa-secao-label--coro {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+

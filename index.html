@@ -54,181 +54,491 @@
     </div>
   </div>
 
-  <!-- Cadastro em etapas -->
-  <div x-show="pagina === 'cadastro'" class="p-3 p-md-4" style="display: none;">
-    <div class="passo-cadastro">
-      <h2 class="text-center mb-3 fw-600">Criar conta</h2>
-      <div class="indicador-passos">
-        <template x-for="i in 7" :key="i">
-          <span :class="{ ativo: i - 1 === passoCadastro }"></span>
-        </template>
-      </div>
-      <p x-show="erro" class="text-danger mb-2" x-text="erro"></p>
+  <!-- ════════════════════════════════════════════
+       CADASTRO — Onboarding estilo Duolingo
+       ════════════════════════════════════════════ -->
+  <div x-show="pagina === 'cadastro'" class="cad-root" style="display: none;">
 
-      <div x-show="passoCadastro === 0" class="card-tema p-3">
-        <h3 class="fs-6 fw-600 mb-2">Termos de Uso e Política de Privacidade</h3>
-        <p class="fs-menor mb-2">Para criar sua conta, você precisa <strong>ler e aceitar</strong> os termos abaixo. O cadastro só é concluído após o aceite.</p>
-        <div class="termos-resumo">
-          <h4>1. O que é o app</h4>
-          <p>Plataforma de crescimento espiritual e estudo bíblico com missões, leitura da Bíblia, quizzes, pontos (XP), ouro, ranking e conquistas. Uso pessoal e gratuito.</p>
-          <h4>2. Aceite obrigatório</h4>
-          <p>O aceite será registrado com data e hora. Menores de 18 anos devem ter autorização do responsável.</p>
-          <h4>3. Dados que coletamos (LGPD)</h4>
-          <ul>
-            <li>Nome, e-mail, senha, data de nascimento, estado civil, avatar e preferências</li>
-            <li>Progresso (missões, leitura, quizzes) e registro de aceite dos termos</li>
-            <li>Não vendemos seus dados; compartilhamos apenas com Supabase e APIs necessárias ao serviço</li>
-          </ul>
-          <h4>4. Seus direitos</h4>
-          <p>Acesso, correção, exclusão, portabilidade e revogação do consentimento. Contato: [e-mail do projeto].</p>
-          <h4>5. Responsabilidade</h4>
-          <p>O app é oferecido "como está". Você é responsável por manter sua senha em sigilo.</p>
-          <p class="mb-0"><a href="#termos" target="_blank" class="texto-primario">Ler termos completos</a></p>
+    <!-- ── Topo: voltar · barra de progresso · contador ── -->
+    <div class="cad-topo">
+      <button class="cad-back" @click="voltarCadastro()" x-show="passoCadastro > 0" title="Voltar">
+        <i class="bi bi-arrow-left"></i>
+      </button>
+      <div class="cad-prog-track">
+        <div class="cad-prog-fill" :style="`width: ${Math.round(((passoCadastro + 1) / 7) * 100)}%`"></div>
+      </div>
+      <span class="cad-step-counter" x-text="`${passoCadastro + 1} / 7`"></span>
+    </div>
+
+    <!-- ── Erro inline ── -->
+    <div class="cad-erro-wrap" x-show="erro" x-transition>
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      <span x-text="erro"></span>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         STEP 0 — Boas-vindas + Termos
+         ══════════════════════════════════════════ -->
+    <div class="cad-step" x-show="passoCadastro === 0"
+         x-transition:enter="cad-enter" x-transition:enter-start="cad-enter-start" x-transition:enter-end="cad-enter-end"
+         x-transition:leave="cad-leave" x-transition:leave-start="cad-leave-start" x-transition:leave-end="cad-leave-end">
+      <div class="cad-hero-ico">🙏</div>
+      <h1 class="cad-titulo">Bem-vindo à<br><em class="cad-titulo-marca">Jornada da Fé</em></h1>
+      <p class="cad-sub">Seu app de crescimento espiritual gratuito</p>
+
+      <div class="cad-features-grid">
+        <div class="cad-feat"><span>📖</span><div><strong>Bíblia diária</strong><small>Leitura com marcações e notas</small></div></div>
+        <div class="cad-feat"><span>⚡</span><div><strong>Missões & XP</strong><small>Gamificação espiritual</small></div></div>
+        <div class="cad-feat"><span>🧠</span><div><strong>Quizzes bíblicos</strong><small>Aprenda enquanto avança</small></div></div>
+        <div class="cad-feat"><span>🛡</span><div><strong>Armadura de Deus</strong><small>Efésios 6 na prática</small></div></div>
+      </div>
+
+      <div class="cad-termos-bloco">
+        <p class="cad-termos-titulo">Antes de começar</p>
+        <div class="cad-termos-items">
+          <div class="cad-termos-item"><i class="bi bi-shield-check"></i> Seus dados são protegidos (LGPD)</div>
+          <div class="cad-termos-item"><i class="bi bi-lock-fill"></i> Senha criptografada — só você tem acesso</div>
+          <div class="cad-termos-item"><i class="bi bi-hand-thumbs-up-fill"></i> Não vendemos seus dados a terceiros</div>
         </div>
-        <label class="d-flex align-items-start gap-2">
-          <input type="checkbox" x-model="aceiteTermos" class="mt-1" />
-          <span class="fs-menor">Li e aceito os Termos de Uso e a Política de Privacidade acima.</span>
-        </label>
+        <a href="#termos" class="cad-termos-link">Ler termos completos →</a>
       </div>
-      <div x-show="passoCadastro === 1" class="card-tema p-3">
-        <label class="form-label">Como devo te chamar?</label>
-        <input type="text" class="form-control mb-2" x-model="nomeCadastro" placeholder="Nome" />
-        <input type="text" class="form-control" x-model="sobrenomeCadastro" placeholder="Sobrenome" />
-      </div>
-      <div x-show="passoCadastro === 2" class="card-tema p-3">
-        <p class="mb-2">Que bom ter você aqui, <span x-text="nomeCadastro || '...'"></span>! Quantos anos você tem?</p>
-        <label class="form-label">Data de nascimento</label>
-        <input type="date" class="form-control" x-model="dataNascimentoCadastro" />
-      </div>
-      <div x-show="passoCadastro === 3" class="card-tema p-3">
-        <label class="form-label">Qual seu e-mail?</label>
-        <input type="email" class="form-control" x-model="emailCadastro" required />
-      </div>
-      <div x-show="passoCadastro === 4" class="card-tema p-3">
-        <label class="form-label">Crie uma senha segura</label>
-        <input type="password" class="form-control" x-model="senhaCadastro" minlength="6" required />
-      </div>
-      <div x-show="passoCadastro === 5" class="card-tema p-3">
-        <label class="form-label">Qual seu status civil?</label>
-        <select class="form-select" x-model="estadoCivilCadastro">
-          <option value="">Selecione</option>
-          <option value="solteiro">Solteiro(a)</option>
-          <option value="casado">Casado(a)</option>
-          <option value="outro">Outro</option>
-        </select>
-      </div>
-      <div x-show="passoCadastro === 6" class="card-tema p-3 editor-personagem">
-        <p class="text-center fw-600 mb-2">Crie seu personagem</p>
-        <img :src="urlAvatar(configAvatarCadastro)" alt="Avatar" class="avatar-preview-grande" />
 
-        <div class="grupo-opcao">
-          <div class="grupo-opcao-titulo">Estilo</div>
-          <div class="seletor-setas">
-            <button type="button" class="btn-setas" @click="cicloOpcaoAvatar('avatarStyle', -1)" aria-label="Anterior"><i class="bi bi-chevron-left"></i></button>
-            <span class="nome-opcao" x-text="labelOpcaoAvatar('avatarStyle')"></span>
-            <button type="button" class="btn-setas" @click="cicloOpcaoAvatar('avatarStyle', 1)" aria-label="Próximo"><i class="bi bi-chevron-right"></i></button>
+      <label class="cad-aceite-label" :class="{ 'cad-aceite-ativo': aceiteTermos }">
+        <div class="cad-aceite-check" :class="{ 'marcado': aceiteTermos }" @click="aceiteTermos = !aceiteTermos">
+          <i class="bi bi-check-lg" x-show="aceiteTermos"></i>
+        </div>
+        <span>Li e aceito os <strong>Termos de Uso</strong> e a <strong>Política de Privacidade</strong></span>
+      </label>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         STEP 1 — Nome
+         ══════════════════════════════════════════ -->
+    <div class="cad-step" x-show="passoCadastro === 1"
+         x-transition:enter="cad-enter" x-transition:enter-start="cad-enter-start" x-transition:enter-end="cad-enter-end"
+         x-transition:leave="cad-leave" x-transition:leave-start="cad-leave-start" x-transition:leave-end="cad-leave-end">
+      <div class="cad-hero-ico">✨</div>
+      <h2 class="cad-titulo">Como devemos<br>te chamar?</h2>
+      <p class="cad-sub">Seu nome será exibido no seu perfil</p>
+      <div class="cad-campos">
+        <div class="cad-field">
+          <label class="cad-field-label">Nome</label>
+          <input type="text" class="cad-input" x-model="nomeCadastro"
+                 placeholder="Ex.: Maria" autocomplete="given-name"
+                 @keyup.enter="nomeCadastro && avancarCadastro()"
+                 x-ref="inputNome" />
+        </div>
+        <div class="cad-field">
+          <label class="cad-field-label">Sobrenome <span class="cad-opcional">(opcional)</span></label>
+          <input type="text" class="cad-input" x-model="sobrenomeCadastro"
+                 placeholder="Ex.: Santos" autocomplete="family-name"
+                 @keyup.enter="avancarCadastro()" />
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         STEP 2 — Nascimento
+         ══════════════════════════════════════════ -->
+    <div class="cad-step" x-show="passoCadastro === 2"
+         x-transition:enter="cad-enter" x-transition:enter-start="cad-enter-start" x-transition:enter-end="cad-enter-end"
+         x-transition:leave="cad-leave" x-transition:leave-start="cad-leave-start" x-transition:leave-end="cad-leave-end">
+      <div class="cad-hero-ico">🎂</div>
+      <h2 class="cad-titulo">Quando você nasceu,<br><em class="cad-titulo-nome" x-text="nomeCadastro || 'amigo'"></em>?</h2>
+      <p class="cad-sub">Opcional — você pode pular se preferir <span class="cad-opcional-tag">Pular →</span></p>
+      <div class="cad-campos">
+        <div class="cad-field">
+          <label class="cad-field-label">Data de nascimento</label>
+          <input type="date" class="cad-input cad-input-date" x-model="dataNascimentoCadastro" />
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         STEP 3 — E-mail
+         ══════════════════════════════════════════ -->
+    <div class="cad-step" x-show="passoCadastro === 3"
+         x-transition:enter="cad-enter" x-transition:enter-start="cad-enter-start" x-transition:enter-end="cad-enter-end"
+         x-transition:leave="cad-leave" x-transition:leave-start="cad-leave-start" x-transition:leave-end="cad-leave-end">
+      <div class="cad-hero-ico">📧</div>
+      <h2 class="cad-titulo">Qual seu<br>e-mail?</h2>
+      <p class="cad-sub">Para acessar sua conta com segurança</p>
+      <div class="cad-campos">
+        <div class="cad-field">
+          <label class="cad-field-label">Endereço de e-mail</label>
+          <div class="cad-input-icon-wrap">
+            <input type="email" class="cad-input" x-model="emailCadastro"
+                   placeholder="seu@email.com" autocomplete="email"
+                   @keyup.enter="emailCadastro.includes('@') && avancarCadastro()" />
+            <i class="bi bi-check-circle-fill cad-input-ok-ico"
+               x-show="emailCadastro.includes('@') && emailCadastro.includes('.')"
+               x-transition></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         STEP 4 — Senha
+         ══════════════════════════════════════════ -->
+    <div class="cad-step" x-show="passoCadastro === 4"
+         x-transition:enter="cad-enter" x-transition:enter-start="cad-enter-start" x-transition:enter-end="cad-enter-end"
+         x-transition:leave="cad-leave" x-transition:leave-start="cad-leave-start" x-transition:leave-end="cad-leave-end">
+      <div class="cad-hero-ico">🔐</div>
+      <h2 class="cad-titulo">Crie uma<br>senha segura</h2>
+      <p class="cad-sub">Mínimo de 6 caracteres</p>
+      <div class="cad-campos">
+        <div class="cad-field">
+          <label class="cad-field-label">Sua senha</label>
+          <div class="cad-input-icon-wrap">
+            <input :type="senhaMostrar ? 'text' : 'password'"
+                   class="cad-input cad-input-senha"
+                   x-model="senhaCadastro"
+                   placeholder="••••••••"
+                   autocomplete="new-password"
+                   @keyup.enter="senhaCadastro.length >= 6 && avancarCadastro()" />
+            <button type="button" class="cad-toggle-olho" @click="senhaMostrar = !senhaMostrar"
+                    :aria-label="senhaMostrar ? 'Ocultar senha' : 'Mostrar senha'">
+              <i :class="senhaMostrar ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+            </button>
           </div>
         </div>
 
-        <div class="grupo-opcao">
-          <div class="grupo-opcao-titulo">Cabelo</div>
-          <div class="seletor-setas">
-            <button type="button" class="btn-setas" @click="cicloOpcaoAvatar('topType', -1)" aria-label="Anterior"><i class="bi bi-chevron-left"></i></button>
-            <span class="nome-opcao texto-truncado" x-text="labelOpcaoAvatar('topType')"></span>
-            <button type="button" class="btn-setas" @click="cicloOpcaoAvatar('topType', 1)" aria-label="Próximo"><i class="bi bi-chevron-right"></i></button>
+        <!-- Indicador de força -->
+        <div class="cad-forca" x-show="senhaCadastro.length > 0" x-transition>
+          <div class="cad-forca-barras">
+            <div class="cad-forca-seg" :class="forcaSenha().pct >= 20 ? forcaSenha().classe : ''"></div>
+            <div class="cad-forca-seg" :class="forcaSenha().pct >= 40 ? forcaSenha().classe : ''"></div>
+            <div class="cad-forca-seg" :class="forcaSenha().pct >= 60 ? forcaSenha().classe : ''"></div>
+            <div class="cad-forca-seg" :class="forcaSenha().pct >= 80 ? forcaSenha().classe : ''"></div>
+            <div class="cad-forca-seg" :class="forcaSenha().pct >= 100 ? forcaSenha().classe : ''"></div>
           </div>
-          <div class="swatches">
-            <template x-for="op in opcoesAvataaars.hairColor" :key="op.valor">
-              <button type="button" class="swatch" :class="{ ativo: configAvatarCadastro.hairColor === op.valor }" :style="'background:' + (op.hex || '#ccc')" :title="op.label" @click="selecionarOpcaoAvatar('hairColor', op.valor)" :aria-label="'Cor do cabelo: ' + op.label"></button>
-            </template>
-          </div>
+          <span class="cad-forca-texto" :class="forcaSenha().classe" x-text="forcaSenha().label"></span>
         </div>
 
-        <div class="grupo-opcao">
-          <div class="grupo-opcao-titulo">Acessórios</div>
-          <div class="seletor-setas">
-            <button type="button" class="btn-setas" @click="cicloOpcaoAvatar('accessoriesType', -1)" aria-label="Anterior"><i class="bi bi-chevron-left"></i></button>
-            <span class="nome-opcao" x-text="labelOpcaoAvatar('accessoriesType')"></span>
-            <button type="button" class="btn-setas" @click="cicloOpcaoAvatar('accessoriesType', 1)" aria-label="Próximo"><i class="bi bi-chevron-right"></i></button>
+        <!-- Dicas de senha -->
+        <div class="cad-senha-dicas" x-show="senhaCadastro.length > 0 && senhaCadastro.length < 10" x-transition>
+          <p class="cad-dica-titulo">Para uma senha mais forte:</p>
+          <div class="cad-dica" :class="{ 'ok': senhaCadastro.length >= 8 }">
+            <i class="bi" :class="senhaCadastro.length >= 8 ? 'bi-check-circle-fill' : 'bi-circle'"></i>
+            Pelo menos 8 caracteres
+          </div>
+          <div class="cad-dica" :class="{ 'ok': /[A-Z]/.test(senhaCadastro) }">
+            <i class="bi" :class="/[A-Z]/.test(senhaCadastro) ? 'bi-check-circle-fill' : 'bi-circle'"></i>
+            Uma letra maiúscula
+          </div>
+          <div class="cad-dica" :class="{ 'ok': /[0-9]/.test(senhaCadastro) }">
+            <i class="bi" :class="/[0-9]/.test(senhaCadastro) ? 'bi-check-circle-fill' : 'bi-circle'"></i>
+            Um número
           </div>
         </div>
+      </div>
+    </div>
 
-        <div class="grupo-opcao">
-          <div class="grupo-opcao-titulo">Barba / Bigode</div>
-          <div class="seletor-setas">
-            <button type="button" class="btn-setas" @click="cicloOpcaoAvatar('facialHairType', -1)" aria-label="Anterior"><i class="bi bi-chevron-left"></i></button>
-            <span class="nome-opcao" x-text="labelOpcaoAvatar('facialHairType')"></span>
-            <button type="button" class="btn-setas" @click="cicloOpcaoAvatar('facialHairType', 1)" aria-label="Próximo"><i class="bi bi-chevron-right"></i></button>
-          </div>
-          <template x-if="configAvatarCadastro.facialHairType !== 'Blank'">
-            <div class="swatches mt-2">
-              <template x-for="op in opcoesAvataaars.facialHairColor" :key="op.valor">
-                <button type="button" class="swatch" :class="{ ativo: configAvatarCadastro.facialHairColor === op.valor }" :style="'background:' + (op.hex || '#ccc')" @click="selecionarOpcaoAvatar('facialHairColor', op.valor)"></button>
+    <!-- ══════════════════════════════════════════
+         STEP 5 — Estado civil (card choices)
+         ══════════════════════════════════════════ -->
+    <div class="cad-step" x-show="passoCadastro === 5"
+         x-transition:enter="cad-enter" x-transition:enter-start="cad-enter-start" x-transition:enter-end="cad-enter-end"
+         x-transition:leave="cad-leave" x-transition:leave-start="cad-leave-start" x-transition:leave-end="cad-leave-end">
+      <div class="cad-hero-ico">💡</div>
+      <h2 class="cad-titulo">Qual seu<br>estado civil?</h2>
+      <p class="cad-sub">Opcional — ajuda a personalizar o conteúdo</p>
+
+      <div class="cad-cards-escolha">
+        <button class="cad-card-opcao" :class="{ 'selecionado': estadoCivilCadastro === 'solteiro' }"
+                @click="estadoCivilCadastro = 'solteiro'; avancarCadastro()">
+          <span class="cad-card-ico">🧍</span>
+          <span class="cad-card-nome">Solteiro(a)</span>
+          <i class="bi bi-check-circle-fill cad-card-check"></i>
+        </button>
+        <button class="cad-card-opcao" :class="{ 'selecionado': estadoCivilCadastro === 'casado' }"
+                @click="estadoCivilCadastro = 'casado'; avancarCadastro()">
+          <span class="cad-card-ico">💍</span>
+          <span class="cad-card-nome">Casado(a)</span>
+          <i class="bi bi-check-circle-fill cad-card-check"></i>
+        </button>
+        <button class="cad-card-opcao" :class="{ 'selecionado': estadoCivilCadastro === 'outro' }"
+                @click="estadoCivilCadastro = 'outro'; avancarCadastro()">
+          <span class="cad-card-ico">✨</span>
+          <span class="cad-card-nome">Outro</span>
+          <i class="bi bi-check-circle-fill cad-card-check"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         STEP 6 — Criar personagem (Avatar)
+         ══════════════════════════════════════════ -->
+    <div class="cad-step cad-step-avatar" x-show="passoCadastro === 6"
+         x-transition:enter="cad-enter" x-transition:enter-start="cad-enter-start" x-transition:enter-end="cad-enter-end"
+         x-transition:leave="cad-leave" x-transition:leave-start="cad-leave-start" x-transition:leave-end="cad-leave-end">
+      <div class="cad-hero-ico">🎨</div>
+      <h2 class="cad-titulo">Crie seu<br>personagem!</h2>
+      <p class="cad-sub">Este será seu avatar na jornada</p>
+
+      <!-- Preview do avatar (igual ao perfil) -->
+      <div class="pedit-avatar-stage" style="margin-bottom:12px">
+        <div class="pedit-avatar-bg" :style="cssBgCadastroAvatar() ? 'background:' + cssBgCadastroAvatar() : ''">
+          <img :src="urlAvatar(configAvatarCadastro)" alt="Seu avatar" class="pedit-avatar-preview" />
+        </div>
+        <p class="pedit-avatar-hint">
+          <strong x-text="nomeCadastro ? nomeCadastro + ', seu personagem' : 'Seu personagem'"></strong>
+          Alterações aparecem aqui em tempo real ✨
+        </p>
+      </div>
+
+      <!-- Grupos de customização — idênticos ao editor de perfil -->
+      <div>
+
+        <!-- ── Grupo: Aparência ── -->
+        <div class="pedit-grupo">
+          <div class="pedit-grupo-titulo"><i class="bi bi-person-bounding-box"></i> Aparência</div>
+
+          <!-- Tom de pele -->
+          <div class="pedit-opcao-row">
+            <span class="pedit-opcao-label">Tom de pele</span>
+            <div class="pedit-swatches">
+              <template x-for="op in opcoesAvataaars.skinColor" :key="op.valor">
+                <button type="button" class="pedit-swatch"
+                        :style="'background:' + op.hex"
+                        :class="configAvatarCadastro.skinColor === op.valor ? 'pedit-swatch--ativa' : ''"
+                        :title="op.label"
+                        @click="selecionarOpcaoAvatar('skinColor', op.valor)">
+                </button>
               </template>
             </div>
-          </template>
-        </div>
-
-        <div class="grupo-opcao">
-          <div class="grupo-opcao-titulo">Roupa</div>
-          <div class="seletor-setas">
-            <button type="button" class="btn-setas" @click="cicloOpcaoAvatar('clotheType', -1)" aria-label="Anterior"><i class="bi bi-chevron-left"></i></button>
-            <span class="nome-opcao" x-text="labelOpcaoAvatar('clotheType')"></span>
-            <button type="button" class="btn-setas" @click="cicloOpcaoAvatar('clotheType', 1)" aria-label="Próximo"><i class="bi bi-chevron-right"></i></button>
           </div>
-          <div class="swatches">
-            <template x-for="op in opcoesAvataaars.clotheColor" :key="op.valor">
-              <button type="button" class="swatch" :class="{ ativo: configAvatarCadastro.clotheColor === op.valor }" :style="'background:' + (op.hex || '#ccc')" @click="selecionarOpcaoAvatar('clotheColor', op.valor)"></button>
-            </template>
-          </div>
-        </div>
 
-        <div class="grupo-opcao">
-          <div class="grupo-opcao-titulo">Olhos</div>
-          <div class="seletor-setas">
-            <button type="button" class="btn-setas" @click="cicloOpcaoAvatar('eyeType', -1)" aria-label="Anterior"><i class="bi bi-chevron-left"></i></button>
-            <span class="nome-opcao" x-text="labelOpcaoAvatar('eyeType')"></span>
-            <button type="button" class="btn-setas" @click="cicloOpcaoAvatar('eyeType', 1)" aria-label="Próximo"><i class="bi bi-chevron-right"></i></button>
+          <!-- Fundo do personagem -->
+          <div class="pedit-opcao-row pedit-opcao-row--col">
+            <span class="pedit-opcao-label">Fundo do personagem</span>
+            <div class="pedit-bg-swatches">
+              <template x-for="bg in backgroundsAvatar" :key="bg.valor">
+                <div class="pedit-bg-swatch-wrap">
+                  <button type="button" class="pedit-bg-swatch"
+                          :style="bg.gradient ? 'background:' + bg.gradient : 'background:#65c9ff'"
+                          :class="configAvatarCadastro.bgAvatar === bg.valor ? 'pedit-bg-swatch--ativo' : ''"
+                          :title="bg.label"
+                          @click="selecionarOpcaoAvatar('bgAvatar', bg.valor); selecionarOpcaoAvatar('avatarStyle', 'Transparent')">
+                    <i x-show="configAvatarCadastro.bgAvatar === bg.valor" class="bi bi-check-lg pedit-bg-check"></i>
+                  </button>
+                  <span class="pedit-bg-swatch-label" x-text="bg.label"></span>
+                </div>
+              </template>
+            </div>
           </div>
         </div>
 
-        <div class="grupo-opcao">
-          <div class="grupo-opcao-titulo">Sobrancelhas</div>
-          <div class="seletor-setas">
-            <button type="button" class="btn-setas" @click="cicloOpcaoAvatar('eyebrowType', -1)" aria-label="Anterior"><i class="bi bi-chevron-left"></i></button>
-            <span class="nome-opcao" x-text="labelOpcaoAvatar('eyebrowType')"></span>
-            <button type="button" class="btn-setas" @click="cicloOpcaoAvatar('eyebrowType', 1)" aria-label="Próximo"><i class="bi bi-chevron-right"></i></button>
+        <!-- ── Grupo: Cabelo ── -->
+        <div class="pedit-grupo">
+          <div class="pedit-grupo-titulo"><i class="bi bi-wind"></i> Cabelo</div>
+
+          <div class="pedit-opcao-row pedit-opcao-row--col">
+            <span class="pedit-opcao-label">Estilo do cabelo</span>
+            <div class="pedit-chips-av">
+              <template x-for="op in opcoesAvataaars.topType" :key="op.valor">
+                <button type="button" class="pedit-chip-av"
+                        :class="configAvatarCadastro.topType === op.valor ? 'pedit-chip-av--ativo' : ''"
+                        @click="selecionarOpcaoAvatar('topType', op.valor)"
+                        :title="op.label">
+                  <img :src="urlAvatarBaseComOpcao('topType', op.valor)" alt="" class="pedit-chip-av-img" loading="lazy" />
+                  <span class="pedit-chip-av-label" x-text="op.label"></span>
+                </button>
+              </template>
+            </div>
+          </div>
+
+          <div class="pedit-opcao-row">
+            <span class="pedit-opcao-label">Cor</span>
+            <div class="pedit-swatches">
+              <template x-for="op in opcoesAvataaars.hairColor" :key="op.valor">
+                <button type="button" class="pedit-swatch"
+                        :style="'background:' + op.hex"
+                        :class="configAvatarCadastro.hairColor === op.valor ? 'pedit-swatch--ativa' : ''"
+                        :title="op.label"
+                        @click="selecionarOpcaoAvatar('hairColor', op.valor)">
+                </button>
+              </template>
+            </div>
           </div>
         </div>
 
-        <div class="grupo-opcao">
-          <div class="grupo-opcao-titulo">Boca</div>
-          <div class="seletor-setas">
-            <button type="button" class="btn-setas" @click="cicloOpcaoAvatar('mouthType', -1)" aria-label="Anterior"><i class="bi bi-chevron-left"></i></button>
-            <span class="nome-opcao" x-text="labelOpcaoAvatar('mouthType')"></span>
-            <button type="button" class="btn-setas" @click="cicloOpcaoAvatar('mouthType', 1)" aria-label="Próximo"><i class="bi bi-chevron-right"></i></button>
+        <!-- ── Grupo: Barba ── -->
+        <div class="pedit-grupo">
+          <div class="pedit-grupo-titulo"><i class="bi bi-person-check"></i> Barba / Bigode</div>
+
+          <div class="pedit-opcao-row pedit-opcao-row--col">
+            <span class="pedit-opcao-label">Estilo</span>
+            <div class="pedit-chips-av">
+              <template x-for="op in opcoesAvataaars.facialHairType" :key="op.valor">
+                <button type="button" class="pedit-chip-av"
+                        :class="configAvatarCadastro.facialHairType === op.valor ? 'pedit-chip-av--ativo' : ''"
+                        @click="selecionarOpcaoAvatar('facialHairType', op.valor)"
+                        :title="op.label">
+                  <img :src="urlAvatarBaseComOpcao('facialHairType', op.valor)" alt="" class="pedit-chip-av-img" loading="lazy" />
+                  <span class="pedit-chip-av-label" x-text="op.label"></span>
+                </button>
+              </template>
+            </div>
+          </div>
+
+          <div class="pedit-opcao-row" x-show="configAvatarCadastro.facialHairType !== 'Blank'">
+            <span class="pedit-opcao-label">Cor</span>
+            <div class="pedit-swatches">
+              <template x-for="op in opcoesAvataaars.facialHairColor" :key="op.valor">
+                <button type="button" class="pedit-swatch"
+                        :style="'background:' + op.hex"
+                        :class="configAvatarCadastro.facialHairColor === op.valor ? 'pedit-swatch--ativa' : ''"
+                        @click="selecionarOpcaoAvatar('facialHairColor', op.valor)">
+                </button>
+              </template>
+            </div>
           </div>
         </div>
 
-        <div class="grupo-opcao">
-          <div class="grupo-opcao-titulo">Cor de pele</div>
-          <div class="swatches">
-            <template x-for="op in opcoesAvataaars.skinColor" :key="op.valor">
-              <button type="button" class="swatch" :class="{ ativo: configAvatarCadastro.skinColor === op.valor }" :style="'background:' + (op.hex || '#ccc')" :title="op.label" @click="selecionarOpcaoAvatar('skinColor', op.valor)"></button>
-            </template>
+        <!-- ── Grupo: Expressão ── -->
+        <div class="pedit-grupo">
+          <div class="pedit-grupo-titulo"><i class="bi bi-emoji-smile"></i> Expressão</div>
+
+          <div class="pedit-opcao-row pedit-opcao-row--col">
+            <span class="pedit-opcao-label">Olhos</span>
+            <div class="pedit-chips-av">
+              <template x-for="op in opcoesAvataaars.eyeType" :key="op.valor">
+                <button type="button" class="pedit-chip-av"
+                        :class="configAvatarCadastro.eyeType === op.valor ? 'pedit-chip-av--ativo' : ''"
+                        @click="selecionarOpcaoAvatar('eyeType', op.valor)"
+                        :title="op.label">
+                  <img :src="urlAvatarBaseComOpcao('eyeType', op.valor)" alt="" class="pedit-chip-av-img" loading="lazy" />
+                  <span class="pedit-chip-av-label" x-text="op.label"></span>
+                </button>
+              </template>
+            </div>
+          </div>
+
+          <div class="pedit-opcao-row pedit-opcao-row--col">
+            <span class="pedit-opcao-label">Sobrancelhas</span>
+            <div class="pedit-chips-av">
+              <template x-for="op in opcoesAvataaars.eyebrowType" :key="op.valor">
+                <button type="button" class="pedit-chip-av"
+                        :class="configAvatarCadastro.eyebrowType === op.valor ? 'pedit-chip-av--ativo' : ''"
+                        @click="selecionarOpcaoAvatar('eyebrowType', op.valor)"
+                        :title="op.label">
+                  <img :src="urlAvatarBaseComOpcao('eyebrowType', op.valor)" alt="" class="pedit-chip-av-img" loading="lazy" />
+                  <span class="pedit-chip-av-label" x-text="op.label"></span>
+                </button>
+              </template>
+            </div>
+          </div>
+
+          <div class="pedit-opcao-row pedit-opcao-row--col">
+            <span class="pedit-opcao-label">Boca</span>
+            <div class="pedit-chips-av">
+              <template x-for="op in opcoesAvataaars.mouthType" :key="op.valor">
+                <button type="button" class="pedit-chip-av"
+                        :class="configAvatarCadastro.mouthType === op.valor ? 'pedit-chip-av--ativo' : ''"
+                        @click="selecionarOpcaoAvatar('mouthType', op.valor)"
+                        :title="op.label">
+                  <img :src="urlAvatarBaseComOpcao('mouthType', op.valor)" alt="" class="pedit-chip-av-img" loading="lazy" />
+                  <span class="pedit-chip-av-label" x-text="op.label"></span>
+                </button>
+              </template>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="d-flex gap-2 mt-3">
-        <button type="button" class="btn btn-outline-secondary" @click="voltarCadastro()" x-show="passoCadastro > 0">Voltar</button>
-        <button type="button" class="btn btn-primario flex-grow-1" @click="avancarCadastro()"
-          x-text="passoCadastro === 6 ? 'Criar conta' : 'Continuar'"
-          :disabled="(passoCadastro === 0 && !aceiteTermos) || (passoCadastro === 3 && !emailCadastro) || (passoCadastro === 4 && senhaCadastro.length < 6) || carregando"></button>
-      </div>
-      <p class="text-center mt-3"><a href="#login" class="texto-primario">Já tenho conta</a></p>
+        <!-- ── Grupo: Acessórios ── -->
+        <div class="pedit-grupo">
+          <div class="pedit-grupo-titulo"><i class="bi bi-eyeglasses"></i> Acessórios</div>
+          <div class="pedit-opcao-row pedit-opcao-row--col">
+            <span class="pedit-opcao-label">Óculos / Adorno</span>
+            <div class="pedit-chips-av">
+              <template x-for="op in opcoesAvataaars.accessoriesType" :key="op.valor">
+                <button type="button" class="pedit-chip-av"
+                        :class="configAvatarCadastro.accessoriesType === op.valor ? 'pedit-chip-av--ativo' : ''"
+                        @click="selecionarOpcaoAvatar('accessoriesType', op.valor)"
+                        :title="op.label">
+                  <img :src="urlAvatarBaseComOpcao('accessoriesType', op.valor)" alt="" class="pedit-chip-av-img" loading="lazy" />
+                  <span class="pedit-chip-av-label" x-text="op.label"></span>
+                </button>
+              </template>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Grupo: Vestuário ── -->
+        <div class="pedit-grupo">
+          <div class="pedit-grupo-titulo"><i class="bi bi-bag-fill"></i> Vestuário</div>
+
+          <div class="pedit-opcao-row pedit-opcao-row--col">
+            <span class="pedit-opcao-label">Roupa</span>
+            <div class="pedit-chips-av">
+              <template x-for="op in opcoesAvataaars.clotheType" :key="op.valor">
+                <button type="button" class="pedit-chip-av"
+                        :class="configAvatarCadastro.clotheType === op.valor ? 'pedit-chip-av--ativo' : ''"
+                        @click="selecionarOpcaoAvatar('clotheType', op.valor)"
+                        :title="op.label">
+                  <img :src="urlAvatarBaseComOpcao('clotheType', op.valor)" alt="" class="pedit-chip-av-img" loading="lazy" />
+                  <span class="pedit-chip-av-label" x-text="op.label"></span>
+                </button>
+              </template>
+            </div>
+          </div>
+
+          <div class="pedit-opcao-row">
+            <span class="pedit-opcao-label">Cor da roupa</span>
+            <div class="pedit-swatches">
+              <template x-for="op in opcoesAvataaars.clotheColor" :key="op.valor">
+                <button type="button" class="pedit-swatch"
+                        :style="'background:' + op.hex + '; border: 1px solid #ccc'"
+                        :class="configAvatarCadastro.clotheColor === op.valor ? 'pedit-swatch--ativa' : ''"
+                        @click="selecionarOpcaoAvatar('clotheColor', op.valor)">
+                </button>
+              </template>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /grupos -->
+    </div><!-- /step 6 -->
+
+    <!-- ── Rodapé fixo: botão CTA ── -->
+    <div class="cad-rodape">
+
+      <!-- Pular (só em steps opcionais) -->
+      <button class="cad-btn-pular"
+              x-show="passoCadastro === 2 || passoCadastro === 5"
+              @click="avancarCadastro()">
+        Pular esta etapa <i class="bi bi-skip-forward-fill"></i>
+      </button>
+
+      <!-- Botão principal (oculto no step 5 — avança automático ao clicar card) -->
+      <button type="button" class="cad-btn-cta"
+              x-show="passoCadastro !== 5"
+              @click="avancarCadastro()"
+              :disabled="(passoCadastro === 0 && !aceiteTermos)
+                      || (passoCadastro === 1 && !nomeCadastro)
+                      || (passoCadastro === 3 && !(emailCadastro.includes('@') && emailCadastro.includes('.')))
+                      || (passoCadastro === 4 && senhaCadastro.length < 6)
+                      || carregando">
+        <template x-if="carregando && passoCadastro === 6">
+          <span><i class="bi bi-arrow-clockwise cad-spin"></i> Criando sua conta…</span>
+        </template>
+        <template x-if="!(carregando && passoCadastro === 6)">
+          <span>
+            <span x-text="passoCadastro === 6 ? '🎉 Criar minha conta!' : 'Continuar'"></span>
+            <i class="bi bi-arrow-right cad-cta-arrow" x-show="passoCadastro < 6"></i>
+          </span>
+        </template>
+      </button>
+
+      <!-- Link "já tenho conta" (só no step 0) -->
+      <p class="cad-ja-tenho" x-show="passoCadastro === 0">
+        Já tenho conta — <a href="#login">Entrar</a>
+      </p>
     </div>
-  </div>
+
+  </div><!-- /cad-root -->
 
   <!-- HUD + área logada (header e footer fixos; scroll só no conteúdo) -->
   <template x-if="usuario">
@@ -241,8 +551,11 @@
           </div>
         </div>
         <div class="ouro-streak">
-          <!-- Corações (vidas) -->
-          <div class="coracoes-hud" :title="coracoes?.atual < coracoes?.maximo ? 'Próxima regeneração: ' + tempoRestanteRegeneracao() : 'Corações cheios!'">
+          <!-- Corações (vidas) — visíveis apenas durante quizzes -->
+          <div class="coracoes-hud"
+               x-show="viewEstudo === 'quiz' || viewBiblia === 'quiz'"
+               x-transition
+               :title="coracoes?.atual < coracoes?.maximo ? 'Próxima regeneração: ' + tempoRestanteRegeneracao() : 'Corações cheios!'">
             <template x-for="i in (coracoes?.maximo || 5)" :key="i">
               <i class="bi" 
                  :class="i <= (coracoes?.atual || 0) ? 'bi-heart-fill coracao-cheio' : 'bi-heart coracao-vazio'"
@@ -280,9 +593,31 @@
           </div>
           <p class="fw-600 mb-2">Atalhos</p>
           <div class="atalhos-home">
+            <!-- Missões — livre -->
             <a href="#missoes"><i class="bi bi-flag"></i> Missões</a>
-            <a href="#leitura-biblia"><i class="bi bi-book"></i> Leitura Bíblia</a>
-            <a href="#estudo"><i class="bi bi-journal-bookmark"></i> Estudo do evangelho</a>
+
+            <!-- Bíblia — requer Bíblia Sagrada equipada -->
+            <a @click.prevent="tentarNavegar('leitura-biblia')" href="#leitura-biblia"
+               :class="{ 'atalho-bloqueado': !temAcesso('leitura-biblia') }">
+              <i class="bi bi-book"></i> Leitura Bíblia
+              <i class="bi bi-lock-fill atalho-lock-ico" x-show="!temAcesso('leitura-biblia')"></i>
+            </a>
+
+            <!-- Estudo — requer Espada do Espírito equipada -->
+            <a @click.prevent="tentarNavegar('estudo')" href="#estudo"
+               :class="{ 'atalho-bloqueado': !temAcesso('estudo') }">
+              <i class="bi bi-journal-bookmark"></i> Estudo do Evangelho
+              <i class="bi bi-lock-fill atalho-lock-ico" x-show="!temAcesso('estudo')"></i>
+            </a>
+
+            <!-- Harpa — requer Harpa Cristã equipada -->
+            <a @click.prevent="tentarNavegar('harpa')" href="#harpa"
+               :class="{ 'atalho-bloqueado': !temAcesso('harpa') }">
+              <i class="bi bi-music-note-beamed"></i> Harpa Cristã
+              <i class="bi bi-lock-fill atalho-lock-ico" x-show="!temAcesso('harpa')"></i>
+            </a>
+
+            <!-- Livre -->
             <a href="#inventario"><i class="bi bi-backpack"></i> Inventário</a>
             <a href="#loja"><i class="bi bi-shop"></i> Loja</a>
             <a href="#ranking"><i class="bi bi-trophy"></i> Ranking</a>
@@ -488,10 +823,10 @@
                         <template x-if="aulaCompletaEstudo(aula)">
                           <i class="bi bi-check-circle-fill estudo-aula-ico-ok"></i>
                         </template>
-                        <template x-if="aulaConcluidaEstudo(aula) && !aulaCompletaEstudo(aula)">
+                        <template x-if="aulaConcluidaEstudo(aula.id) && !aulaCompletaEstudo(aula)">
                           <i class="bi bi-eye-fill estudo-aula-ico-lida"></i>
                         </template>
-                        <template x-if="!aulaConcluidaEstudo(aula) && !aulaCompletaEstudo(aula)">
+                        <template x-if="!aulaConcluidaEstudo(aula.id) && !aulaCompletaEstudo(aula)">
                           <span class="estudo-aula-num-badge" x-text="idx + 1"></span>
                         </template>
                       </div>
@@ -534,7 +869,7 @@
 
           <template x-if="viewEstudo === 'aula' && aulaSelecionadaEstudo">
             <div>
-              <!-- Cabeçalho da aula: voltar + título + trilha -->
+              <!-- Cabeçalho da aula — idêntico ao leitor da Bíblia -->
               <div class="biblia-leitura-topo mb-2">
                 <button class="btopo-voltar" @click="voltarEstudoAulas()" title="Voltar para aulas">
                   <i class="bi bi-arrow-left"></i>
@@ -546,23 +881,139 @@
               </div>
 
               <!-- Referências bíblicas -->
-              <div class="mb-3" x-show="(aulaSelecionadaEstudo.refsBiblicas || []).length">
+              <div class="mb-2" x-show="(aulaSelecionadaEstudo.refsBiblicas || []).length">
                 <template x-for="ref in (aulaSelecionadaEstudo.refsBiblicas || [])" :key="ref">
                   <span class="estudo-ref-badge me-1 mb-1" x-text="ref"></span>
                 </template>
               </div>
 
-              <!-- Conteúdo da aula -->
-              <div class="estudo-conteudo card-tema p-3 mb-3">
+              <!-- Vídeos do YouTube -->
+              <template x-if="(aulaSelecionadaEstudo.videos || []).length">
+                <div class="eaula-videos mb-3">
+                  <div class="eaula-secao-titulo"><i class="bi bi-play-circle-fill"></i> Vídeos da Aula</div>
+                  <template x-for="(vid, vi) in (aulaSelecionadaEstudo.videos || [])" :key="vi">
+                    <div class="eaula-video-card mb-2">
+                      <div class="eaula-video-player">
+                        <iframe
+                          :src="'https://www.youtube.com/embed/' + vid.youtubeId + '?rel=0&modestbranding=1'"
+                          :title="vid.titulo"
+                          frameborder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                          allowfullscreen
+                          loading="lazy">
+                        </iframe>
+                      </div>
+                      <div class="eaula-video-info" x-show="vid.titulo || vid.descricao">
+                        <span class="eaula-video-titulo" x-show="vid.titulo" x-text="vid.titulo"></span>
+                        <span class="eaula-video-desc" x-show="vid.descricao" x-text="vid.descricao"></span>
+                      </div>
+                    </div>
+                  </template>
+                </div>
+              </template>
+
+              <!-- ── TOOLBAR IDÊNTICA AO LEITOR DA BÍBLIA ── -->
+              <div class="biblia-leitura-controles">
+                <div class="biblia-prog-wrap" style="visibility:hidden;height:0;margin:0"></div>
+                <div class="biblia-toolbar">
+                  <!-- Narrar -->
+                  <div class="bctrl-group">
+                    <button class="bctrl-btn" :class="{ 'bctrl-btn--on': narrando }"
+                            @click="narrando ? pararNarracao() : narrarCapitulo()"
+                            :title="narrando ? 'Parar narração' : 'Narrar aula'">
+                      <i :class="narrando ? 'bi bi-stop-fill' : 'bi bi-play-fill'"></i>
+                      <span x-text="narrando ? 'Parar' : 'Narrar'"></span>
+                    </button>
+                    <div x-show="narrando" class="bctrl-speed" x-transition>
+                      <button class="bctrl-speed-btn" @click="diminuirVelocidade()" title="Mais lento"><i class="bi bi-dash-lg"></i></button>
+                      <span class="bctrl-speed-val" x-text="velocidadeNarracao + 'x'"></span>
+                      <button class="bctrl-speed-btn" @click="aumentarVelocidade()" title="Mais rápido"><i class="bi bi-plus-lg"></i></button>
+                    </div>
+                  </div>
+                  <div class="bctrl-sep"></div>
+                  <!-- Fonte -->
+                  <div class="bctrl-group">
+                    <button class="bctrl-btn bctrl-fonte-sm" @click="diminuirFonte()" title="Diminuir texto">A</button>
+                    <button class="bctrl-btn bctrl-fonte-lg" @click="aumentarFonte()" title="Aumentar texto">A</button>
+                  </div>
+                  <div class="bctrl-sep"></div>
+                  <!-- Libras -->
+                  <button class="bctrl-btn bctrl-libras" @click="ativarVLibras()" title="Traduzir para Libras (VLibras)">
+                    <i class="bi bi-hand-index-thumb"></i>
+                    <span>LIBRAS</span>
+                  </button>
+                </div>
+                <!-- Dica de seleção -->
+                <p class="biblia-tip" x-show="!bibleSelecaoCustom.ativo && !bibleContextMenu.aberto" x-transition>
+                  <i class="bi bi-cursor-text"></i>
+                  Selecione um trecho · marque cores · adicione notas
+                </p>
+              </div>
+
+              <!-- ── CONTEÚDO — mesma estrutura do leitor Bíblico ── -->
+              <div class="card-tema p-3">
+                <div class="conteudo-leitura-biblia"
+                     :style="`font-size:${fonteTamanhoBiblia}rem`"
+                     @click="iniciarSelecaoBiblia($event)"
+                     @contextmenu.prevent="iniciarSelecaoBiblia($event)">
+
+                  <!-- Pins de seleção — idênticos à Bíblia -->
+                  <div x-show="bibleSelecaoCustom.ativo"
+                       class="biblia-pin biblia-pin-esq"
+                       :style="`left:${bibleSelecaoCustom.pinE.x}px;top:${bibleSelecaoCustom.pinE.y}px`"
+                       @touchstart.stop.prevent="onArrastePinStart('E',$event)"
+                       @mousedown.stop.prevent="onArrastePinStart('E',$event)">
+                    <div class="biblia-pin-dot"></div>
+                    <div class="biblia-pin-bar" :style="`height:${bibleSelecaoCustom.pinE.h}px`"></div>
+                  </div>
+                  <div x-show="bibleSelecaoCustom.ativo"
+                       class="biblia-pin biblia-pin-dir"
+                       :style="`left:${bibleSelecaoCustom.pinD.x}px;top:${bibleSelecaoCustom.pinD.y}px`"
+                       @touchstart.stop.prevent="onArrastePinStart('D',$event)"
+                       @mousedown.stop.prevent="onArrastePinStart('D',$event)">
+                    <div class="biblia-pin-bar" :style="`height:${bibleSelecaoCustom.pinD.h}px`"></div>
+                    <div class="biblia-pin-dot"></div>
+                  </div>
+
+                  <!-- Parágrafos renderizados como "versos" — mesmo sistema de marcação -->
                 <template x-for="(paragrafo, i) in (aulaSelecionadaEstudo.conteudo || [])" :key="i">
-                  <p class="mb-3" x-text="paragrafo"></p>
+                    <p class="mb-3 verso-biblia">
+                      <span class="texto-primario fw-600" x-text="(i + 1) + '.'"></span>
+                      <span class="verso-texto" :data-verse="i + 1" x-html="renderVersoHtml(i + 1, paragrafo)"></span>
+                    </p>
                 </template>
               </div>
 
-              <!-- Nav footer da aula -->
-              <div class="biblia-nav-footer">
+                <!-- Materiais de Apoio -->
+                <template x-if="(aulaSelecionadaEstudo.materiais || []).length">
+                  <div class="eaula-materiais mt-3">
+                    <div class="eaula-secao-titulo"><i class="bi bi-paperclip"></i> Materiais</div>
+                    <div class="eaula-materiais-grid">
+                      <template x-for="(mat, mi) in (aulaSelecionadaEstudo.materiais || [])" :key="mi">
+                        <a :href="mat.url"
+                           :download="mat.tipo === 'pdf' ? mat.titulo : null"
+                           :target="mat.tipo !== 'pdf' ? '_blank' : null"
+                           class="eaula-material-btn"
+                           :class="'eaula-mat--' + mat.tipo"
+                           :title="mat.titulo">
+                          <span class="eaula-mat-ico">
+                            <template x-if="mat.tipo === 'pdf'"><i class="bi bi-file-earmark-pdf-fill"></i></template>
+                            <template x-if="mat.tipo === 'video'"><i class="bi bi-camera-video-fill"></i></template>
+                            <template x-if="mat.tipo === 'foto'"><i class="bi bi-image-fill"></i></template>
+                            <template x-if="mat.tipo === 'audio'"><i class="bi bi-music-note-beamed"></i></template>
+                            <template x-if="mat.tipo === 'link'"><i class="bi bi-link-45deg"></i></template>
+                            <template x-if="!['pdf','video','foto','audio','link'].includes(mat.tipo)"><i class="bi bi-file-earmark-fill"></i></template>
+                          </span>
+                          <span class="eaula-mat-txt" x-text="mat.titulo"></span>
+                          <span class="eaula-mat-tag" x-text="mat.tipo.toUpperCase()"></span>
+                        </a>
+                      </template>
+                    </div>
+                  </div>
+                </template>
 
-                <!-- Linha principal: Voltar ←  →  Marcar/Lida -->
+                <!-- Nav footer — Marcar lida + Quiz + Próxima -->
+                <div class="biblia-nav-footer mt-3">
                 <div class="bnav-row-main">
                   <button class="bnav-btn bnav-caps" @click="voltarEstudoAulas()">
                     <i class="bi bi-arrow-left"></i>
@@ -575,8 +1026,6 @@
                     <span x-text="aulaAtualMarcadaLida ? 'Lida ✓' : 'Marcar como lida'"></span>
                   </button>
                 </div>
-
-                <!-- Linha de ações (aparece quando aula está lida) -->
                 <div x-show="aulaAtualMarcadaLida" class="bnav-row-quiz" x-transition>
                   <template x-if="aulaTemQuiz(aulaSelecionadaEstudo) && !aulaQuizAprovadoEstudo(aulaSelecionadaEstudo.id)">
                     <button class="bnav-btn bnav-quiz-cap" style="flex:1" @click="iniciarQuizEstudo()">
@@ -597,19 +1046,17 @@
                     </button>
                   </template>
                 </div>
-
-                <!-- Aviso / status -->
                 <p x-show="aulaAtualMarcadaLida" class="bnav-aviso">
                   <i :class="aulaCompletaEstudo(aulaSelecionadaEstudo) ? 'bi bi-star-fill' : 'bi bi-info-circle'"></i>
                   <span x-text="aulaCompletaEstudo(aulaSelecionadaEstudo)
                     ? 'Quiz aprovado! Aula completa.'
                     : (aulaTemQuiz(aulaSelecionadaEstudo)
                       ? 'Faça o quiz para consolidar o aprendizado.'
-                      : 'Aula marcada como lida.')">
-                  </span>
+                        : 'Aula marcada como lida.')"></span>
                 </p>
+                </div>
+              </div><!-- /card-tema -->
 
-              </div><!-- /biblia-nav-footer -->
             </div>
           </template>
 
@@ -1656,6 +2103,10 @@
               <i class="bi bi-droplet-fill"></i>
               <span>Consumíveis</span>
             </button>
+            <button class="tab-btn" :class="{ ativo: viewInventario === 'permanentes' }" @click="viewInventario = 'permanentes'">
+              <i class="bi bi-star-fill"></i>
+              <span>Permanentes</span>
+            </button>
             <button class="tab-btn" :class="{ ativo: viewInventario === 'fruto' }" @click="viewInventario = 'fruto'; setTimeout(() => renderizarFrutosSVG(), 100)">
               <i class="bi bi-tree-fill"></i>
               <span>Fruto</span>
@@ -1680,18 +2131,234 @@
                 Armadura de Deus
                 <span class="ref-biblica" :title="REFS_BIBLICAS.ARMADURA_DEUS">Efésios 6.10-18</span>
               </h3>
-              <div class="armadura-grid">
+
+              <!-- Layout principal: SVG guerreiro + lista de slots -->
+              <div class="armadura-display">
+
+                <!-- Figura SVG interativa -->
+                <div class="armadura-figura-wrap">
+                  <svg class="armadura-svg" viewBox="0 0 240 350" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Armadura de Deus">
+                    <defs>
+                      <linearGradient id="grad-pele" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#d4a574"/>
+                        <stop offset="100%" style="stop-color:#b8895a"/>
+                      </linearGradient>
+                      <filter id="glow-eq" x="-30%" y="-30%" width="160%" height="160%">
+                        <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="b"/>
+                        <feFlood flood-color="#fff" flood-opacity="0.5" result="c"/>
+                        <feComposite in="c" in2="b" operator="in" result="d"/>
+                        <feMerge><feMergeNode in="d"/><feMergeNode in="SourceGraphic"/></feMerge>
+                      </filter>
+                    </defs>
+
+                    <!-- === BASE SILHUETA === -->
+                    <!-- Tronco (base) -->
+                    <path d="M80,80 L160,80 L152,198 L88,198 Z" fill="#444" opacity="0.18"/>
+                    <!-- Braço esquerdo (base) -->
+                    <rect x="46" y="84" width="32" height="96" rx="14" fill="#444" opacity="0.18"/>
+                    <!-- Braço direito (base) -->
+                    <rect x="162" y="84" width="32" height="96" rx="14" fill="#444" opacity="0.18"/>
+                    <!-- Perna esquerda (base) -->
+                    <rect x="82" y="198" width="32" height="100" rx="10" fill="#444" opacity="0.18"/>
+                    <!-- Perna direita (base) -->
+                    <rect x="126" y="198" width="32" height="100" rx="10" fill="#444" opacity="0.18"/>
+                    <!-- Pescoço -->
+                    <rect x="112" y="72" width="16" height="14" rx="3" fill="url(#grad-pele)"/>
+                    <!-- Cabeça (pele) -->
+                    <circle cx="120" cy="50" r="26" fill="url(#grad-pele)"/>
+                    <!-- Olhos -->
+                    <ellipse cx="112" cy="48" rx="3.5" ry="4" fill="#6b4226" opacity="0.7"/>
+                    <ellipse cx="128" cy="48" rx="3.5" ry="4" fill="#6b4226" opacity="0.7"/>
+                    <!-- Boca -->
+                    <path d="M113,60 Q120,66 127,60" stroke="#6b4226" stroke-width="1.5" fill="none" opacity="0.6"/>
+
+                    <!-- === 1. CAPACETE === -->
+                    <g :opacity="getItemEquipadoSlot('capacete') ? 1 : 0.22"
+                       :filter="getItemEquipadoSlot('capacete') ? 'url(#glow-eq)' : 'none'"
+                       @click="toggleEquiparSlot('capacete')"
+                       style="cursor:pointer" title="Capacete da Salvação">
+                      <!-- Calota do elmo -->
+                      <path d="M94,54 Q94,18 120,18 Q146,18 146,54 L143,63 Q131,57 120,57 Q109,57 97,63 Z"
+                            :fill="getItemEquipadoSlot('capacete') ? '#7b68ee' : '#777'"/>
+                      <!-- Guarda-nariz -->
+                      <rect x="117" y="53" width="6" height="18" rx="1.5"
+                            :fill="getItemEquipadoSlot('capacete') ? '#5a4fd0' : '#666'"/>
+                      <!-- Guarda-bochechas -->
+                      <path d="M97,63 L91,76 Q102,79 105,68 Z"
+                            :fill="getItemEquipadoSlot('capacete') ? '#7b68ee' : '#777'"/>
+                      <path d="M143,63 L149,76 Q138,79 135,68 Z"
+                            :fill="getItemEquipadoSlot('capacete') ? '#7b68ee' : '#777'"/>
+                      <!-- Visor -->
+                      <rect x="103" y="60" width="34" height="6" rx="2"
+                            :fill="getItemEquipadoSlot('capacete') ? '#cc3333' : '#555'" opacity="0.9"/>
+                      <!-- Penacho (só equipado) -->
+                      <path d="M115,18 Q118,3 121,18" :stroke="getItemEquipadoSlot('capacete') ? '#cc2222' : 'none'" stroke-width="5" fill="none" stroke-linecap="round"/>
+                      <!-- Label -->
+                      <text x="120" y="14" text-anchor="middle" font-size="7" fill="#7b68ee"
+                            :opacity="getItemEquipadoSlot('capacete') ? 0 : 0.7" font-family="sans-serif">⛑</text>
+                    </g>
+
+                    <!-- === 2. COURAÇA === -->
+                    <g :opacity="getItemEquipadoSlot('couraca') ? 1 : 0.22"
+                       :filter="getItemEquipadoSlot('couraca') ? 'url(#glow-eq)' : 'none'"
+                       @click="toggleEquiparSlot('couraca')"
+                       style="cursor:pointer" title="Couraça da Justiça">
+                      <!-- Placa principal -->
+                      <path d="M80,82 L160,82 L152,198 L88,198 Z"
+                            :fill="getItemEquipadoSlot('couraca') ? '#2c6ebf' : '#777'"/>
+                      <!-- Quilha central -->
+                      <path d="M120,86 L116,196 L124,196 Z"
+                            :fill="getItemEquipadoSlot('couraca') ? '#1a5592' : '#666'"/>
+                      <!-- Pauldrons (ombros) -->
+                      <path d="M80,82 Q62,80 48,94 L60,106 Q72,96 84,90 Z"
+                            :fill="getItemEquipadoSlot('couraca') ? '#2c6ebf' : '#777'"/>
+                      <path d="M160,82 Q178,80 192,94 L180,106 Q168,96 156,90 Z"
+                            :fill="getItemEquipadoSlot('couraca') ? '#2c6ebf' : '#777'"/>
+                      <!-- Detalhe superior -->
+                      <path d="M88,92 Q120,85 152,92 L150,108 Q120,100 90,108 Z"
+                            :fill="getItemEquipadoSlot('couraca') ? '#3a82cc' : '#888'" opacity="0.75"/>
+                      <!-- Cruz -->
+                      <line x1="120" y1="120" x2="120" y2="175"
+                            :stroke="getItemEquipadoSlot('couraca') ? '#fff' : 'none'" stroke-width="3" opacity="0.45"/>
+                      <line x1="104" y1="142" x2="136" y2="142"
+                            :stroke="getItemEquipadoSlot('couraca') ? '#fff' : 'none'" stroke-width="3" opacity="0.45"/>
+                    </g>
+
+                    <!-- === 3. CINTO === -->
+                    <g :opacity="getItemEquipadoSlot('cinto') ? 1 : 0.22"
+                       :filter="getItemEquipadoSlot('cinto') ? 'url(#glow-eq)' : 'none'"
+                       @click="toggleEquiparSlot('cinto')"
+                       style="cursor:pointer" title="Cinto da Verdade">
+                      <!-- Correia -->
+                      <rect x="84" y="196" width="72" height="16" rx="4"
+                            :fill="getItemEquipadoSlot('cinto') ? '#c8902a' : '#777'"/>
+                      <!-- Fivela -->
+                      <rect x="113" y="197" width="14" height="14" rx="2.5"
+                            :fill="getItemEquipadoSlot('cinto') ? '#f0c040' : '#999'"/>
+                      <rect x="116" y="200" width="8" height="8" rx="1.5"
+                            :fill="getItemEquipadoSlot('cinto') ? '#c8902a' : '#777'"/>
+                      <!-- Rebites -->
+                      <circle cx="96"  cy="204" r="2.5" :fill="getItemEquipadoSlot('cinto') ? '#f0c040' : '#999'"/>
+                      <circle cx="144" cy="204" r="2.5" :fill="getItemEquipadoSlot('cinto') ? '#f0c040' : '#999'"/>
+                    </g>
+
+                    <!-- === 4. CALÇADOS === -->
+                    <g :opacity="getItemEquipadoSlot('calcados') ? 1 : 0.22"
+                       :filter="getItemEquipadoSlot('calcados') ? 'url(#glow-eq)' : 'none'"
+                       @click="toggleEquiparSlot('calcados')"
+                       style="cursor:pointer" title="Calçados do Evangelho">
+                      <!-- Bota esquerda (cano) -->
+                      <rect x="80" y="270" width="36" height="32" rx="7"
+                            :fill="getItemEquipadoSlot('calcados') ? '#7a5c3a' : '#777'"/>
+                      <!-- Bota esquerda (sola) -->
+                      <rect x="76" y="296" width="44" height="14" rx="6"
+                            :fill="getItemEquipadoSlot('calcados') ? '#5a3e26' : '#666'"/>
+                      <!-- Bota direita (cano) -->
+                      <rect x="124" y="270" width="36" height="32" rx="7"
+                            :fill="getItemEquipadoSlot('calcados') ? '#7a5c3a' : '#777'"/>
+                      <!-- Bota direita (sola) -->
+                      <rect x="120" y="296" width="44" height="14" rx="6"
+                            :fill="getItemEquipadoSlot('calcados') ? '#5a3e26' : '#666'"/>
+                      <!-- Cadarços -->
+                      <line x1="82" y1="279" x2="114" y2="279" :stroke="getItemEquipadoSlot('calcados') ? '#c8a878' : 'none'" stroke-width="1.5"/>
+                      <line x1="82" y1="287" x2="114" y2="287" :stroke="getItemEquipadoSlot('calcados') ? '#c8a878' : 'none'" stroke-width="1.5"/>
+                      <line x1="126" y1="279" x2="158" y2="279" :stroke="getItemEquipadoSlot('calcados') ? '#c8a878' : 'none'" stroke-width="1.5"/>
+                      <line x1="126" y1="287" x2="158" y2="287" :stroke="getItemEquipadoSlot('calcados') ? '#c8a878' : 'none'" stroke-width="1.5"/>
+                    </g>
+
+                    <!-- === 5. ESCUDO (esquerda) === -->
+                    <g :opacity="getItemEquipadoSlot('escudo') ? 1 : 0.22"
+                       :filter="getItemEquipadoSlot('escudo') ? 'url(#glow-eq)' : 'none'"
+                       @click="toggleEquiparSlot('escudo')"
+                       style="cursor:pointer" title="Escudo da Fé">
+                      <!-- Corpo do escudo -->
+                      <path d="M6,118 L48,110 L52,200 Q30,216 6,200 Z"
+                            :fill="getItemEquipadoSlot('escudo') ? '#1565c0' : '#777'"/>
+                      <!-- Borda -->
+                      <path d="M6,118 L48,110 L52,200 Q30,216 6,200 Z"
+                            fill="none" :stroke="getItemEquipadoSlot('escudo') ? '#0a4f9f' : '#666'" stroke-width="2.5"/>
+                      <!-- Cruz do escudo -->
+                      <line x1="29" y1="124" x2="29" y2="200" :stroke="getItemEquipadoSlot('escudo') ? '#fff' : 'none'" stroke-width="2.5" opacity="0.65"/>
+                      <line x1="9" y1="158" x2="50" y2="158" :stroke="getItemEquipadoSlot('escudo') ? '#fff' : 'none'" stroke-width="2.5" opacity="0.65"/>
+                      <!-- Umbo central -->
+                      <circle cx="29" cy="158" r="9"
+                              :fill="getItemEquipadoSlot('escudo') ? '#2980b9' : '#888'"
+                              :stroke="getItemEquipadoSlot('escudo') ? '#0a4f9f' : '#666'" stroke-width="2"/>
+                    </g>
+
+                    <!-- === 6. ESPADA (direita) === -->
+                    <g :opacity="getItemEquipadoSlot('espada') ? 1 : 0.22"
+                       :filter="getItemEquipadoSlot('espada') ? 'url(#glow-eq)' : 'none'"
+                       @click="toggleEquiparSlot('espada')"
+                       style="cursor:pointer" title="Espada do Espírito">
+                      <!-- Lâmina -->
+                      <path d="M198,92 L193,202 L203,202 Z"
+                            :fill="getItemEquipadoSlot('espada') ? '#d0d0c8' : '#888'"/>
+                      <!-- Fio da lâmina -->
+                      <line x1="195" y1="202" x2="200" y2="96"
+                            :stroke="getItemEquipadoSlot('espada') ? '#e8e8e0' : 'none'" stroke-width="1.5"/>
+                      <!-- Guarda -->
+                      <rect x="184" y="134" width="34" height="12" rx="4"
+                            :fill="getItemEquipadoSlot('espada') ? '#c8902a' : '#888'"/>
+                      <!-- Punho -->
+                      <rect x="193" y="146" width="12" height="44" rx="5"
+                            :fill="getItemEquipadoSlot('espada') ? '#6b3a1a' : '#777'"/>
+                      <!-- Pomo -->
+                      <circle cx="199" cy="194" r="9"
+                              :fill="getItemEquipadoSlot('espada') ? '#c8902a' : '#888'"/>
+                      <!-- Brilho ponta (equipado) -->
+                      <g :opacity="getItemEquipadoSlot('espada') ? 1 : 0">
+                        <line x1="198" y1="88" x2="198" y2="80" stroke="#fffaaa" stroke-width="2" stroke-linecap="round"/>
+                        <line x1="202" y1="92" x2="208" y2="86" stroke="#fffaaa" stroke-width="2" stroke-linecap="round"/>
+                        <line x1="194" y1="92" x2="188" y2="86" stroke="#fffaaa" stroke-width="2" stroke-linecap="round"/>
+                      </g>
+                    </g>
+
+                    <!-- Braços (pele, sobre armadura) -->
+                    <rect x="50" y="106" width="24" height="70" rx="12" fill="url(#grad-pele)" opacity="0.7"/>
+                    <rect x="166" y="106" width="24" height="70" rx="12" fill="url(#grad-pele)" opacity="0.7"/>
+                  </svg>
+                  <p class="armadura-dica">Toque para equipar / desequipar</p>
+                </div>
+
+                <!-- Lista de slots com efeitos -->
+                <div class="armadura-slots-lista">
                 <template x-for="slot in ARMADURA_DEUS_SLOTS" :key="slot.id">
-                  <div class="slot-equipamento" :class="{ 'slot-vazio': !getItemEquipadoSlot(slot.id) }" :title="slot.ref + ' — ' + REFS_BIBLICAS.ARMADURA_DEUS">
-                    <div class="slot-icone">
-                      <i :class="'bi bi-' + (getItemEquipadoSlot(slot.id)?.icone || 'dash-circle')"></i>
+                    <div class="armadura-slot-item"
+                         :class="{ 'equipado': getItemEquipadoSlot(slot.id) }"
+                         @click="toggleEquiparSlot(slot.id)">
+                      <div class="slot-status-dot" :class="getItemEquipadoSlot(slot.id) ? 'ativo' : 'vazio'"></div>
+                      <div class="slot-info-wrap">
+                        <span class="slot-nome-item" x-text="getItemEquipadoSlot(slot.id)?.nome || slot.nome"></span>
+                        <span class="slot-ref-item" x-text="slot.ref"></span>
+                        <span class="slot-efeito-item"
+                              x-show="getItemEquipadoSlot(slot.id)"
+                              x-text="ARMADURA_EFEITOS[slot.id]?.bonus"></span>
                     </div>
-                    <div class="slot-info">
-                      <span class="slot-nome" x-text="getItemEquipadoSlot(slot.id)?.nome || slot.nome"></span>
-                      <span class="slot-ref" x-text="slot.ref"></span>
+                      <button class="btn-slot-acao"
+                              :class="getItemEquipadoSlot(slot.id) ? 'desequipar' : 'equipar'"
+                              x-text="getItemEquipadoSlot(slot.id) ? 'Desequipar' : '+ Equipar'"
+                              @click.stop="toggleEquiparSlot(slot.id)"></button>
+                    </div>
+                  </template>
+                </div>
+              </div>
+
+              <!-- Painel de bônus ativos -->
+              <div class="armadura-efeitos-ativos" x-show="armaduraEquipada().length > 0" x-transition>
+                <h4><i class="bi bi-stars"></i> Bônus Ativos da Armadura</h4>
+                <div class="efeitos-armadura-grid">
+                  <template x-for="slot in armaduraEquipada()" :key="slot.id">
+                    <div class="efeito-armadura-badge"
+                         :style="`border-left-color: ${ARMADURA_EFEITOS[slot.id]?.cor}`">
+                      <span class="efeito-arm-icone" x-text="ARMADURA_EFEITOS[slot.id]?.icone"></span>
+                      <div>
+                        <div class="efeito-arm-bonus" x-text="ARMADURA_EFEITOS[slot.id]?.bonus"></div>
+                        <div class="efeito-arm-desc" x-text="ARMADURA_EFEITOS[slot.id]?.desc"></div>
                     </div>
                   </div>
                 </template>
+                </div>
               </div>
             </div>
 
@@ -1703,13 +2370,15 @@
               </h3>
               <div class="itens-grid">
                 <template x-for="linha in inventario.filter(l => l.equipado && l.itens?.tipo === 'permanente')" :key="linha.id">
-                  <div class="item-inventario" :class="'raridade-' + (linha.itens?.raridade || 'comum')">
+                  <div class="item-inventario item-clicavel" :class="'raridade-' + (linha.itens?.raridade || 'comum')"
+                       @click="abrirInventarioItem(linha)" title="Ver opções">
                     <div class="item-inventario-icone">
                       <i :class="'bi ' + (linha.itens?.icone || 'bi-box')"></i>
+                      <span class="item-equipado-badge">✓</span>
                     </div>
                     <div class="item-inventario-info">
                       <span class="item-inventario-nome" x-text="linha.itens?.nome"></span>
-                      <button class="btn-desequipar" @click="toggleEquipar(linha)">Desequipar</button>
+                      <span class="item-inventario-desc" x-text="linha.itens?.descricao"></span>
                     </div>
                   </div>
                 </template>
@@ -1750,7 +2419,8 @@
               </template>
               <div class="itens-grid">
                 <template x-for="linha in inventario.filter(l => l.itens?.tipo === 'consumivel' && l.quantidade > 0)" :key="linha.id">
-                  <div class="item-inventario consumivel" :class="'raridade-' + (linha.itens?.raridade || 'comum')">
+                  <div class="item-inventario consumivel item-clicavel" :class="'raridade-' + (linha.itens?.raridade || 'comum')"
+                       @click="abrirInventarioItem(linha)" title="Ver opções">
                     <div class="item-inventario-icone">
                       <i :class="'bi ' + (linha.itens?.icone || 'bi-flask')"></i>
                       <span class="item-quantidade" x-text="'x' + linha.quantidade"></span>
@@ -1758,7 +2428,77 @@
                     <div class="item-inventario-info">
                       <span class="item-inventario-nome" x-text="linha.itens?.nome"></span>
                       <span class="item-inventario-desc" x-text="linha.itens?.descricao"></span>
-                      <button class="btn-usar" @click="usarItemConsumivel(linha.item_id)">Usar</button>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </div>
+
+          <!-- Aba: Permanentes -->
+          <div x-show="viewInventario === 'permanentes'">
+            <div class="inventario-secao">
+              <h3 class="secao-titulo">
+                <i class="bi bi-star-fill"></i>
+                Itens Permanentes
+                <span class="secao-subtitulo">
+                  (<span x-text="inventario.filter(l => l.equipado && l.itens?.tipo === 'permanente').length"></span>/<span x-text="SLOTS_PERMANENTES.maximo"></span> equipados)
+                </span>
+              </h3>
+              <template x-if="inventario.filter(l => l.itens?.tipo === 'permanente').length === 0">
+                <p class="texto-secundario text-center py-4">
+                  <i class="bi bi-bag-x" style="font-size:2rem; display:block; margin-bottom:8px"></i>
+                  Nenhum item permanente. Visite a loja!
+                </p>
+              </template>
+              <div class="itens-grid">
+                <template x-for="linha in inventario.filter(l => l.itens?.tipo === 'permanente')" :key="linha.id">
+                  <div class="item-inventario item-clicavel"
+                       :class="['raridade-' + (linha.itens?.raridade || 'comum'), { 'item-equipado-ring': linha.equipado }]"
+                       @click="abrirInventarioItem(linha)" title="Ver opções">
+                    <div class="item-inventario-icone">
+                      <i :class="'bi ' + (linha.itens?.icone || 'bi-box')"></i>
+                      <span class="item-equipado-badge" x-show="linha.equipado">✓</span>
+                    </div>
+                    <div class="item-inventario-info">
+                      <span class="item-inventario-nome" x-text="linha.itens?.nome"></span>
+                      <span class="item-inventario-desc" x-text="linha.itens?.descricao"></span>
+                      <span class="item-status-tag"
+                            :class="linha.equipado ? 'tag-equipado' : 'tag-no-inventario'"
+                            x-text="linha.equipado ? '✓ Equipado' : 'No inventário'"></span>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </div>
+
+            <!-- Bônus ativos (permanentes + armadura + consumíveis) -->
+            <div class="inventario-bonus-painel" x-show="listaBonusAtivos().length > 0" x-transition>
+              <h4 class="bonus-painel-titulo"><i class="bi bi-lightning-charge-fill"></i> Bônus Totais Ativos</h4>
+              <div class="bonus-painel-grid">
+                <template x-for="b in listaBonusAtivos()" :key="b.tipo">
+                  <div class="bonus-painel-item">
+                    <i class="bi"
+                       :class="{
+                         'bi-book-fill': b.tipo === 'xp_leitura',
+                         'bi-mortarboard-fill': b.tipo === 'xp_estudo',
+                         'bi-flag-fill': b.tipo === 'xp_missao',
+                         'bi-shield-fill': b.tipo === 'resistencia',
+                         'bi-stars': b.tipo === 'protecao',
+                         'bi-heart-fill': b.tipo === 'penalidade_quiz'
+                       }"></i>
+                    <div>
+                      <span class="bonus-tipo" x-text="{
+                        xp_leitura: 'XP Leitura',
+                        xp_estudo: 'XP Estudo',
+                        xp_missao: 'XP Missão',
+                        resistencia: 'Resistência',
+                        protecao: 'Proteção',
+                        penalidade_quiz: 'Penalidade Quiz'
+                      }[b.tipo] || b.tipo"></span>
+                      <span class="bonus-valor"
+                            :class="b.valor > 0 ? 'bonus-pos' : 'bonus-neg'"
+                            x-text="(b.valor > 0 ? '+' : '') + b.valor + '%'"></span>
                     </div>
                   </div>
                 </template>
@@ -2017,7 +2757,7 @@
                             @click="filtroCategoriaBiblia = grupo.id">
                       <i :class="'bi ' + grupo.icone"></i>
                       <span x-text="grupo.label"></span>
-                    </button>
+                </button>
                   </template>
                 </div>
               </div>
@@ -2211,7 +2951,7 @@
                       </span>
                       <span class="btrad-opcao-nome">Mais em breve…</span>
                       <i class="bi bi-hourglass-split btrad-opcao-em-breve"></i>
-                    </div>
+              </div>
                   </div>
                 </div><!-- /btrad-wrap -->
               </div>
@@ -2332,159 +3072,7 @@
             </div>
           </template>
 
-          <!-- Barra de ação de seleção (fixa na tela, acima da nav) -->
-          <div x-show="bibleSelecaoCustom.ativo && !bibleContextMenu.aberto"
-               x-transition
-               class="biblia-selecao-barra">
-            <button class="bsel-btn bsel-cancelar" @click.stop="cancelarSelecaoBiblia()">
-              <i class="bi bi-x-lg"></i><span>Cancelar</span>
-            </button>
-            <div class="bsel-divider"></div>
-            <button class="bsel-btn bsel-tudo" @click.stop="selecionarTudoBiblia()">
-              <i class="bi bi-text-paragraph"></i><span>Tudo</span>
-            </button>
-            <button class="bsel-btn bsel-ok" @click.stop="confirmarSelecaoBiblia()">
-              <i class="bi bi-check-lg"></i><span>OK</span>
-            </button>
-          </div>
-
-          <!-- Backdrop do menu de contexto -->
-          <div x-show="bibleContextMenu.aberto"
-               x-transition.opacity.duration.200ms
-               style="position:fixed;inset:0;z-index:1190;background:rgba(0,0,0,0.45);"
-               @click="fecharMenuBiblia()"></div>
-
-          <!-- Menu de contexto: bottom sheet (mobile) ou popup (desktop) -->
-          <div x-show="bibleContextMenu.aberto"
-               class="bctx-container"
-               :class="bibleContextMenu.modoSheet ? 'bctx-sheet' : 'bctx-popup'"
-               :style="!bibleContextMenu.modoSheet ? 'top:'+bibleContextMenu.y+'px;left:'+bibleContextMenu.x+'px;' : ''"
-               x-transition:enter="bctx-enter"
-               x-transition:enter-start="bctx-enter-from"
-               x-transition:enter-end="bctx-enter-to"
-               x-transition:leave="bctx-leave"
-               x-transition:leave-start="bctx-leave-from"
-               x-transition:leave-end="bctx-leave-to"
-               @click.stop>
-
-            <!-- Handle (só no sheet) -->
-            <div class="bctx-handle" x-show="bibleContextMenu.modoSheet"></div>
-
-            <!-- Preview do trecho selecionado -->
-            <p class="bctx-preview"
-               x-show="bibleContextMenu.pendente?.text"
-               x-text="'«\u00a0' + (bibleContextMenu.pendente?.text?.substring(0,70) || '') + (bibleContextMenu.pendente?.text?.length > 70 ? '…' : '') + '\u00a0»'">
-            </p>
-
-            <!-- Cores de marcação -->
-            <div class="bctx-section-label">Marcar texto</div>
-            <div class="bctx-cores">
-              <template x-for="cor in CORES_MARCADOR" :key="cor.valor">
-                <button class="bctx-cor-btn" :style="'--c:'+cor.valor" @click.stop="aplicarMarcadorDoMenu(cor.valor)">
-                  <span class="bctx-cor-preview">
-                    <i class="bi bi-pen-fill bctx-cor-pen"></i>
-                    <span class="bctx-cor-letra">A</span>
-                  </span>
-                  <span class="bctx-cor-nome" x-text="cor.nome"></span>
-                </button>
-              </template>
-            </div>
-
-            <!-- Ações -->
-            <div class="bctx-acoes">
-              <button class="bctx-acao" @click.stop="abrirNotaDoMenu()">
-                <span class="bctx-acao-ico bctx-ico-nota"><i class="bi bi-sticky-fill"></i></span>
-                <span class="bctx-acao-txt">Inserir nota</span>
-                <i class="bi bi-chevron-right bctx-acao-seta"></i>
-              </button>
-              <!-- Remover marcação: só aparece se o trecho selecionado tem highlight ou nota com cor -->
-              <button class="bctx-acao bctx-acao--perigo"
-                      x-show="bibleContextMenu.pendente && notacoesCapitulo.some(n =>
-                        n.verse === bibleContextMenu.pendente.verse &&
-                        n.end > bibleContextMenu.pendente.start &&
-                        n.start < bibleContextMenu.pendente.end &&
-                        (n.type === 'highlight' || (n.type === 'note' && n.highlightColor))
-                      )"
-                      @click.stop="removerMarcadorSelecao()">
-                <span class="bctx-acao-ico bctx-ico-remover"><i class="bi bi-eraser-fill"></i></span>
-                <span class="bctx-acao-txt">Remover marcação</span>
-                <i class="bi bi-chevron-right bctx-acao-seta"></i>
-              </button>
-              <button class="bctx-acao" @click.stop="copiarSelecao()">
-                <span class="bctx-acao-ico bctx-ico-copiar"><i class="bi bi-clipboard"></i></span>
-                <span class="bctx-acao-txt">Copiar texto</span>
-                <i class="bi bi-chevron-right bctx-acao-seta"></i>
-              </button>
-              <button class="bctx-acao" @click.stop="selecionarTudoBiblia()">
-                <span class="bctx-acao-ico bctx-ico-tudo"><i class="bi bi-text-paragraph"></i></span>
-                <span class="bctx-acao-txt">Selecionar tudo</span>
-                <i class="bi bi-chevron-right bctx-acao-seta"></i>
-              </button>
-            </div>
-
-            <!-- Botão fechar -->
-            <button class="bctx-btn-fechar" @click.stop="fecharMenuBiblia()">Fechar</button>
-
-          </div><!-- /bctx-container -->
-
-          <!-- Popup de nota — visual post-it -->
-          <div x-show="notaPopup.aberto" class="modal-nota-overlay" @click.self="fecharNotaPopup()" x-transition>
-            <div class="postit" :style="`--postit-bg: ${notaPopup.corFundo || '#fef08a'}`" role="dialog" aria-label="Nota">
-
-              <!-- Fita decorativa no topo -->
-              <div class="postit-fita"></div>
-
-              <!-- Cabeçalho: título + seletor de cores -->
-              <div class="postit-cabecalho">
-                <span class="postit-titulo">
-                  <i class="bi bi-sticky-fill"></i>
-                  <span x-text="notaPopup.id ? 'Sua nota' : 'Nova nota'"></span>
-                </span>
-                <div class="postit-cores" title="Cor do post-it">
-                  <template x-for="cor in CORES_MARCADOR" :key="cor.valor">
-                    <button class="postit-cor-btn"
-                            :style="`background:${cor.valor}`"
-                            :class="{ 'postit-cor-btn--ativa': (notaPopup.corFundo || '#fef08a') === cor.valor }"
-                            @click.stop="notaPopup.corFundo = cor.valor"
-                            :title="cor.nome">
-                    </button>
-                  </template>
-                </div>
-              </div>
-
-              <!-- Trecho bíblico referenciado -->
-              <p x-show="notaPopup.textoRef" class="postit-trecho">
-                «<em x-text="notaPopup.textoRef"></em>»
-              </p>
-
-              <!-- Área de texto (sem borda, fundo transparente) -->
-              <textarea class="postit-textarea"
-                        rows="5"
-                        x-model="notaPopup.conteudo"
-                        placeholder="Escreva sua nota…"></textarea>
-
-              <!-- Rodapé -->
-              <div class="postit-footer">
-                <button type="button" class="postit-btn postit-btn--cancelar" @click="fecharNotaPopup()">Cancelar</button>
-                <button x-show="notaPopup.id" type="button" class="postit-btn postit-btn--excluir"
-                        @click="removerNotacao(notaPopup.id)"
-                        :title="notacoesCapitulo.find(n => n.id === notaPopup.id)?.highlightColor
-                          ? 'A marcação de cor será mantida' : 'Excluir nota'"
-                        x-text="notacoesCapitulo.find(n => n.id === notaPopup.id)?.highlightColor
-                          ? 'Remover nota' : 'Excluir'">
-                </button>
-                <button type="button" class="postit-btn postit-btn--salvar"
-                        @click="salvarEdicaoNota()"
-                        x-text="notaPopup.id ? 'Salvar' : 'Criar nota'">
-                </button>
-              </div>
-
-              <!-- Dobra no canto inferior direito (efeito decorativo) -->
-              <div class="postit-dobra"></div>
-            </div>
-          </div>
-
-          <!-- Modais movidos para fora do layout-logado (ver final do body) -->
+          <!-- [Barra de seleção, menu de contexto e post-it movidos para global — ver antes do </body>] -->
 
           <!-- Quiz do livro -->
           <template x-if="viewBiblia === 'quiz' && quizLivroAtivo">
@@ -2553,6 +3141,281 @@
             </div>
           </template>
         </div>
+
+        <!-- ══════════════════════════════════════════
+             HARPA CRISTÃ
+             ══════════════════════════════════════════ -->
+        <div x-show="pagina === 'harpa'" style="display: none;">
+
+          <!-- ── View: Lista de hinos ── -->
+          <template x-if="viewHarpa === 'lista'">
+            <div>
+              <!-- Cabeçalho -->
+              <div class="harpa-header">
+                <div class="harpa-header-titulo">
+                  <i class="bi bi-music-note-beamed harpa-logo-ico"></i>
+                  <div>
+                    <h2 class="harpa-titulo">Harpa Cristã</h2>
+                    <span class="harpa-subtitulo">640 hinos · domínio público</span>
+                  </div>
+                </div>
+                <!-- Busca -->
+                <div class="harpa-busca-wrap">
+                  <i class="bi bi-search harpa-busca-ico"></i>
+                  <input type="search" class="harpa-busca-input" placeholder="Buscar por número ou título…"
+                         x-model="harpaBusca" @input="harpaPagina = 0">
+                </div>
+              </div>
+
+              <!-- Loading -->
+              <div x-show="harpaCarregando" class="text-center py-5">
+                <div class="spinner-border text-success"></div>
+                <p class="texto-secundario mt-2 fs-menor">Carregando 640 hinos…</p>
+              </div>
+
+              <!-- Erro -->
+              <div x-show="harpaErro && !harpaCarregando" class="alert alert-warning mx-0">
+                <i class="bi bi-wifi-off me-2"></i>
+                <span x-text="harpaErro"></span>
+                <button class="btn btn-sm btn-outline-secondary ms-2" @click="carregarHinos()">Tentar novamente</button>
+              </div>
+
+              <!-- Lista de hinos -->
+              <div x-show="!harpaCarregando && !harpaErro">
+                <!-- Contador -->
+                <p class="harpa-contador texto-secundario fs-menor mb-2"
+                   x-text="harpaHinosFiltrados.length + ' hino' + (harpaHinosFiltrados.length !== 1 ? 's' : '') + ' encontrado' + (harpaHinosFiltrados.length !== 1 ? 's' : '')">
+                </p>
+
+                <!-- Grid de cards -->
+                <div class="harpa-grid">
+                  <template x-for="hino in harpaHinosPagina" :key="hino.numero">
+                    <button class="harpa-card" @click="abrirHino(hino)">
+                      <span class="harpa-card-num" x-text="hino.numero"></span>
+                      <span class="harpa-card-titulo" x-text="hino.titulo"></span>
+                      <i class="bi bi-chevron-right harpa-card-seta"></i>
+                    </button>
+                  </template>
+                </div>
+
+                <!-- Paginação -->
+                <div class="harpa-paginacao" x-show="harpaHinosFiltrados.length > HARPA_POR_PAGINA">
+                  <button class="harpa-pag-btn" :disabled="harpaPagina === 0" @click="harpaPagina--">
+                    <i class="bi bi-chevron-left"></i>
+                  </button>
+                  <span class="harpa-pag-info texto-secundario fs-menor"
+                        x-text="'Página ' + (harpaPagina + 1) + ' de ' + Math.ceil(harpaHinosFiltrados.length / HARPA_POR_PAGINA)">
+                  </span>
+                  <button class="harpa-pag-btn"
+                          :disabled="(harpaPagina + 1) * HARPA_POR_PAGINA >= harpaHinosFiltrados.length"
+                          @click="harpaPagina++">
+                    <i class="bi bi-chevron-right"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </template>
+
+          <!-- ── View: Leitura do hino ── -->
+          <template x-if="viewHarpa === 'hino' && hinoSelecionado">
+            <div>
+              <!-- Topo — idêntico ao leitor da Bíblia -->
+              <div class="biblia-leitura-topo mb-2">
+                <button class="btopo-voltar" @click="voltarListaHinos()" title="Voltar para hinos">
+                  <i class="bi bi-arrow-left"></i>
+                </button>
+                <div class="btopo-info">
+                  <span class="btopo-livro" x-text="'Hino ' + hinoSelecionado.numero"></span>
+                  <span class="btopo-cap" x-text="hinoSelecionado.titulo"></span>
+                </div>
+                <!-- Botão abrir/fechar player inline -->
+                <button class="harpa-yt-btn" :class="{ 'harpa-yt-btn--on': harpaPlayerAberto }"
+                        @click="togglePlayerHarpa()"
+                        :title="harpaPlayerAberto ? 'Fechar player' : 'Ouvir música'">
+                  <i :class="harpaAudioTocando ? 'bi bi-pause-fill' : 'bi bi-music-note-beamed'"></i>
+                </button>
+              </div>
+
+              <!-- Toolbar — igual à Bíblia -->
+              <div class="biblia-leitura-controles">
+                <div class="biblia-prog-wrap" style="visibility:hidden;height:0;margin:0"></div>
+                <div class="biblia-toolbar">
+                  <div class="bctrl-group">
+                    <button class="bctrl-btn" :class="{ 'bctrl-btn--on': narrando }"
+                            @click="narrando ? pararNarracao() : narrarHino()"
+                            :title="narrando ? 'Parar narração' : 'Narrar hino'">
+                      <i :class="narrando ? 'bi bi-stop-fill' : 'bi bi-play-fill'"></i>
+                      <span x-text="narrando ? 'Parar' : 'Narrar'"></span>
+                    </button>
+                    <div x-show="narrando" class="bctrl-speed" x-transition>
+                      <button class="bctrl-speed-btn" @click="diminuirVelocidade()"><i class="bi bi-dash-lg"></i></button>
+                      <span class="bctrl-speed-val" x-text="velocidadeNarracao + 'x'"></span>
+                      <button class="bctrl-speed-btn" @click="aumentarVelocidade()"><i class="bi bi-plus-lg"></i></button>
+                    </div>
+                  </div>
+                  <div class="bctrl-sep"></div>
+                  <div class="bctrl-group">
+                    <button class="bctrl-btn bctrl-fonte-sm" @click="diminuirFonte()" title="Diminuir texto">A</button>
+                    <button class="bctrl-btn bctrl-fonte-lg" @click="aumentarFonte()" title="Aumentar texto">A</button>
+                  </div>
+                  <div class="bctrl-sep"></div>
+                  <button class="bctrl-btn bctrl-libras" @click="ativarVLibras()" title="LIBRAS">
+                    <i class="bi bi-hand-index-thumb"></i>
+                    <span>LIBRAS</span>
+                  </button>
+                </div>
+                <p class="biblia-tip" x-show="!bibleSelecaoCustom.ativo && !bibleContextMenu.aberto" x-transition>
+                  <i class="bi bi-cursor-text"></i>
+                  Selecione um trecho · marque cores · adicione notas
+                </p>
+              </div>
+
+              <!-- ═══════════════════════════════════
+                   Player de música da Harpa Cristã
+                   ═══════════════════════════════════ -->
+              <div class="harpa-player-painel" x-show="harpaPlayerAberto" x-transition>
+
+                <!-- Estado: carregando Deezer -->
+                <div class="hap-carregando" x-show="harpaAudioCarregando" x-transition>
+                  <i class="bi bi-vinyl-fill hap-spin-vinyl"></i>
+                  <span>Buscando áudio…</span>
+                </div>
+
+                <!-- Player de áudio (Deezer preview 30s) -->
+                <div class="hap-player" x-show="harpaAudioUrl && !harpaAudioCarregando" x-transition>
+                  <div class="hap-cabecalho">
+                    <i class="bi bi-music-note-beamed hap-ico-nota"></i>
+                    <div class="hap-info">
+                      <span class="hap-titulo" x-text="harpaAudioNome || 'Prévia musical'"></span>
+                      <span class="hap-badge">🎵 Prévia 30s</span>
+                    </div>
+                  </div>
+                  <!-- Barra de progresso clicável -->
+                  <div class="hap-barra-wrap" @click="seekAudioHarpa($event)">
+                    <div class="hap-barra-bg">
+                      <div class="hap-barra-fill" :style="`width:${harpaAudioProgresso}%`"></div>
+                    </div>
+                  </div>
+                  <!-- Controles -->
+                  <div class="hap-controles">
+                    <span class="hap-tempo" x-text="formatarTempoHarpa(harpaAudioTempo)"></span>
+                    <div class="hap-btns">
+                      <button class="hap-btn hap-btn-pp" @click="toggleAudioHarpa()"
+                              :title="harpaAudioTocando ? 'Pausar' : 'Tocar'">
+                        <i :class="harpaAudioTocando ? 'bi bi-pause-fill' : 'bi bi-play-fill'"></i>
+                      </button>
+                    </div>
+                    <span class="hap-tempo hap-tempo-fim" x-text="formatarTempoHarpa(harpaAudioDuracao)"></span>
+                  </div>
+                </div>
+
+                <!-- Erro / não encontrado -->
+                <div class="hap-nao-encontrado"
+                     x-show="!harpaAudioUrl && !harpaAudioCarregando" x-transition>
+                  <i class="bi bi-music-note-list"></i>
+                  <p>Prévia indisponível para este hino.<br>Ouça no YouTube ou use a narração.</p>
+                </div>
+
+                <!-- Rodapé do painel: link YouTube + fechar -->
+                <div class="hap-rodape">
+                  <a :href="'https://www.youtube.com/results?search_query=' + encodeURIComponent('Harpa Cristã ' + hinoSelecionado.numero + ' ' + hinoSelecionado.titulo)"
+                     target="_blank" rel="noopener noreferrer" class="hap-link-yt">
+                    <i class="bi bi-youtube"></i> Abrir no YouTube
+                  </a>
+                  <button class="hap-btn-fechar" @click="harpaPlayerAberto = false">
+                    <i class="bi bi-x-lg"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Conteúdo do hino — mesma infra da Bíblia -->
+              <div class="card-tema p-3">
+                <div class="conteudo-leitura-biblia"
+                     :style="`font-size:${fonteTamanhoBiblia}rem`"
+                     @click="iniciarSelecaoBiblia($event)"
+                     @contextmenu.prevent="iniciarSelecaoBiblia($event)">
+
+                  <!-- Pins de seleção -->
+                  <div x-show="bibleSelecaoCustom.ativo"
+                       class="biblia-pin biblia-pin-esq"
+                       :style="`left:${bibleSelecaoCustom.pinE.x}px;top:${bibleSelecaoCustom.pinE.y}px`"
+                       @touchstart.stop.prevent="onArrastePinStart('E',$event)"
+                       @mousedown.stop.prevent="onArrastePinStart('E',$event)">
+                    <div class="biblia-pin-dot"></div>
+                    <div class="biblia-pin-bar" :style="`height:${bibleSelecaoCustom.pinE.h}px`"></div>
+                  </div>
+                  <div x-show="bibleSelecaoCustom.ativo"
+                       class="biblia-pin biblia-pin-dir"
+                       :style="`left:${bibleSelecaoCustom.pinD.x}px;top:${bibleSelecaoCustom.pinD.y}px`"
+                       @touchstart.stop.prevent="onArrastePinStart('D',$event)"
+                       @mousedown.stop.prevent="onArrastePinStart('D',$event)">
+                    <div class="biblia-pin-bar" :style="`height:${bibleSelecaoCustom.pinD.h}px`"></div>
+                    <div class="biblia-pin-dot"></div>
+                  </div>
+
+                  <!-- ══════════════════════════════════════════════
+                       Letra da Harpa Cristã — formato correto:
+                       Estrofe 1 → Coro → Estrofe 2 → Coro → ...
+                       ══════════════════════════════════════════════ -->
+                  <template x-for="(letra, idx) in (hinoSelecionado.estrofes || [])" :key="idx">
+                    <div>
+                      <!-- Estrofe N -->
+                      <div class="harpa-secao harpa-secao--estrofe mb-2">
+                        <span class="harpa-secao-label" x-text="'Estrofe ' + (idx + 1)"></span>
+                        <p class="mb-0 verso-biblia">
+                          <span class="verso-texto" :data-verse="idx + 1"
+                                x-html="renderVersoHtml(idx + 1, letra)">
+                          </span>
+                        </p>
+                      </div>
+                      <!-- Coro (após cada estrofe, se existir) -->
+                      <div class="harpa-secao harpa-secao--coro mb-3" x-show="hinoSelecionado.coro">
+                        <span class="harpa-secao-label harpa-secao-label--coro">
+                          <i class="bi bi-music-note"></i> Coro
+                        </span>
+                        <p class="mb-0 verso-biblia">
+                          <span class="verso-texto" data-verse="0"
+                                x-html="renderVersoHtml(0, hinoSelecionado.coro || '')">
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                  </template>
+
+                  <!-- Hinos sem estrofes (só coro) -->
+                  <template x-if="!(hinoSelecionado.estrofes?.length) && hinoSelecionado.coro">
+                    <div class="harpa-secao harpa-secao--coro mb-3">
+                      <span class="harpa-secao-label harpa-secao-label--coro">
+                        <i class="bi bi-music-note"></i> Coro
+                      </span>
+                      <p class="mb-0 verso-biblia">
+                        <span class="verso-texto" data-verse="0"
+                              x-html="renderVersoHtml(0, hinoSelecionado.coro || '')">
+                        </span>
+                      </p>
+                    </div>
+                  </template>
+                </div>
+              </div>
+
+              <!-- Navegação: anterior / próximo hino -->
+              <div class="biblia-nav-footer mt-2">
+                <div class="bnav-row-main">
+                  <button class="bnav-btn bnav-caps"
+                          :disabled="hinoSelecionado.numero <= 1"
+                          @click="navegarHino(-1)">
+                    <i class="bi bi-arrow-left"></i><span>Anterior</span>
+                  </button>
+                  <button class="bnav-btn bnav-prox"
+                          :disabled="hinoSelecionado.numero >= 640"
+                          @click="navegarHino(1)">
+                    <span>Próximo</span><i class="bi bi-arrow-right"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </template>
+        </div><!-- /harpa -->
 
         <!-- Ranking -->
         <div x-show="pagina === 'ranking'" style="display: none;">
@@ -2660,8 +3523,8 @@
                 <i class="bi bi-chevron-down tleg-item-seta"></i>
               </summary>
               <div class="tleg-item-corpo">
-                <p>É obrigatório aceitar estes Termos e a Política de Privacidade para criar conta. O aceite é registrado com data e hora. Menores de 18 anos devem ter autorização de responsável legal. Sem aceite, o cadastro não é realizado.</p>
-              </div>
+            <p>É obrigatório aceitar estes Termos e a Política de Privacidade para criar conta. O aceite é registrado com data e hora. Menores de 18 anos devem ter autorização de responsável legal. Sem aceite, o cadastro não é realizado.</p>
+          </div>
             </details>
 
             <details class="tleg-item" open>
@@ -2791,7 +3654,7 @@
               <span class="sobre2-badge">100% Gratuito</span>
               <span class="sobre2-badge sobre2-badge--verde">Em Português</span>
               <span class="sobre2-badge sobre2-badge--roxo">Gamificado</span>
-            </div>
+          </div>
           </div>
 
           <!-- Feature cards -->
@@ -2800,17 +3663,17 @@
               <div class="sobre2-feat-ico sobre2-feat-ico--verde"><i class="bi bi-book-fill"></i></div>
               <div class="sobre2-feat-titulo">Bíblia + Quiz</div>
               <div class="sobre2-feat-desc">Leia, acompanhe seu progresso e consolide com quizzes por capítulo e livro.</div>
-            </div>
+          </div>
             <div class="sobre2-feat">
               <div class="sobre2-feat-ico sobre2-feat-ico--ouro"><i class="bi bi-flag-fill"></i></div>
               <div class="sobre2-feat-titulo">Missões</div>
               <div class="sobre2-feat-desc">Missões diárias humanas, espirituais, de conhecimento, tarefas e para casais.</div>
-            </div>
+          </div>
             <div class="sobre2-feat">
               <div class="sobre2-feat-ico sobre2-feat-ico--azul"><i class="bi bi-trophy-fill"></i></div>
               <div class="sobre2-feat-titulo">Progresso</div>
               <div class="sobre2-feat-desc">XP, ouro, níveis, streak, conquistas e inventário — tudo em português.</div>
-            </div>
+          </div>
           </div>
 
           <!-- Missão -->
@@ -2905,12 +3768,12 @@
           <div class="apoio-pix-card">
             <div class="apoio-pix-header">
               <div class="apoio-pix-ico"><i class="bi bi-qr-code"></i></div>
-              <div>
+            <div>
                 <div class="apoio-pix-titulo">Doação via Pix</div>
                 <div class="apoio-pix-sub">Qualquer valor é muito bem-vindo</div>
-              </div>
-              <span class="apoio-pix-badge">Em breve</span>
             </div>
+              <span class="apoio-pix-badge">Em breve</span>
+          </div>
             <div class="apoio-pix-aviso"><i class="bi bi-hourglass-split"></i> Estamos preparando o link de doação. Volte em breve!</div>
           </div>
 
@@ -2947,7 +3810,15 @@
       <nav class="nav-inferior" aria-label="Menu principal">
         <a href="#home" :class="{ ativo: pagina === 'home' }"><i class="bi bi-house"></i> Início</a>
         <a href="#missoes" :class="{ ativo: pagina === 'missoes' }"><i class="bi bi-flag"></i> Missões</a>
-        <a href="#leitura-biblia" :class="{ ativo: pagina === 'leitura-biblia' }"><i class="bi bi-book"></i> Bíblia</a>
+        <!-- Bíblia: bloqueada se item não equipado -->
+        <a @click.prevent="tentarNavegar('leitura-biblia')" href="#leitura-biblia"
+           :class="{ ativo: pagina === 'leitura-biblia', 'nav-bloqueado': !temAcesso('leitura-biblia') }">
+          <span style="position:relative;display:inline-block">
+            <i class="bi bi-book"></i>
+            <i class="bi bi-lock-fill nav-lock-ico" x-show="!temAcesso('leitura-biblia')"></i>
+          </span>
+          Bíblia
+        </a>
         <a href="#inventario" :class="{ ativo: pagina === 'inventario' }"><i class="bi bi-backpack"></i> Inventário</a>
         <a href="#perfil" :class="{ ativo: pagina === 'perfil' }"><i class="bi bi-person"></i> Perfil</a>
       </nav>
@@ -3063,24 +3934,24 @@
         <span class="sobre2-badge">100% Gratuito</span>
         <span class="sobre2-badge sobre2-badge--verde">Em Português</span>
         <span class="sobre2-badge sobre2-badge--roxo">Gamificado</span>
-      </div>
+    </div>
     </div>
     <div class="sobre2-features">
       <div class="sobre2-feat">
         <div class="sobre2-feat-ico sobre2-feat-ico--verde"><i class="bi bi-book-fill"></i></div>
         <div class="sobre2-feat-titulo">Bíblia + Quiz</div>
         <div class="sobre2-feat-desc">Leia, acompanhe seu progresso e consolide com quizzes por capítulo e livro.</div>
-      </div>
+    </div>
       <div class="sobre2-feat">
         <div class="sobre2-feat-ico sobre2-feat-ico--ouro"><i class="bi bi-flag-fill"></i></div>
         <div class="sobre2-feat-titulo">Missões</div>
         <div class="sobre2-feat-desc">Missões diárias humanas, espirituais, de conhecimento, tarefas e para casais.</div>
-      </div>
+    </div>
       <div class="sobre2-feat">
         <div class="sobre2-feat-ico sobre2-feat-ico--azul"><i class="bi bi-trophy-fill"></i></div>
         <div class="sobre2-feat-titulo">Progresso</div>
         <div class="sobre2-feat-desc">XP, ouro, níveis, streak, conquistas e inventário — tudo em português.</div>
-      </div>
+    </div>
     </div>
     <div class="sobre2-missao">
       <i class="bi bi-quote sobre2-quote"></i>
@@ -3161,12 +4032,12 @@
     <div class="apoio-pix-card">
       <div class="apoio-pix-header">
         <div class="apoio-pix-ico"><i class="bi bi-qr-code"></i></div>
-        <div>
+      <div>
           <div class="apoio-pix-titulo">Doação via Pix</div>
           <div class="apoio-pix-sub">Qualquer valor é muito bem-vindo</div>
-        </div>
-        <span class="apoio-pix-badge">Em breve</span>
       </div>
+        <span class="apoio-pix-badge">Em breve</span>
+    </div>
       <div class="apoio-pix-aviso"><i class="bi bi-hourglass-split"></i> Estamos preparando o link de doação. Volte em breve!</div>
     </div>
     <div class="apoio-secao-titulo">Outras formas de ajudar</div>
@@ -3332,13 +4203,331 @@
     </div>
   </div>
 
+  <!-- ══════════════════════════════════════════════════════════
+       GLOBAIS: Barra de seleção, menu de contexto e post-it
+       (position:fixed — funcionam em QUALQUER seção da app)
+       ══════════════════════════════════════════════════════════ -->
+
+  <!-- Barra de ação de seleção (fixa na tela, acima da nav) -->
+  <div x-show="bibleSelecaoCustom.ativo && !bibleContextMenu.aberto"
+       x-transition
+       class="biblia-selecao-barra">
+    <button class="bsel-btn bsel-cancelar" @click.stop="cancelarSelecaoBiblia()">
+      <i class="bi bi-x-lg"></i><span>Cancelar</span>
+    </button>
+    <div class="bsel-divider"></div>
+    <button class="bsel-btn bsel-tudo" @click.stop="selecionarTudoBiblia()">
+      <i class="bi bi-text-paragraph"></i><span>Tudo</span>
+    </button>
+    <button class="bsel-btn bsel-ok" @click.stop="confirmarSelecaoBiblia()">
+      <i class="bi bi-check-lg"></i><span>OK</span>
+    </button>
+  </div>
+
+  <!-- Backdrop do menu de contexto -->
+  <div x-show="bibleContextMenu.aberto"
+       x-transition.opacity.duration.200ms
+       style="position:fixed;inset:0;z-index:1190;background:rgba(0,0,0,0.45);"
+       @click="fecharMenuBiblia()"></div>
+
+  <!-- Menu de contexto: bottom sheet (mobile) ou popup (desktop) -->
+  <div x-show="bibleContextMenu.aberto"
+       class="bctx-container"
+       :class="bibleContextMenu.modoSheet ? 'bctx-sheet' : 'bctx-popup'"
+       :style="!bibleContextMenu.modoSheet ? 'top:'+bibleContextMenu.y+'px;left:'+bibleContextMenu.x+'px;' : ''"
+       x-transition:enter="bctx-enter"
+       x-transition:enter-start="bctx-enter-from"
+       x-transition:enter-end="bctx-enter-to"
+       x-transition:leave="bctx-leave"
+       x-transition:leave-start="bctx-leave-from"
+       x-transition:leave-end="bctx-leave-to"
+       @click.stop>
+
+    <!-- Handle (só no sheet) -->
+    <div class="bctx-handle" x-show="bibleContextMenu.modoSheet"></div>
+
+    <!-- Preview do trecho selecionado -->
+    <p class="bctx-preview"
+       x-show="bibleContextMenu.pendente?.text"
+       x-text="'«\u00a0' + (bibleContextMenu.pendente?.text?.substring(0,70) || '') + (bibleContextMenu.pendente?.text?.length > 70 ? '…' : '') + '\u00a0»'">
+    </p>
+
+    <!-- Cores de marcação -->
+    <div class="bctx-section-label">Marcar texto</div>
+    <div class="bctx-cores">
+      <template x-for="cor in CORES_MARCADOR" :key="cor.valor">
+        <button class="bctx-cor-btn" :style="'--c:'+cor.valor" @click.stop="aplicarMarcadorDoMenu(cor.valor)">
+          <span class="bctx-cor-preview">
+            <i class="bi bi-pen-fill bctx-cor-pen"></i>
+            <span class="bctx-cor-letra">A</span>
+          </span>
+          <span class="bctx-cor-nome" x-text="cor.nome"></span>
+        </button>
+      </template>
+    </div>
+
+    <!-- Ações -->
+    <div class="bctx-acoes">
+      <button class="bctx-acao" @click.stop="abrirNotaDoMenu()">
+        <span class="bctx-acao-ico bctx-ico-nota"><i class="bi bi-sticky-fill"></i></span>
+        <span class="bctx-acao-txt">Inserir nota</span>
+        <i class="bi bi-chevron-right bctx-acao-seta"></i>
+      </button>
+      <!-- Remover marcação: só aparece se o trecho selecionado tem highlight ou nota com cor -->
+      <button class="bctx-acao bctx-acao--perigo"
+              x-show="bibleContextMenu.pendente && notacoesCapitulo.some(n =>
+                n.verse === bibleContextMenu.pendente.verse &&
+                n.end > bibleContextMenu.pendente.start &&
+                n.start < bibleContextMenu.pendente.end &&
+                (n.type === 'highlight' || (n.type === 'note' && n.highlightColor))
+              )"
+              @click.stop="removerMarcadorSelecao()">
+        <span class="bctx-acao-ico bctx-ico-remover"><i class="bi bi-eraser-fill"></i></span>
+        <span class="bctx-acao-txt">Remover marcação</span>
+        <i class="bi bi-chevron-right bctx-acao-seta"></i>
+      </button>
+      <button class="bctx-acao" @click.stop="copiarSelecao()">
+        <span class="bctx-acao-ico bctx-ico-copiar"><i class="bi bi-clipboard"></i></span>
+        <span class="bctx-acao-txt">Copiar texto</span>
+        <i class="bi bi-chevron-right bctx-acao-seta"></i>
+      </button>
+      <button class="bctx-acao" @click.stop="selecionarTudoBiblia()">
+        <span class="bctx-acao-ico bctx-ico-tudo"><i class="bi bi-text-paragraph"></i></span>
+        <span class="bctx-acao-txt">Selecionar tudo</span>
+        <i class="bi bi-chevron-right bctx-acao-seta"></i>
+      </button>
+    </div>
+
+    <!-- Botão fechar -->
+    <button class="bctx-btn-fechar" @click.stop="fecharMenuBiblia()">Fechar</button>
+
+  </div><!-- /bctx-container -->
+
+  <!-- Popup de nota — visual post-it -->
+  <div x-show="notaPopup.aberto" class="modal-nota-overlay" @click.self="fecharNotaPopup()" x-transition>
+    <div class="postit" :style="`--postit-bg: ${notaPopup.corFundo || '#fef08a'}`" role="dialog" aria-label="Nota">
+
+      <!-- Fita decorativa no topo -->
+      <div class="postit-fita"></div>
+
+      <!-- Cabeçalho: título + seletor de cores -->
+      <div class="postit-cabecalho">
+        <span class="postit-titulo">
+          <i class="bi bi-sticky-fill"></i>
+          <span x-text="notaPopup.id ? 'Sua nota' : 'Nova nota'"></span>
+        </span>
+        <div class="postit-cores" title="Cor do post-it">
+          <template x-for="cor in CORES_MARCADOR" :key="cor.valor">
+            <button class="postit-cor-btn"
+                    :style="`background:${cor.valor}`"
+                    :class="{ 'postit-cor-btn--ativa': (notaPopup.corFundo || '#fef08a') === cor.valor }"
+                    @click.stop="notaPopup.corFundo = cor.valor"
+                    :title="cor.nome">
+            </button>
+          </template>
+        </div>
+      </div>
+
+      <!-- Trecho referenciado -->
+      <p x-show="notaPopup.textoRef" class="postit-trecho">
+        «<em x-text="notaPopup.textoRef"></em>»
+      </p>
+
+      <!-- Área de texto (sem borda, fundo transparente) -->
+      <textarea class="postit-textarea"
+                rows="5"
+                x-model="notaPopup.conteudo"
+                placeholder="Escreva sua nota…"></textarea>
+
+      <!-- Rodapé -->
+      <div class="postit-footer">
+        <button type="button" class="postit-btn postit-btn--cancelar" @click="fecharNotaPopup()">Cancelar</button>
+        <button x-show="notaPopup.id" type="button" class="postit-btn postit-btn--excluir"
+                @click="removerNotacao(notaPopup.id)"
+                :title="notacoesCapitulo.find(n => n.id === notaPopup.id)?.highlightColor
+                  ? 'A marcação de cor será mantida' : 'Excluir nota'"
+                x-text="notacoesCapitulo.find(n => n.id === notaPopup.id)?.highlightColor
+                  ? 'Remover nota' : 'Excluir'">
+        </button>
+        <button type="button" class="postit-btn postit-btn--salvar"
+                @click="salvarEdicaoNota()"
+                x-text="notaPopup.id ? 'Salvar' : 'Criar nota'">
+        </button>
+      </div>
+
+      <!-- Dobra no canto inferior direito (efeito decorativo) -->
+      <div class="postit-dobra"></div>
+    </div>
+  </div>
+
   <!-- VLibras — Tradução para Libras (Acessibilidade) -->
+  <!-- ===================================================
+       MODAL GLOBAL: Item do Inventário (Equip / Sell / Swap)
+       =================================================== -->
+  <div class="modal-overlay inv-item-overlay"
+       x-show="inventarioItemModal.aberto"
+       @click="fecharInventarioItem()"
+       x-transition
+       style="display:none">
+    <div class="inv-item-modal" @click.stop x-transition>
+      <template x-if="inventarioItemModal.linha">
+        <div>
+          <!-- Header com gradiente por raridade -->
+          <div class="inv-item-header" :class="'raridade-' + (inventarioItemModal.linha.itens?.raridade || 'comum')">
+            <button class="inv-item-fechar" @click="fecharInventarioItem()"><i class="bi bi-x-lg"></i></button>
+            <div class="inv-item-icon-wrap">
+              <i :class="'bi fs-1 ' + (inventarioItemModal.linha.itens?.icone || 'bi-box')"></i>
+            </div>
+            <h3 class="inv-item-nome" x-text="inventarioItemModal.linha.itens?.nome"></h3>
+            <div class="inv-item-badges">
+              <span class="inv-badge-raridade" x-text="getRaridadeNome(inventarioItemModal.linha.itens?.raridade || 'comum')"></span>
+              <span class="inv-badge-tipo" x-text="inventarioItemModal.linha.itens?.tipo"></span>
+            </div>
+          </div>
+
+          <!-- Corpo -->
+          <div class="inv-item-corpo">
+            <!-- Descrição -->
+            <p class="inv-item-desc" x-text="inventarioItemModal.linha.itens?.descricao"></p>
+
+            <!-- Stats -->
+            <div class="inv-item-stats">
+              <!-- Nível requerido -->
+              <div class="inv-stat-row" x-show="inventarioItemModal.linha.itens?.nivel_requerido">
+                <i class="bi bi-star-fill texto-primario"></i>
+                <span>Nível mínimo: <strong x-text="inventarioItemModal.linha.itens?.nivel_requerido || 1"></strong></span>
+              </div>
+              <!-- Slot (armadura) -->
+              <div class="inv-stat-row" x-show="inventarioItemModal.linha.itens?.slot">
+                <i class="bi bi-grid-3x3-gap texto-primario"></i>
+                <span>Slot: <strong x-text="inventarioItemModal.linha.itens?.slot"></strong></span>
+              </div>
+              <!-- Efeito da armadura -->
+              <div class="inv-stat-row" x-show="inventarioItemModal.linha.itens?.slot && ARMADURA_EFEITOS[inventarioItemModal.linha.itens?.slot]">
+                <i class="bi bi-stars" style="color:#f59e0b"></i>
+                <span x-text="ARMADURA_EFEITOS[inventarioItemModal.linha.itens?.slot]?.bonus"></span>
+              </div>
+              <!-- Bônus de itens permanentes -->
+              <template x-if="inventarioItemModal.linha.itens?.efeitos">
+                <template x-for="[tipoEf, valEf] in Object.entries(inventarioItemModal.linha.itens?.efeitos || {})" :key="tipoEf">
+                  <div class="inv-stat-row">
+                    <i class="bi bi-lightning-fill" style="color:#8b5cf6"></i>
+                    <span x-text="tipoEf + ': +' + valEf + '%'"></span>
+                  </div>
+                </template>
+              </template>
+              <!-- Duração (consumível) -->
+              <div class="inv-stat-row" x-show="inventarioItemModal.linha.itens?.duracao_minutos">
+                <i class="bi bi-clock texto-primario"></i>
+                <span>Duração: <strong x-text="(inventarioItemModal.linha.itens?.duracao_minutos || 0) + ' minutos'"></strong></span>
+              </div>
+              <!-- Quantidade -->
+              <div class="inv-stat-row" x-show="(inventarioItemModal.linha.quantidade || 1) > 1">
+                <i class="bi bi-stack texto-primario"></i>
+                <span>Quantidade: <strong x-text="inventarioItemModal.linha.quantidade"></strong></span>
+              </div>
+              <!-- Status de equipamento -->
+              <div class="inv-stat-row">
+                <i class="bi"
+                   :class="inventarioItemModal.linha.equipado ? 'bi-check-circle-fill text-success' : 'bi-circle texto-secundario'"></i>
+                <span x-text="inventarioItemModal.linha.equipado ? 'Equipado atualmente' : 'No inventário (não equipado)'"></span>
+              </div>
+            </div>
+
+            <!-- Preço de venda -->
+            <div class="inv-item-venda">
+              <i class="bi bi-coin"></i>
+              Valor de venda: <strong x-text="Math.max(1, Math.floor((inventarioItemModal.linha.itens?.preco_ouro || 10) * 0.5)) + ' ouro'"></strong>
+            </div>
+
+            <!-- Ações -->
+            <div class="inv-item-acoes">
+              <!-- Usar (consumível) -->
+              <button class="btn-inv btn-inv-usar"
+                      x-show="inventarioItemModal.linha.itens?.tipo === 'consumivel'"
+                      @click="usarItemConsumivel(inventarioItemModal.linha.item_id); fecharInventarioItem()">
+                <i class="bi bi-lightning-fill"></i> Usar Agora
+              </button>
+
+              <!-- Equipar / Desequipar (armadura / permanente) -->
+              <button class="btn-inv"
+                      :class="inventarioItemModal.linha.equipado ? 'btn-inv-desequipar' : 'btn-inv-equipar'"
+                      x-show="inventarioItemModal.linha.itens?.tipo !== 'consumivel'"
+                      @click="equiparItemInventario(inventarioItemModal.linha?.id)">
+                <i :class="inventarioItemModal.linha.equipado ? 'bi bi-dash-circle-fill' : 'bi bi-plus-circle-fill'"></i>
+                <span x-text="inventarioItemModal.linha.equipado ? 'Desequipar' : 'Equipar'"></span>
+              </button>
+
+              <!-- Vender -->
+              <button class="btn-inv btn-inv-vender" @click="venderItem(inventarioItemModal.linha?.id)">
+                <i class="bi bi-cash-coin"></i>
+                Vender
+                (<span x-text="Math.max(1, Math.floor((inventarioItemModal.linha.itens?.preco_ouro || 10) * 0.5))"></span> ouro)
+              </button>
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
+  </div>
+
   <div vw class="enabled">
     <div vw-access-button class="active"></div>
     <div vw-plugin-wrapper>
       <div class="vw-plugin-top-wrapper"></div>
     </div>
   </div>
+  <!-- ═══════════════════════════════════════════════════════════
+       MODAL GLOBAL: Seção Bloqueada (item não equipado)
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="modal-overlay bloqueio-overlay"
+       x-show="modalBloqueio.aberto"
+       @click="fecharModalBloqueio()"
+       x-transition
+       style="display:none">
+    <div class="bloqueio-modal" @click.stop x-transition>
+      <!-- Botão fechar -->
+      <button class="bloqueio-fechar" @click="fecharModalBloqueio()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+
+      <template x-if="modalBloqueio.req">
+        <div class="bloqueio-corpo">
+          <!-- Ícone de cadeado animado -->
+          <div class="bloqueio-lock-wrap">
+            <div class="bloqueio-lock-anel">
+              <i class="bi bi-lock-fill bloqueio-lock-ico"></i>
+            </div>
+            <div class="bloqueio-item-ico">
+              <i :class="'bi ' + modalBloqueio.req.icone"></i>
+            </div>
+          </div>
+
+          <h3 class="bloqueio-titulo">Seção Bloqueada</h3>
+          <p class="bloqueio-desc">
+            Para acessar esta seção, você precisa equipar
+            <strong x-text="modalBloqueio.req.nome"></strong>
+            no seu inventário.
+          </p>
+
+          <p class="bloqueio-dica" x-text="modalBloqueio.req.dica"></p>
+
+          <!-- Ações -->
+          <div class="bloqueio-acoes">
+            <button class="btn btn-primario"
+                    @click="fecharModalBloqueio(); window.location.hash = 'inventario'">
+              <i class="bi bi-backpack"></i> Ir ao Inventário
+            </button>
+            <button class="btn btn-outline-secundario"
+                    @click="fecharModalBloqueio(); window.location.hash = 'loja'">
+              <i class="bi bi-shop"></i> Ver na Loja
+            </button>
+          </div>
+        </div>
+      </template>
+    </div>
+  </div>
+
   <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {

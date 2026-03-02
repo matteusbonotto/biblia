@@ -1,0 +1,186 @@
+{
+  "_meta": {
+    "descricao": "Catálogo completo da Armadura de Deus — Efésios 6.10-18.",
+    "tipo_geral": "armadura",
+    "referencia_biblica": "Efésios 6.10-18",
+    "regras": [
+      "Cada peça de armadura ocupa um slot exclusivo (cinto, couraca, calcados, escudo, capacete, espada).",
+      "Apenas 1 peça por slot pode estar equipada ao mesmo tempo.",
+      "Os bônus são passivos: ficam ativos enquanto a peça estiver equipada.",
+      "A armadura completa (6 peças) concede bônus combinados de todos os slots.",
+      "Podem ser vendidas por ouro (valor menor que o preço de compra).",
+      "São calculados via getBonusAtivo(tipo) no app.js."
+    ],
+    "slots_disponiveis": ["cinto", "couraca", "calcados", "escudo", "capacete", "espada"]
+  },
+  "pecas": [
+    {
+      "id": "item-cinto",
+      "slug": "cinto-da-verdade",
+      "nome": "Cinto da Verdade",
+      "slot": "cinto",
+      "subtitulo": "Armadura · Raro",
+      "descricao": "A verdade como fundação — Efésios 6.14a.",
+      "descricao_completa": "Em Efésios 6.14, Paulo instrui: 'Cingindo os vossos lombos com a verdade'. O cinto era a peça central da armadura romana — ele sustentava tudo o mais. Espiritualmente, a verdade (a Palavra de Deus) é o fundamento de toda resistência ao mal.",
+      "referencia_biblica": "Efésios 6.14a",
+      "significado_espiritual": "A verdade de Deus como base de toda resistência espiritual. Sem verdade, nenhuma outra peça se sustenta.",
+      "tipo": "armadura",
+      "raridade": "raro",
+      "icone": "bi-award-fill",
+      "cor": "#c8902a",
+      "preco_ouro": 20,
+      "nivel_requerido": 2,
+      "efeito": {
+        "bonus": "+10% resistência espiritual",
+        "tipo": "resistencia",
+        "valor": 10,
+        "icone": "🔶",
+        "descricao_efeito": "A verdade cinge os seus rins — Ef 6.14a"
+      },
+      "pode_vender": true,
+      "valor_venda": 10
+    },
+    {
+      "id": "item-peitoral",
+      "slug": "couraca-da-justica",
+      "nome": "Couraça da Justiça",
+      "slot": "couraca",
+      "subtitulo": "Armadura · Épico",
+      "descricao": "A justiça protege o coração — Efésios 6.14b.",
+      "descricao_completa": "Em Efésios 6.14, Paulo continua: 'e vestindo a couraça da justiça'. A couraça protegia o peito e os órgãos vitais do soldado romano. Espiritualmente, a justiça de Cristo imposta ao crente pela fé protege o coração de ataques de condenação e acusação do inimigo.",
+      "referencia_biblica": "Efésios 6.14b",
+      "significado_espiritual": "A justiça imputada de Cristo protege o coração do crente contra a condenação e as acusações do diabo (Ap 12.10).",
+      "tipo": "armadura",
+      "raridade": "epico",
+      "icone": "bi-shield-fill",
+      "cor": "#2c6ebf",
+      "preco_ouro": 50,
+      "nivel_requerido": 5,
+      "efeito": {
+        "bonus": "+15% proteção espiritual",
+        "tipo": "protecao",
+        "valor": 15,
+        "icone": "🛡️",
+        "descricao_efeito": "A justiça protege o coração — Ef 6.14b"
+      },
+      "pode_vender": true,
+      "valor_venda": 25
+    },
+    {
+      "id": "item-calcados",
+      "slug": "calcados-do-evangelho",
+      "nome": "Calçados do Evangelho",
+      "slot": "calcados",
+      "subtitulo": "Armadura · Raro",
+      "descricao": "Pés firmes no evangelho da paz — Efésios 6.15.",
+      "descricao_completa": "Efésios 6.15: 'E tendo os pés calçados com a preparação do evangelho da paz'. O soldado romano usava sandálias com sola de pregos para firmeza no combate. Espiritualmente, é estar preparado e estável para proclamar e viver o evangelho da paz.",
+      "referencia_biblica": "Efésios 6.15",
+      "significado_espiritual": "A disposição para proclamar o evangelho e a firmeza que ele dá. O crente avança com passo firme porque está fundamentado na paz com Deus.",
+      "tipo": "armadura",
+      "raridade": "raro",
+      "icone": "bi-geo-alt-fill",
+      "cor": "#7a5c3a",
+      "preco_ouro": 35,
+      "nivel_requerido": 3,
+      "efeito": {
+        "bonus": "+10 XP por missão concluída",
+        "tipo": "xp_missao",
+        "valor": 10,
+        "icone": "👟",
+        "descricao_efeito": "Pés firmes no evangelho da paz — Ef 6.15"
+      },
+      "pode_vender": true,
+      "valor_venda": 17
+    },
+    {
+      "id": "item-escudo",
+      "slug": "escudo-da-fe",
+      "nome": "Escudo da Fé",
+      "slot": "escudo",
+      "subtitulo": "Armadura · Épico",
+      "descricao": "A fé extingue os dardos inflamados do maligno — Efésios 6.16.",
+      "descricao_completa": "Efésios 6.16: 'Tomando sobretudo o escudo da fé, com o qual podereis apagar todos os dardos inflamados do maligno'. O escudo romano (thureos) era grande e podia proteger o corpo inteiro. A fé do crente — confiança viva em Deus — é o principal protetor contra os ataques espirituais.",
+      "referencia_biblica": "Efésios 6.16",
+      "significado_espiritual": "A fé como proteção ativa. Os 'dardos inflamados' incluem dúvidas, tentações, mentiras e ataques de condenação. A fé os extingue porque eles não encontram combustível onde há confiança em Deus.",
+      "tipo": "armadura",
+      "raridade": "epico",
+      "icone": "bi-shield-check",
+      "cor": "#1565c0",
+      "preco_ouro": 75,
+      "nivel_requerido": 7,
+      "efeito": {
+        "bonus": "-20% penalidade em quizzes (chance de não perder coração)",
+        "tipo": "penalidade_quiz",
+        "valor": -20,
+        "icone": "✨",
+        "descricao_efeito": "A fé extingue os dardos do maligno — Ef 6.16"
+      },
+      "pode_vender": true,
+      "valor_venda": 37
+    },
+    {
+      "id": "item-elmo",
+      "slug": "capacete-da-salvacao",
+      "nome": "Capacete da Salvação",
+      "slot": "capacete",
+      "subtitulo": "Armadura · Raro",
+      "descricao": "A salvação protege a mente — Efésios 6.17a.",
+      "descricao_completa": "Efésios 6.17: 'Tomai também o elmo da salvação'. O capacete protegia a cabeça — centro do pensamento e da vontade. Espiritualmente, a certeza da salvação protege a mente de dúvidas, desespero e ataques ao senso de identidade do crente como filho de Deus.",
+      "referencia_biblica": "Efésios 6.17a",
+      "significado_espiritual": "A segurança da salvação como proteção mental. Saber que somos salvos por graça (e não por mérito) protege a mente contra o desânimo e a dúvida.",
+      "tipo": "armadura",
+      "raridade": "raro",
+      "icone": "bi-shield-fill-check",
+      "cor": "#7b68ee",
+      "preco_ouro": 60,
+      "nivel_requerido": 4,
+      "efeito": {
+        "bonus": "+5% XP por leitura bíblica",
+        "tipo": "xp_leitura",
+        "valor": 5,
+        "icone": "⛑️",
+        "descricao_efeito": "A salvação guarda a mente — Ef 6.17a"
+      },
+      "pode_vender": true,
+      "valor_venda": 30
+    },
+    {
+      "id": "item-espada-armadura",
+      "slug": "espada-do-espirito-armadura",
+      "nome": "Espada do Espírito (Armadura)",
+      "slot": "espada",
+      "subtitulo": "Armadura · Lendário",
+      "descricao": "A Palavra de Deus: arma ofensiva do Espírito — Efésios 6.17b.",
+      "descricao_completa": "Efésios 6.17: 'a espada do Espírito, que é a palavra de Deus'. Única arma ofensiva da lista — todas as outras são defensivas. A Palavra de Deus é usada para atacar as fortalezas do inimigo, resistir à tentação (como Jesus no deserto — Mt 4) e proclamar a verdade.",
+      "referencia_biblica": "Efésios 6.17b",
+      "significado_espiritual": "A Bíblia como arma ativa. Não apenas defender-se, mas avançar com a Palavra — pregando, ensinando, confrontando o erro com a verdade. Jesus usou o 'Está escrito' para resistir a Satanás (Mt 4.4, 7, 10).",
+      "tipo": "armadura",
+      "raridade": "lendario",
+      "icone": "bi-slash-lg",
+      "cor": "#b8a030",
+      "preco_ouro": 100,
+      "nivel_requerido": 10,
+      "efeito": {
+        "bonus": "+20% XP por estudo concluído",
+        "tipo": "xp_estudo",
+        "valor": 20,
+        "icone": "⚔️",
+        "descricao_efeito": "A Palavra de Deus: arma do Espírito — Ef 6.17b"
+      },
+      "pode_vender": true,
+      "valor_venda": 50
+    }
+  ],
+  "armadura_completa": {
+    "nome": "Armadura Completa de Deus",
+    "descricao": "Equipar todas as 6 peças da Armadura de Deus.",
+    "conquista_id": "conquista-armadura-completa",
+    "bonus_adicional_previsto": "Conquista especial + título 'Soldado de Cristo'",
+    "pecas_necessarias": ["item-cinto", "item-peitoral", "item-calcados", "item-escudo", "item-elmo", "item-espada-armadura"]
+  },
+  "raridades": {
+    "raro":    { "cor": "#3b82f6", "label": "Raro",    "drop_rate": "25%" },
+    "epico":   { "cor": "#8b5cf6", "label": "Épico",   "drop_rate": "12%" },
+    "lendario":{ "cor": "#f59e0b", "label": "Lendário","drop_rate": "3%"  }
+  }
+}

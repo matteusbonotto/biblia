@@ -29,7 +29,7 @@ import { registrarAcao } from './servicos/acoesJogador.js';
 import { listarItensLoja, comprarItem as comprarItemLoja } from './servicos/loja.js';
 import { formatarTempoRestante } from './componentes/hud.js';
 import { VERSAO_TERMOS } from './dados/constantes.js';
-import { TRILHAS_ESTUDO, ARMADURA_DEUS_SLOTS, REFS_BIBLICAS, OBRAS_DA_CARNE, FRUTO_DO_ESPIRITO, BATALHA_ESPIRITUAL, TOOLTIPS_FRUTO, TOOLTIPS_OBRA } from './dados/estudoEvangelho.js';
+import { TRILHAS_ESTUDO, ARMADURA_DEUS_SLOTS, ARMADURA_EFEITOS, SLOTS_PERMANENTES, REFS_BIBLICAS, OBRAS_DA_CARNE, FRUTO_DO_ESPIRITO, BATALHA_ESPIRITUAL, TOOLTIPS_FRUTO, TOOLTIPS_OBRA } from './dados/estudoEvangelho.js';
 
 function rotaAtual() {
   return (window.location.hash || '#login').replace('#', '');
@@ -77,6 +77,7 @@ document.addEventListener('alpine:init', () => {
     dataNascimentoCadastro: '',
     emailCadastro: '',
     senhaCadastro: '',
+    senhaMostrar: false,        // toggle visibilidade da senha no cadastro
     estadoCivilCadastro: '',
     configAvatarCadastro: { ...CONFIG_AVATAR_PADRAO },
     opcoesAvataaars: OPCOES_AVATAAARS,
@@ -154,6 +155,29 @@ document.addEventListener('alpine:init', () => {
       { nome: 'Azul', valor: '#bfdbfe' }
     ],
 
+    // ══════════════════════════════════════════
+    // HARPA CRISTÃ
+    // ══════════════════════════════════════════
+    viewHarpa: 'lista',           // 'lista' | 'hino'
+    hinoSelecionado: null,
+    harpaHinos: [],               // 640 hinos carregados da API
+    harpaCarregando: false,
+    harpaErro: null,
+    harpaBusca: '',
+    harpaPagina: 0,
+    HARPA_POR_PAGINA: 50,
+    modoHarpa: false,             // true quando lendo hino (reutiliza infra de notações)
+    harpaPlayerAberto: false,     // toggle do player de música
+    // Player de áudio Deezer
+    harpaAudio: null,             // HTMLAudioElement atual
+    harpaAudioUrl: null,          // URL da prévia MP3
+    harpaAudioNome: '',           // título da faixa encontrada
+    harpaAudioCarregando: false,
+    harpaAudioTocando: false,
+    harpaAudioProgresso: 0,       // 0-100
+    harpaAudioTempo: 0,
+    harpaAudioDuracao: 30,
+
     // Ranking
     ranking: [],
     // Loja
@@ -162,10 +186,25 @@ document.addEventListener('alpine:init', () => {
     viewLoja: 'grid',
     modalItemDetalhes: false,
     itemSelecionado: null,
+    // Modal de item no inventário (equip / vender / trocar)
+    inventarioItemModal: { aberto: false, linha: null },
+
+    // ─── Requisitos de acesso por seção ──────────────────────
+    // Cada página pode exigir um item equipado no inventário.
+    // item_id: chave usada em inventario[].item_id
+    REQUISITOS_PAGINAS: {
+      'leitura-biblia': { item_id: 'item-biblia', nome: 'Bíblia Sagrada',     icone: 'bi-book-fill',           dica: 'A Palavra de Deus como lampada aos seus pés (Sl 119.105).' },
+      'estudo':         { item_id: 'item-espada', nome: 'Espada do Espírito', icone: 'bi-sword',               dica: 'A Palavra de Deus como arma ofensiva (Ef 6.17).' },
+      'harpa':          { item_id: 'item-harpa',  nome: 'Harpa Cristã',       icone: 'bi-music-note-beamed',   dica: 'Cantai ao Senhor um cântico novo (Sl 96.1).' },
+    },
+    // Modal quando seção está bloqueada
+    modalBloqueio: { aberto: false, rota: null, req: null },
 
     // Estudo do evangelho
     TRILHAS_ESTUDO,
     ARMADURA_DEUS_SLOTS,
+    ARMADURA_EFEITOS,
+    SLOTS_PERMANENTES,
     REFS_BIBLICAS,
     OBRAS_DA_CARNE,
     FRUTO_DO_ESPIRITO,
@@ -185,6 +224,7 @@ document.addEventListener('alpine:init', () => {
     aulaSelecionadaEstudo: null,
     progressoEstudo: {}, // { [aulaId]: { concluido, quizAprovado }, modulos: { [trilhaId]: true } }
     aulaAtualMarcadaLida: false, // estado reativo do botão toggle (sincronizado ao abrir e ao marcar/desmarcar)
+    modoAulaEstudo: false, // true quando a tela de aula está ativa (reutiliza infra da Bíblia)
     quizEstudoTipo: 'aula', // 'aula' | 'modulo'
     quizEstudoPerguntas: [],
     quizEstudoRespostas: {},
@@ -255,6 +295,40 @@ document.addEventListener('alpine:init', () => {
       });
     },
 
+    // ─────────────────────────────────────────────────────────────────
+    // Controle de acesso por item equipado
+    // ─────────────────────────────────────────────────────────────────
+
+    /** Verifica se algum item com o item_id informado está equipado */
+    temItemEquipado(itemId) {
+      return this.inventario.some(l => l.item_id === itemId && l.equipado);
+    },
+
+    /** Retorna true se o usuário tem acesso à página (sem restrição ou item equipado) */
+    temAcesso(rota) {
+      const req = this.REQUISITOS_PAGINAS[rota];
+      if (!req) return true;
+      return this.temItemEquipado(req.item_id);
+    },
+
+    /**
+     * Tenta navegar para uma rota.
+     * Se a rota exige item não equipado, abre o modal de bloqueio.
+     * Usado pelos atalhos da home e navbar.
+     */
+    tentarNavegar(rota) {
+      if (this.temAcesso(rota)) {
+        window.location.hash = rota;
+      } else {
+        const req = this.REQUISITOS_PAGINAS[rota];
+        this.modalBloqueio = { aberto: true, rota, req };
+      }
+    },
+
+    fecharModalBloqueio() {
+      this.modalBloqueio.aberto = false;
+    },
+
     atualizarPagina() {
       const r = rotaAtual();
       if (r === 'login' || r === 'cadastro') {
@@ -265,6 +339,15 @@ document.addEventListener('alpine:init', () => {
         window.location.hash = 'login';
         return;
       }
+      // Guarda de acesso: se a página requer item e ele não está equipado
+      if (this.usuario && !this.temAcesso(r)) {
+        const req = this.REQUISITOS_PAGINAS[r];
+        this.modalBloqueio = { aberto: true, rota: r, req };
+        // Redireciona para home silenciosamente
+        history.replaceState(null, '', '#home');
+        this.pagina = 'home';
+        return;
+      }
       this.pagina = r;
       if (r === 'estudo') {
         this.viewEstudo = 'trilhas';
@@ -273,6 +356,17 @@ document.addEventListener('alpine:init', () => {
         this.quizEstudoEnviado = false;
         this.quizEstudoNota = null;
         this.carregarProgressoEstudoDemo();
+      }
+      if (r === 'harpa') {
+        if (this.harpaHinos.length === 0 && !this.harpaCarregando) {
+          this.carregarHinos();
+        }
+      } else {
+        // Ao sair da harpa, reseta modo e para narração
+        if (this.modoHarpa) {
+          this.pararNarracao();
+          this.modoHarpa = false;
+        }
       }
       if (this.usuario && (r === 'home' || r === 'inventario' || r === 'missoes')) {
         this.carregarDadosUsuario();
@@ -347,6 +441,240 @@ document.addEventListener('alpine:init', () => {
       } catch (e) {
         console.error(e);
       }
+    },
+
+    // ══════════════════════════════════════════════════════════
+    // HARPA CRISTÃ — funções
+    // ══════════════════════════════════════════════════════════
+    async carregarHinos() {
+      if (this.harpaCarregando) return;
+      this.harpaCarregando = true;
+      this.harpaErro = null;
+      try {
+        const url = 'https://raw.githubusercontent.com/DanielLiberato/Harpa-Crista-JSON-640-Hinos-Completa/main/harpa_crista_640_hinos.json';
+        const r = await fetch(url);
+        if (!r.ok) throw new Error('Falha ao carregar hinos (HTTP ' + r.status + ')');
+        const raw = await r.json();
+        // Normaliza: transforma o objeto indexado em array ordenado
+        const lista = [];
+        for (const key of Object.keys(raw)) {
+          if (key === '-1') continue; // metadado do autor
+          const h = raw[key];
+          const num = parseInt(key, 10);
+          // Título: remove "N - " do campo "hino" se existir
+          const titulo = (h.hino || '').replace(/^\d+\s*-\s*/, '').trim();
+          // Estrofes: extrai do objeto "verses" na ordem numérica
+          const estrofes = Object.keys(h.verses || {})
+            .sort((a, b) => Number(a) - Number(b))
+            .map((k) => (h.verses[k] || '').replace(/<br\s*\/?>/gi, '\n').trim());
+          // Coro
+          const coro = (h.coro || '').replace(/<br\s*\/?>/gi, '\n').trim();
+          lista.push({ numero: num, titulo, coro, estrofes });
+        }
+        lista.sort((a, b) => a.numero - b.numero);
+        this.harpaHinos = lista;
+      } catch (e) {
+        console.error('[Harpa]', e);
+        this.harpaErro = 'Não foi possível carregar os hinos. Verifique sua conexão.';
+      } finally {
+        this.harpaCarregando = false;
+      }
+    },
+
+    abrirHino(hino) {
+      this.pararNarracao();
+      this.cancelarSelecaoBiblia();
+      this._pararAudioHarpa();          // para áudio ao trocar de hino
+      this.modoHarpa = true;
+      this.modoAulaEstudo = false;
+      this.harpaPlayerAberto = false;
+      this.hinoSelecionado = hino;
+      this.viewHarpa = 'hino';
+      this.carregarNotacoesCapitulo();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    },
+
+    voltarListaHinos() {
+      this.pararNarracao();
+      this.cancelarSelecaoBiblia();
+      this._pararAudioHarpa();
+      this.modoHarpa = false;
+      this.hinoSelecionado = null;
+      this.viewHarpa = 'lista';
+    },
+
+    navegarHino(delta) {
+      const idx = this.harpaHinos.findIndex((h) => h.numero === this.hinoSelecionado?.numero);
+      if (idx === -1) return;
+      const novo = this.harpaHinos[idx + delta];
+      if (novo) this.abrirHino(novo);
+    },
+
+    // ─────────────────────────────────────────────────
+    // Player de áudio — Deezer JSONP (prévia 30s MP3)
+    // ─────────────────────────────────────────────────
+
+    /** Abre/fecha o painel e busca áudio se ainda não buscou */
+    togglePlayerHarpa() {
+      this.harpaPlayerAberto = !this.harpaPlayerAberto;
+      if (this.harpaPlayerAberto && !this.harpaAudioUrl && !this.harpaAudioCarregando) {
+        this.buscarAudioDeezer(this.hinoSelecionado);
+      }
+    },
+
+    /**
+     * Busca prévia de 30s no Deezer via JSONP (sem API key).
+     * Usa encadeamento de queries: "Harpa Cristã N Título" → "Harpa Cristã Título"
+     */
+    async buscarAudioDeezer(hino) {
+      if (!hino) return;
+      this.harpaAudioCarregando = true;
+      this.harpaAudioUrl = null;
+      this.harpaAudioNome = '';
+
+      const tentativas = [
+        `Harpa Cristã ${hino.numero} ${hino.titulo}`,
+        `Harpa Cristã ${hino.titulo}`,
+        `hino ${hino.titulo} gospel`,
+      ];
+
+      for (const query of tentativas) {
+        const resultado = await this._fetchDeezerJsonp(query);
+        if (resultado) {
+          this.harpaAudioUrl = resultado.preview;
+          this.harpaAudioNome = resultado.title;
+          break;
+        }
+      }
+
+      this.harpaAudioCarregando = false;
+      if (this.harpaAudioUrl) {
+        this._iniciarAudioHarpa();
+      }
+    },
+
+    /** Fetch Deezer via JSONP — retorna { preview, title } ou null */
+    _fetchDeezerJsonp(query) {
+      return new Promise((resolve) => {
+        const cb = '__dz_' + Date.now() + '_' + Math.floor(Math.random() * 9999);
+        const timeout = setTimeout(() => {
+          delete window[cb];
+          s.remove();
+          resolve(null);
+        }, 7000);
+
+        window[cb] = (data) => {
+          clearTimeout(timeout);
+          delete window[cb];
+          s.remove();
+          // Pega primeira faixa que tenha prévia (preview URL)
+          const faixa = (data?.data || []).find((f) => f.preview);
+          resolve(faixa ? { preview: faixa.preview, title: faixa.title_short || faixa.title } : null);
+        };
+
+        const s = document.createElement('script');
+        s.src = `https://api.deezer.com/search?q=${encodeURIComponent(query)}&limit=5&output=jsonp&callback=${cb}`;
+        s.onerror = () => { clearTimeout(timeout); delete window[cb]; resolve(null); };
+        document.head.appendChild(s);
+      });
+    },
+
+    /** Cria e inicia o HTMLAudioElement com eventos reativos */
+    _iniciarAudioHarpa() {
+      this._pararAudioHarpa();
+      const audio = new Audio(this.harpaAudioUrl);
+      audio.crossOrigin = 'anonymous';
+
+      audio.addEventListener('timeupdate', () => {
+        this.harpaAudioTempo    = audio.currentTime;
+        this.harpaAudioDuracao  = isFinite(audio.duration) ? audio.duration : 30;
+        this.harpaAudioProgresso = (audio.currentTime / this.harpaAudioDuracao) * 100;
+      });
+      audio.addEventListener('ended',   () => { this.harpaAudioTocando = false; });
+      audio.addEventListener('pause',   () => { this.harpaAudioTocando = false; });
+      audio.addEventListener('playing', () => { this.harpaAudioTocando = true;  });
+      audio.addEventListener('error',   () => {
+        this.harpaAudioTocando = false;
+        this.harpaAudioUrl = null; // mostra "não encontrado"
+      });
+
+      this.harpaAudio = audio;
+      audio.play().catch(() => { /* autoplay bloqueado — usuário clica manualmente */ });
+    },
+
+    /** Para e libera o áudio atual */
+    _pararAudioHarpa() {
+      if (this.harpaAudio) {
+        this.harpaAudio.pause();
+        this.harpaAudio.src = '';
+        this.harpaAudio = null;
+      }
+      this.harpaAudioTocando   = false;
+      this.harpaAudioProgresso = 0;
+      this.harpaAudioTempo     = 0;
+      this.harpaAudioDuracao   = 30;
+    },
+
+    toggleAudioHarpa() {
+      if (!this.harpaAudio) return;
+      if (this.harpaAudioTocando) {
+        this.harpaAudio.pause();
+      } else {
+        this.harpaAudio.play().catch(() => {});
+      }
+    },
+
+    seekAudioHarpa(e) {
+      if (!this.harpaAudio) return;
+      const rect = e.currentTarget.getBoundingClientRect();
+      const pct  = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+      this.harpaAudio.currentTime = pct * (this.harpaAudio.duration || 30);
+    },
+
+    formatarTempoHarpa(seg) {
+      if (!seg || !isFinite(seg)) return '0:00';
+      const m = Math.floor(seg / 60);
+      const s = Math.floor(seg % 60).toString().padStart(2, '0');
+      return `${m}:${s}`;
+    },
+
+    // ─────────────────────────────────────────────────
+    // Narração do hino — ordem correta: estrofe → coro → estrofe → coro
+    // ─────────────────────────────────────────────────
+    narrarHino() {
+      if (!this.hinoSelecionado) return;
+      const partes = [];
+      (this.hinoSelecionado.estrofes || []).forEach((letra, i) => {
+        partes.push(`Estrofe ${i + 1}: ${letra}`);
+        if (this.hinoSelecionado.coro) {
+          partes.push(`Coro: ${this.hinoSelecionado.coro}`);
+        }
+      });
+      // Se só tem coro (sem estrofes)
+      if (!partes.length && this.hinoSelecionado.coro) {
+        partes.push(`Coro: ${this.hinoSelecionado.coro}`);
+      }
+      this._narracaoTextos = partes;
+      this._narracaoIdx = 0;
+      this.narrando = true;
+      this._narrarProximoHino();
+    },
+
+    _narrarProximoHino() {
+      if (!this.narrando || this._narracaoIdx >= (this._narracaoTextos || []).length) {
+        this.narrando = false;
+        return;
+      }
+      const texto = this._narracaoTextos[this._narracaoIdx];
+      const utt = new SpeechSynthesisUtterance(texto);
+      utt.lang = 'pt-BR';
+      utt.rate = this.velocidadeNarracao;
+      utt.onend = () => {
+        this._narracaoIdx++;
+        this._narrarProximoHino();
+      };
+      utt.onerror = () => { this.narrando = false; };
+      window.speechSynthesis.speak(utt);
     },
 
     async carregarRanking() {
@@ -523,6 +851,9 @@ document.addEventListener('alpine:init', () => {
     },
     iniciarQuizEstudo() {
       if (!this.aulaSelecionadaEstudo?.quiz?.length) return;
+      this.pararNarracao();
+      this.modoAulaEstudo = false;
+      this.bibleContextMenu.aberto = false;
       this.quizEstudoTipo = 'aula';
       this.quizEstudoPerguntas = this.aulaSelecionadaEstudo.quiz;
       this.quizEstudoRespostas = {};
@@ -562,7 +893,7 @@ document.addEventListener('alpine:init', () => {
       } else {
         this.quizEstudoFeedback = 'errado';
         this.quizEstudoErros++;
-        this.consumirCoracao();
+        this.consumirCoracaoComBônus(); // usa bônus do Escudo da Fé se equipado
         this.tocarSomErro();
       }
       
@@ -594,10 +925,14 @@ document.addEventListener('alpine:init', () => {
       if (aprovado) {
         if (this.quizEstudoTipo === 'aula' && this.aulaSelecionadaEstudo) {
           const id = this.aulaSelecionadaEstudo.id;
-          this.progressoEstudo[id] = { ...(this.progressoEstudo[id] || {}), quizAprovado: true };
+          // Usar spread para garantir reatividade do Alpine.js
+          this.progressoEstudo = {
+            ...this.progressoEstudo,
+            [id]: { ...(this.progressoEstudo[id] || {}), quizAprovado: true },
+          };
         } else if (this.quizEstudoTipo === 'modulo' && this.trilhaSelecionadaEstudo) {
-          this.progressoEstudo.modulos = this.progressoEstudo.modulos || {};
-          this.progressoEstudo.modulos[this.trilhaSelecionadaEstudo.id] = true;
+          const mods = { ...(this.progressoEstudo.modulos || {}), [this.trilhaSelecionadaEstudo.id]: true };
+          this.progressoEstudo = { ...this.progressoEstudo, modulos: mods };
         }
         this.salvarProgressoEstudoDemo();
       }
@@ -618,6 +953,10 @@ document.addEventListener('alpine:init', () => {
       this.aulaSelecionadaEstudo = null;
     },
     voltarEstudoTrilhas() {
+      this.pararNarracao();
+      this.modoAulaEstudo = false;
+      this.bibleContextMenu.aberto = false;
+      this.bibleSelecaoCustom.ativo = false;
       this.viewEstudo = 'trilhas';
       this.trilhaSelecionadaEstudo = null;
       this.aulaSelecionadaEstudo = null;
@@ -625,11 +964,23 @@ document.addEventListener('alpine:init', () => {
     selecionarAulaEstudo(aula) {
       this.aulaSelecionadaEstudo = aula;
       this.aulaAtualMarcadaLida = !!(aula && this.progressoEstudo[aula.id]?.concluido);
+      this.modoAulaEstudo = true;
       this.viewEstudo = 'aula';
       this.quizEstudoEnviado = false;
       this.quizEstudoNota = null;
+      // Fechar qualquer menu de contexto aberto
+      this.bibleContextMenu.aberto = false;
+      this.bibleContextMenu.pendente = null;
+      this.bibleSelecaoCustom.ativo = false;
+      this.pararNarracao();
+      // Carregar notações da aula na mesma variável usada pela Bíblia
+      if (aula?.id) this.carregarNotacoesCapitulo();
     },
     voltarEstudoAulas() {
+      this.pararNarracao();
+      this.modoAulaEstudo = false;
+      this.bibleContextMenu.aberto = false;
+      this.bibleSelecaoCustom.ativo = false;
       this.viewEstudo = 'aulas';
       this.aulaSelecionadaEstudo = null;
     },
@@ -664,7 +1015,9 @@ document.addEventListener('alpine:init', () => {
         this.moeda = dados.moeda || { ouro: 100 };
         this.coracoes = dados.coracoes || { atual: 5, maximo: 5, proxima_regeneracao: null, tempo_regeneracao_horas: 4 };
         this.efeitosAtivos = dados.efeitosAtivos || [];
-        this.inventario = dados.inventario || [];
+        // Prioridade: localStorage (equip/sell do usuário) > demo.json
+        const inventarioSalvo = (() => { try { const s = localStorage.getItem('demo_inventario'); return s ? JSON.parse(s) : null; } catch { return null; } })();
+        this.inventario = inventarioSalvo || dados.inventario || [];
         this.modelosMissoes = dados.modelosMissoes || [];
         this.itensLoja = dados.itensLoja || [];
         this.ranking = dados.ranking || [];
@@ -710,6 +1063,7 @@ document.addEventListener('alpine:init', () => {
         this.nivel = null;
         this.moeda = null;
         this.inventario = [];
+        localStorage.removeItem('demo_inventario');
         this.missoesAtivas = [];
         this.efeitosAtivos = [];
         this.modelosMissoes = [];
@@ -722,9 +1076,44 @@ document.addEventListener('alpine:init', () => {
       window.location.hash = 'login';
     },
 
+    /**
+     * Calcula a força da senha de cadastro.
+     * Retorna { pct, label, classe } para uso no indicador visual.
+     */
+    forcaSenha() {
+      const s = this.senhaCadastro;
+      if (!s) return { pct: 0, label: '', classe: '' };
+      let pts = 0;
+      if (s.length >= 6)  pts++;
+      if (s.length >= 10) pts++;
+      if (/[A-Z]/.test(s)) pts++;
+      if (/[0-9]/.test(s)) pts++;
+      if (/[^A-Za-z0-9]/.test(s)) pts++;
+      const mapa = [
+        { pct: 20,  label: 'Muito fraca',  classe: 'forca-fraca'  },
+        { pct: 40,  label: 'Fraca',        classe: 'forca-fraca'  },
+        { pct: 60,  label: 'Regular',      classe: 'forca-media'  },
+        { pct: 80,  label: 'Boa',          classe: 'forca-boa'    },
+        { pct: 100, label: 'Muito forte 💪', classe: 'forca-forte' },
+      ];
+      return mapa[Math.min(pts - 1, 4)] || mapa[0];
+    },
+
     avancarCadastro() {
       if (this.passoCadastro === 0 && !this.aceiteTermos) {
         this.erro = 'É necessário aceitar os Termos de Uso para continuar.';
+        return;
+      }
+      if (this.passoCadastro === 1 && !this.nomeCadastro.trim()) {
+        this.erro = 'Por favor, informe seu nome.';
+        return;
+      }
+      if (this.passoCadastro === 3 && !(this.emailCadastro.includes('@') && this.emailCadastro.includes('.'))) {
+        this.erro = 'Informe um e-mail válido.';
+        return;
+      }
+      if (this.passoCadastro === 4 && this.senhaCadastro.length < 6) {
+        this.erro = 'A senha deve ter pelo menos 6 caracteres.';
         return;
       }
       this.erro = '';
@@ -737,6 +1126,7 @@ document.addEventListener('alpine:init', () => {
 
     voltarCadastro() {
       this.erro = '';
+      this.senhaMostrar = false;
       if (this.passoCadastro > 0) this.passoCadastro--;
     },
 
@@ -907,7 +1297,12 @@ document.addEventListener('alpine:init', () => {
     },
     selecionarOpcaoAvatar(campo, valor) {
       if (!this.configAvatarCadastro) return;
-      this.configAvatarCadastro[campo] = valor;
+      this.configAvatarCadastro = { ...this.configAvatarCadastro, [campo]: valor };
+    },
+
+    // Background atual no CADASTRO
+    cssBgCadastroAvatar() {
+      return this._cssBgDeValor(this.configAvatarCadastro?.bgAvatar);
     },
 
     // Leitura Bíblia
@@ -1472,8 +1867,29 @@ document.addEventListener('alpine:init', () => {
     },
 
     narrarCapitulo(fromIdx = 0) {
+      if (!window.speechSynthesis) return;
+      // Modo aula: narrar parágrafos da aula
+      if (this.modoAulaEstudo && this.aulaSelecionadaEstudo) {
+        const paragrafos = this.aulaSelecionadaEstudo.conteudo || [];
+        if (!paragrafos.length) return;
+        this.narrando = true;
+        const fila = [this.aulaSelecionadaEstudo.titulo + '.', ...paragrafos];
+        this._narracaoIdx = fromIdx;
+        const falar = () => {
+          if (this._narracaoIdx >= fila.length) { this.narrando = false; return; }
+          const u = new SpeechSynthesisUtterance(fila[this._narracaoIdx]);
+          u.lang = 'pt-BR';
+          u.rate = this.velocidadeNarracao;
+          u.onend = () => { this._narracaoIdx++; falar(); };
+          window.speechSynthesis.speak(u);
+        };
+        window.speechSynthesis.cancel();
+        falar();
+        return;
+      }
+      // Modo Bíblia
       const verses = (this.capituloBiblia && this.capituloBiblia.verses) || [];
-      if (!verses.length || !window.speechSynthesis) return;
+      if (!verses.length) return;
       this.narrando = true;
       const livro = LIVROS_BIBLIA.find((l) => l.codigo === this.livroSelecionado);
       const nomeLivro = livro ? livro.nome : this.livroSelecionado;
@@ -1504,6 +1920,12 @@ document.addEventListener('alpine:init', () => {
 
     chaveNotacoesCapitulo() {
       const uid = this.modoDemo ? 'demo' : (this.usuario?.id || '');
+      if (this.modoHarpa && this.hinoSelecionado?.numero) {
+        return `notacoes_harpa_${uid}_${this.hinoSelecionado.numero}`;
+      }
+      if (this.modoAulaEstudo && this.aulaSelecionadaEstudo?.id) {
+        return `notacoes_aula_${uid}_${this.aulaSelecionadaEstudo.id}`;
+      }
       const trad = this.traducaoBiblia || 'arib';
       return `notacoes_${uid}_${trad}_${this.livroSelecionado}_${this.capituloSelecionado}`;
     },
@@ -1910,6 +2332,19 @@ document.addEventListener('alpine:init', () => {
     gruposBiblia: GRUPOS_BIBLIA,
 
     // Computed: lista filtrada pela busca e categoria/ordem ativa
+    // ── Harpa Cristã: hinos filtrados e paginados ──
+    get harpaHinosFiltrados() {
+      const q = (this.harpaBusca || '').trim().toLowerCase();
+      if (!q) return this.harpaHinos;
+      return this.harpaHinos.filter((h) =>
+        String(h.numero).includes(q) || h.titulo.toLowerCase().includes(q)
+      );
+    },
+    get harpaHinosPagina() {
+      const inicio = this.harpaPagina * this.HARPA_POR_PAGINA;
+      return this.harpaHinosFiltrados.slice(inicio, inicio + this.HARPA_POR_PAGINA);
+    },
+
     get livrosFiltrados() {
       const q = (this.filtroBiblia || '').trim().toLowerCase();
       const cat = this.filtroCategoriaBiblia || 'canonico';
@@ -2200,7 +2635,7 @@ document.addEventListener('alpine:init', () => {
       } else {
         this.quizFeedback = 'errado';
         this.quizErros++;
-        this.consumirCoracao();
+        this.consumirCoracaoComBônus(); // usa bônus do Escudo da Fé se equipado
         this.tocarSomErro();
       }
       
@@ -2470,20 +2905,267 @@ document.addEventListener('alpine:init', () => {
 
     // Funções do Inventário RPG
     getItemEquipadoSlot(slotId) {
-      // Mapear slot da armadura para item equipado
-      const slotMap = {
-        'cinto': 'cintura',
-        'peitoral': 'peito',
-        'sapato': 'pe',
-        'escudo': 'mao',
-        'elmo': 'cabeca',
-        'espada': 'mao'
+      // 1ª tentativa: match direto pelo campo slot
+      let found = (this.inventario || []).find(item =>
+        item.equipado && item.itens?.slot === slotId
+      );
+      if (found) return found.itens;
+
+      // 2ª tentativa: match por palavras-chave no nome (fallback retrocompat.)
+      const nameMap = {
+        cinto:    ['cinto', 'verdade'],
+        couraca:  ['coura', 'peitoral', 'justiça', 'justi'],
+        calcados: ['calç', 'calc', 'evangelho'],
+        escudo:   ['escudo', 'fé', 'fe'],
+        capacete: ['capacete', 'elmo', 'salva'],
+        espada:   ['espada', 'espírito', 'espirito'],
       };
-      const slotItem = slotMap[slotId] || slotId;
-      return (this.inventario || []).find(item => 
-        item.equipado && 
-        (item.itens?.slot === slotItem || item.itens?.nome?.toLowerCase().includes(slotId))
-      )?.itens || null;
+      const kws = nameMap[slotId] || [slotId];
+      found = (this.inventario || []).find(item =>
+        item.equipado && kws.some(kw => item.itens?.nome?.toLowerCase().includes(kw))
+      );
+      return found?.itens || null;
+    },
+
+    // Retorna lista de slots que têm item equipado
+    armaduraEquipada() {
+      return (this.ARMADURA_DEUS_SLOTS || []).filter(slot => this.getItemEquipadoSlot(slot.id));
+    },
+
+    // Equipa ou desequipa um slot pelo id (cinto, couraca, etc.)
+    async toggleEquiparSlot(slotId) {
+      const linhaEquipada = (this.inventario || []).find(item =>
+        item.equipado && (item.itens?.slot === slotId ||
+          (this.getItemEquipadoSlot(slotId) && item.itens === this.getItemEquipadoSlot(slotId)))
+      );
+
+      if (linhaEquipada) {
+        // Desequipar
+        if (this.modoDemo) {
+          this.inventario = this.inventario.map(i =>
+            i.id === linhaEquipada.id ? { ...i, equipado: false } : i
+          );
+          return;
+        }
+        await this.toggleEquipar(linhaEquipada);
+      } else {
+        // Equipar — busca item disponível do slot
+        const linhaDisp = (this.inventario || []).find(item =>
+          !item.equipado && item.itens?.slot === slotId
+        );
+        if (linhaDisp) {
+          if (this.modoDemo) {
+            this.inventario = this.inventario.map(i =>
+              i.id === linhaDisp.id ? { ...i, equipado: true } : i
+            );
+            return;
+          }
+          await this.toggleEquipar(linhaDisp);
+        } else {
+          this.sucesso = 'Você não tem esta peça. Visite a Loja!';
+          setTimeout(() => (this.sucesso = ''), 3000);
+        }
+      }
+    },
+
+    // =====================================================
+    // INVENTÁRIO CRUD — Equip / Unequip / Swap / Sell
+    // =====================================================
+
+    /** Abre o modal de detalhes de um item do inventário */
+    abrirInventarioItem(linha) {
+      this.inventarioItemModal = { aberto: true, linha };
+    },
+
+    /** Fecha o modal */
+    fecharInventarioItem() {
+      this.inventarioItemModal = { aberto: false, linha: null };
+    },
+
+    /**
+     * Equipa ou desequipa item do inventário.
+     * — Armadura: usa slot exclusivo (troca automática se necessário).
+     * — Permanente: máximo de 3 equipados simultâneos.
+     * — Consumível: não pode ser equipado.
+     */
+    async equiparItemInventario(linhaIdOuObj) {
+      // Aceita tanto um ID (string) quanto um objeto/proxy — normaliza para ID
+      const linhaId = (typeof linhaIdOuObj === 'string') ? linhaIdOuObj : linhaIdOuObj?.id;
+      if (!linhaId) { console.warn('[equipar] linhaId não encontrado', linhaIdOuObj); return; }
+
+      // Busca o item ATUAL no array reativo (evita problemas com proxies stale)
+      const inventarioArr = JSON.parse(JSON.stringify(this.inventario || []));
+      const linha = inventarioArr.find(i => i.id === linhaId);
+      if (!linha) { console.warn('[equipar] item não encontrado no inventário:', linhaId); return; }
+
+      const tipo = linha.itens?.tipo;
+      if (tipo === 'consumivel') {
+        this.erro = 'Consumíveis não podem ser equipados. Use-os diretamente!';
+        setTimeout(() => (this.erro = ''), 3000);
+        return;
+      }
+
+      if (tipo === 'armadura') {
+        const slotId = linha.itens?.slot;
+        if (!slotId) return;
+        // Desequipar item atual do mesmo slot (swap automático)
+        const atualId = inventarioArr.find(
+          i => i.equipado && i.itens?.slot === slotId && i.id !== linhaId
+        )?.id;
+        if (atualId) {
+          if (this.modoDemo) {
+            this.inventario = this.inventario.map(i => i.id === atualId ? { ...i, equipado: false } : i);
+          } else {
+            await equiparItem(this.usuario.id, atualId, false);
+          }
+        }
+        // Equipar / desequipar o novo
+        if (this.modoDemo) {
+          const novoEquipado = !linha.equipado;
+          this.inventario = this.inventario.map(i => i.id === linhaId ? { ...i, equipado: novoEquipado } : i);
+          this._salvarInventarioDemo();
+        } else {
+          const r = await equiparItem(this.usuario.id, linhaId, !linha.equipado);
+          if (r.sucesso) await this.carregarDadosUsuario();
+          else this.erro = r.erro || '';
+        }
+      } else if (tipo === 'permanente') {
+        // Checar limite máximo
+        const limite = this.SLOTS_PERMANENTES?.maximo || 3;
+        const equipados = inventarioArr.filter(
+          i => i.equipado && i.itens?.tipo === 'permanente' && i.id !== linhaId
+        ).length;
+        if (!linha.equipado && equipados >= limite) {
+          this.erro = `Máximo de ${limite} itens permanentes equipados. Desequipe um antes.`;
+          setTimeout(() => (this.erro = ''), 3500);
+          return;
+        }
+        if (this.modoDemo) {
+          const novoEquipado = !linha.equipado;
+          this.inventario = this.inventario.map(i => i.id === linhaId ? { ...i, equipado: novoEquipado } : i);
+          this._salvarInventarioDemo();
+        } else {
+          const r = await equiparItem(this.usuario.id, linhaId, !linha.equipado);
+          if (r.sucesso) await this.carregarDadosUsuario();
+          else this.erro = r.erro || '';
+        }
+      }
+
+      // Atualiza a linha no modal com o dado fresco
+      const linhaAtualizada = this.inventario.find(i => i.id === linhaId);
+      if (linhaAtualizada) this.inventarioItemModal = { ...this.inventarioItemModal, linha: { ...linhaAtualizada } };
+      this.sucesso = linha.equipado ? 'Item desequipado! ✓' : 'Item equipado! ✓';
+      setTimeout(() => (this.sucesso = ''), 2500);
+    },
+
+    /** Salva o inventário demo no localStorage para persistência */
+    _salvarInventarioDemo() {
+      try {
+        const raw = JSON.parse(JSON.stringify(this.inventario || []));
+        localStorage.setItem('demo_inventario', JSON.stringify(raw));
+      } catch (e) { console.warn('[demo] Falha ao salvar inventário:', e); }
+    },
+
+    /**
+     * Vende um item do inventário por 50% do preço original.
+     * Se equipado, desequipa automaticamente antes de vender.
+     */
+    async venderItem(linhaIdOuObj) {
+      const linhaId = (typeof linhaIdOuObj === 'string') ? linhaIdOuObj : linhaIdOuObj?.id;
+      const inventarioArr = JSON.parse(JSON.stringify(this.inventario || []));
+      const linha = inventarioArr.find(i => i.id === linhaId);
+      if (!linha) return;
+      const preco = Math.max(1, Math.floor((linha.itens?.preco_ouro || 10) * 0.5));
+      if (this.modoDemo) {
+        // Remover ou decrementar quantidade
+        if ((linha.quantidade || 1) > 1) {
+          this.inventario = this.inventario.map(i =>
+            i.id === linhaId ? { ...i, quantidade: i.quantidade - 1 } : i
+          );
+        } else {
+          this.inventario = this.inventario.filter(i => i.id !== linhaId);
+        }
+        this.moeda = { ...(this.moeda || {}), ouro: (this.moeda?.ouro || 0) + preco };
+        this._salvarInventarioDemo();
+        this.sucesso = `Vendido por ${preco} ouro! 💰`;
+        setTimeout(() => (this.sucesso = ''), 2500);
+        this.fecharInventarioItem();
+        return;
+      }
+      // Modo real — TODO: chamar API de venda quando disponível
+      this.sucesso = `Vendido por ${preco} ouro! 💰`;
+      setTimeout(() => (this.sucesso = ''), 2500);
+      this.fecharInventarioItem();
+    },
+
+    // =====================================================
+    // SISTEMA DE BÔNUS GLOBAIS (Armadura + Permanentes + Consumíveis)
+    // =====================================================
+
+    /**
+     * Retorna o valor total de bônus de um determinado tipo.
+     * Tipos: 'xp_leitura' | 'xp_estudo' | 'xp_missao' | 'resistencia'
+     *        | 'protecao' | 'penalidade_quiz'
+     */
+    getBonusAtivo(tipo) {
+      let total = 0;
+      // 1. Bônus de armadura equipada
+      for (const slot of (this.ARMADURA_DEUS_SLOTS || [])) {
+        if (this.getItemEquipadoSlot(slot.id)) {
+          const ef = this.ARMADURA_EFEITOS?.[slot.id];
+          if (ef && ef.tipo === tipo) total += ef.valor;
+        }
+      }
+      // 2. Bônus de itens permanentes equipados
+      for (const linha of (this.inventario || [])) {
+        if (linha.equipado && linha.itens?.tipo === 'permanente' && linha.itens?.efeitos?.[tipo]) {
+          total += linha.itens.efeitos[tipo];
+        }
+      }
+      // 3. Bônus de consumíveis ativos
+      for (const ef of (this.efeitosAtivos || [])) {
+        if (ef.itens?.efeitos?.[tipo]) total += ef.itens.efeitos[tipo];
+      }
+      return total;
+    },
+
+    /**
+     * Retorna multiplicador de XP para o contexto dado.
+     * Ex: getMultiplicadorXP('leitura') → 1.05 se capacete equipado
+     */
+    getMultiplicadorXP(contexto = 'geral') {
+      const bonus = this.getBonusAtivo('xp_' + contexto);
+      return 1 + (bonus / 100);
+    },
+
+    /**
+     * Retorna percentual de redução de penalidade no quiz (0–100).
+     * Ex: com escudo → 20 (%)
+     */
+    getPenalidadeQuizReducao() {
+      return Math.abs(this.getBonusAtivo('penalidade_quiz'));
+    },
+
+    /**
+     * Ao errar no quiz: com escudo da fé, 20% de chance de salvar o coração.
+     */
+    consumirCoracaoComBônus() {
+      const reducao = this.getPenalidadeQuizReducao(); // ex: 20
+      const salvo = Math.random() * 100 < reducao;
+      if (salvo) {
+        this.sucesso = '🛡 Escudo da Fé protegeu seu coração!';
+        setTimeout(() => (this.sucesso = ''), 2000);
+        return; // não consome
+      }
+      this.consumirCoracao();
+    },
+
+    /** Lista de bônus ativos para exibição rápida */
+    listaBonusAtivos() {
+      const tipos = ['xp_leitura', 'xp_estudo', 'xp_missao', 'resistencia', 'protecao', 'penalidade_quiz'];
+      return tipos
+        .map(tipo => ({ tipo, valor: this.getBonusAtivo(tipo) }))
+        .filter(b => b.valor !== 0);
     },
 
     isFrutoDesbloqueado(index) {

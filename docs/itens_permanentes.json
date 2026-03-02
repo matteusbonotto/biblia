@@ -1,0 +1,124 @@
+{
+  "_meta": {
+    "descricao": "Catálogo completo de itens permanentes do app Jornada Bíblica.",
+    "tipo_geral": "permanente",
+    "regras": [
+      "Itens permanentes oferecem efeito passivo contínuo enquanto estiverem equipados.",
+      "O jogador pode equipar no máximo 3 itens permanentes simultâneos (SLOTS_PERMANENTES.maximo = 3).",
+      "Equipar um 4º item sem slot livre obriga o jogador a trocar (swap) com um já equipado.",
+      "Não são consumidos ao usar — permanecem no inventário.",
+      "Alguns itens permanentes desbloqueiam seções do app (navegação guardada).",
+      "Podem ser vendidos na loja por ouro (valor menor que o preço de compra)."
+    ],
+    "slots_maximo": 3,
+    "slot_label": "Itens Permanentes"
+  },
+  "itens": [
+    {
+      "id": "item-biblia",
+      "slug": "biblia-sagrada",
+      "nome": "Bíblia Sagrada",
+      "subtitulo": "Permanente · Épico",
+      "descricao": "A Palavra de Deus. Equipar desbloqueia a seção de Leitura Bíblica.",
+      "descricao_completa": "Inspirada em Salmos 119.105 — 'Lâmpada para os meus pés é a tua palavra, e luz para o meu caminho'. Equipar este item desbloqueia o acesso completo à seção de Leitura Bíblica com todas as traduções, marcações e notas.",
+      "referencia_biblica": "Salmos 119.105",
+      "tipo": "permanente",
+      "raridade": "epico",
+      "icone": "bi-book-fill",
+      "preco_ouro": 50,
+      "nivel_requerido": 1,
+      "efeito_bonus": "Acesso à Leitura Bíblica",
+      "efeito_tipo": "acesso_pagina",
+      "pagina_desbloqueada": "leitura-biblia",
+      "categoria": "Relíquia",
+      "requisito_acesso": true,
+      "pode_vender": true,
+      "valor_venda": 25,
+      "recompensa_possivel_em": ["loja", "missoes"]
+    },
+    {
+      "id": "item-harpa",
+      "slug": "harpa-crista",
+      "nome": "Harpa Cristã",
+      "subtitulo": "Permanente · Raro",
+      "descricao": "Instrumento de louvor. Equipar desbloqueia a Harpa Cristã.",
+      "descricao_completa": "Inspirada em Salmos 96.1 — 'Cantai ao Senhor um cântico novo'. Equipar este item desbloqueia o acesso à seção da Harpa Cristã com todos os hinos e o player de áudio.",
+      "referencia_biblica": "Salmos 96.1",
+      "tipo": "permanente",
+      "raridade": "raro",
+      "icone": "bi-music-note-beamed",
+      "preco_ouro": 30,
+      "nivel_requerido": 1,
+      "efeito_bonus": "Acesso à Harpa Cristã",
+      "efeito_tipo": "acesso_pagina",
+      "pagina_desbloqueada": "harpa",
+      "categoria": "Instrumento",
+      "requisito_acesso": true,
+      "pode_vender": true,
+      "valor_venda": 15,
+      "recompensa_possivel_em": ["loja", "missoes"]
+    },
+    {
+      "id": "item-espada",
+      "slug": "espada-do-espirito",
+      "nome": "Espada do Espírito",
+      "subtitulo": "Permanente · Lendário",
+      "descricao": "A Palavra de Deus como arma ofensiva. Equipar desbloqueia o Estudo do Evangelho.",
+      "descricao_completa": "Baseada em Efésios 6.17 — 'tomai... a espada do Espírito, que é a palavra de Deus'. Além de desbloquear o Estudo do Evangelho, concede +20% XP em todas as aulas enquanto equipada.",
+      "referencia_biblica": "Efésios 6.17b",
+      "tipo": "permanente",
+      "raridade": "lendario",
+      "icone": "bi-sword",
+      "preco_ouro": 100,
+      "nivel_requerido": 10,
+      "efeito_bonus": "Acesso ao Estudo do Evangelho + +20% XP por estudo",
+      "efeito_tipo": "acesso_pagina",
+      "pagina_desbloqueada": "espada",
+      "bonus_adicional": {
+        "tipo": "xp_estudo",
+        "valor": 20,
+        "descricao": "+20% XP por estudo"
+      },
+      "categoria": "Arma",
+      "requisito_acesso": true,
+      "pode_vender": true,
+      "valor_venda": 50,
+      "recompensa_possivel_em": ["loja"]
+    }
+  ],
+  "itens_futuros": [
+    {
+      "id": "item-lampada",
+      "nome": "Lâmpada da Fé",
+      "descricao": "Ilumina o caminho — revela missões escondidas no mapa.",
+      "referencia_biblica": "Salmos 119.105",
+      "raridade": "raro",
+      "efeito_previsto": "Desbloqueia missões bônus ocultas",
+      "status": "planejado"
+    },
+    {
+      "id": "item-anel-salomao",
+      "nome": "Anel de Salomão",
+      "descricao": "Sabedoria passiva — +15% ouro recebido em recompensas.",
+      "referencia_biblica": "1 Reis 3.12",
+      "raridade": "epico",
+      "efeito_previsto": "+15% ouro em recompensas",
+      "status": "planejado"
+    },
+    {
+      "id": "item-manto-profeta",
+      "nome": "Manto do Profeta",
+      "descricao": "A autoridade espiritual — reduz custo de missões em 10%.",
+      "referencia_biblica": "2 Reis 2.13",
+      "raridade": "lendario",
+      "efeito_previsto": "-10% custo ouro das missões",
+      "status": "planejado"
+    }
+  ],
+  "raridades": {
+    "comum":   { "cor": "#6b7280", "label": "Comum",    "drop_rate": "60%" },
+    "raro":    { "cor": "#3b82f6", "label": "Raro",     "drop_rate": "25%" },
+    "epico":   { "cor": "#8b5cf6", "label": "Épico",    "drop_rate": "12%" },
+    "lendario":{ "cor": "#f59e0b", "label": "Lendário", "drop_rate": "3%"  }
+  }
+}

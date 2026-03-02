@@ -1,0 +1,236 @@
+{
+  "_meta": {
+    "descricao": "Catálogo completo de modelos de missão do app Jornada Bíblica.",
+    "regras": [
+      "Missões são geradas a partir de modelos (modelos_missao).",
+      "Cada missão tem prazo, status e recompensas.",
+      "Status possíveis: ativa, concluida, expirada, abandonada.",
+      "Tipos: humana, espiritual, conhecimento, tarefa, casal, colaborativa.",
+      "Missões do tipo 'tarefa' podem ter checklist com subtarefas.",
+      "Missões colaborativas têm meta_total e participantes.",
+      "Recompensas: XP, ouro e às vezes itens.",
+      "Consequências: XP e ouro perdidos se não concluída (atualmente zerados)."
+    ],
+    "tipos": {
+      "humana":      { "icone": "bi-person-heart",  "cor": "#10b981", "descricao": "Missões de conduta e caráter humano" },
+      "espiritual":  { "icone": "bi-heart",          "cor": "#6366f1", "descricao": "Missões de vida espiritual e devoção" },
+      "conhecimento":{ "icone": "bi-book",           "cor": "#f59e0b", "descricao": "Missões de estudo bíblico e conhecimento" },
+      "tarefa":      { "icone": "bi-check-circle",   "cor": "#3b82f6", "descricao": "Missões com checklist de subtarefas" },
+      "casal":       { "icone": "bi-people",         "cor": "#ec4899", "descricao": "Missões para casais" },
+      "colaborativa":{ "icone": "bi-people-fill",    "cor": "#8b5cf6", "descricao": "Missões em grupo com meta coletiva" }
+    },
+    "total_modelos": 16
+  },
+  "modelos": [
+    {
+      "id": "mod-1",
+      "titulo": "Não mentir hoje",
+      "subtitulo": "Missão Humana Diária",
+      "descricao": "Comprometa-se a falar a verdade durante o dia. Seja honesto em todas as suas palavras e ações.",
+      "tipo": "humana",
+      "icone": "bi-person-heart",
+      "prazo_padrao_horas": 168,
+      "recompensa": { "xp": 10, "ouro": 5, "itens": [] },
+      "referencia_biblica": "Lucas 6.45 — 'A boca fala do que está cheio o coração'",
+      "ativo": true
+    },
+    {
+      "id": "mod-2",
+      "titulo": "Orar por alguém",
+      "subtitulo": "Missão Espiritual",
+      "descricao": "Interceda por uma pessoa específica. Dedique um tempo de oração intercessória.",
+      "tipo": "espiritual",
+      "icone": "bi-heart",
+      "prazo_padrao_horas": 168,
+      "recompensa": { "xp": 15, "ouro": 5, "itens": [] },
+      "referencia_biblica": "Tiago 5.16 — 'Orai uns pelos outros'",
+      "ativo": true
+    },
+    {
+      "id": "mod-3",
+      "titulo": "Ler 1 capítulo da Bíblia",
+      "subtitulo": "Missão de Conhecimento",
+      "descricao": "Leia um capítulo completo da Bíblia e marque como lido.",
+      "tipo": "conhecimento",
+      "icone": "bi-book",
+      "prazo_padrao_horas": 168,
+      "recompensa": { "xp": 20, "ouro": 10, "itens": [] },
+      "referencia_biblica": "Josué 1.8 — 'Não se aparte o livro desta lei'",
+      "ativo": true
+    },
+    {
+      "id": "mod-4",
+      "titulo": "Fazer 3 boas ações",
+      "subtitulo": "Missão de Tarefa",
+      "descricao": "Realize três atos de bondade hoje. Demonstre amor ao próximo através de ações práticas.",
+      "tipo": "tarefa",
+      "icone": "bi-check-circle",
+      "prazo_padrao_horas": 168,
+      "checklist_template": [
+        "Ajudar alguém com uma necessidade prática",
+        "Fazer um elogio sincero a alguém",
+        "Doar algo para alguém necessitado"
+      ],
+      "recompensa": { "xp": 15, "ouro": 5, "itens": [] },
+      "referencia_biblica": "Mateus 5.16 — 'Assim brilhe a vossa luz diante dos homens'",
+      "ativo": true
+    },
+    {
+      "id": "mod-5",
+      "titulo": "Jejuar por 12 horas",
+      "subtitulo": "Missão Espiritual Avançada",
+      "descricao": "Complete um jejum de 12 horas. Esta missão espiritual fortalece sua comunhão com Deus.",
+      "tipo": "espiritual",
+      "icone": "bi-heart-pulse",
+      "prazo_padrao_horas": 168,
+      "recompensa": { "xp": 50, "ouro": 25, "itens": ["Pão da Vida"] },
+      "referencia_biblica": "Mateus 6.16 — 'Quando jejuardes'",
+      "ativo": true
+    },
+    {
+      "id": "mod-6",
+      "titulo": "Evangelizar 3 pessoas",
+      "subtitulo": "Missão Espiritual de Impacto",
+      "descricao": "Compartilhe o evangelho com três pessoas. Seja um instrumento de transformação.",
+      "tipo": "espiritual",
+      "icone": "bi-megaphone",
+      "prazo_padrao_horas": 168,
+      "recompensa": { "xp": 75, "ouro": 30, "itens": ["Cálice Sagrado", "Bíblia Sagrada"] },
+      "referencia_biblica": "Marcos 16.15 — 'Ide por todo o mundo e pregai o evangelho'",
+      "ativo": true
+    },
+    {
+      "id": "mod-7",
+      "titulo": "Estudar um livro da Bíblia",
+      "subtitulo": "Missão de Conhecimento Avançada",
+      "descricao": "Leia e estude um livro completo da Bíblia. Aprofunde seu conhecimento bíblico.",
+      "tipo": "conhecimento",
+      "icone": "bi-journal-bookmark",
+      "prazo_padrao_horas": 168,
+      "recompensa": { "xp": 100, "ouro": 50, "itens": ["Bíblia Sagrada", "Cinto da Verdade"] },
+      "referencia_biblica": "2 Timóteo 3.16 — 'Toda Escritura é inspirada por Deus'",
+      "ativo": true
+    },
+    {
+      "id": "mod-8",
+      "titulo": "Perdoar alguém",
+      "subtitulo": "Missão Humana de Libertação",
+      "descricao": "Perdoe alguém que te magoou. A libertação do perdão transforma vidas.",
+      "tipo": "humana",
+      "icone": "bi-heart-arrow",
+      "prazo_padrao_horas": 168,
+      "recompensa": { "xp": 30, "ouro": 15, "itens": ["Cálice Sagrado"] },
+      "referencia_biblica": "Mateus 6.12 — 'Perdoai-nos as nossas dívidas, assim como nós perdoamos'",
+      "ativo": true
+    },
+    {
+      "id": "mod-9",
+      "titulo": "Servir na igreja",
+      "subtitulo": "Missão de Tarefa de Serviço",
+      "descricao": "Dedique tempo servindo na sua igreja ou comunidade. Seja uma bênção para outros.",
+      "tipo": "tarefa",
+      "icone": "bi-people",
+      "prazo_padrao_horas": 168,
+      "recompensa": { "xp": 40, "ouro": 20, "itens": ["Pão da Vida"] },
+      "referencia_biblica": "Marcos 10.45 — 'O Filho do homem veio para servir'",
+      "ativo": true
+    },
+    {
+      "id": "mod-10",
+      "titulo": "Meditar na Palavra por 30 minutos",
+      "subtitulo": "Missão de Conhecimento Profundo",
+      "descricao": "Dedique 30 minutos meditando em um versículo ou passagem bíblica.",
+      "tipo": "conhecimento",
+      "icone": "bi-lightbulb",
+      "prazo_padrao_horas": 168,
+      "recompensa": { "xp": 25, "ouro": 12, "itens": [] },
+      "referencia_biblica": "Salmos 119.15 — 'Meditarei nos teus preceitos'",
+      "ativo": true
+    },
+    {
+      "id": "mod-11",
+      "titulo": "Confessar um pecado",
+      "subtitulo": "Missão Humana de Arrependimento",
+      "descricao": "Confesse um pecado a Deus e a alguém de confiança. O arrependimento traz libertação.",
+      "tipo": "humana",
+      "icone": "bi-chat-heart",
+      "prazo_padrao_horas": 168,
+      "recompensa": { "xp": 35, "ouro": 18, "itens": [] },
+      "referencia_biblica": "Tiago 5.16 — 'Confessai as vossas culpas uns aos outros'",
+      "ativo": true
+    },
+    {
+      "id": "mod-12",
+      "titulo": "Gratidão diária por 7 dias",
+      "subtitulo": "Missão Espiritual de Transformação",
+      "descricao": "Anote 3 coisas pelas quais você é grato todos os dias durante uma semana.",
+      "tipo": "espiritual",
+      "icone": "bi-emoji-smile",
+      "prazo_padrao_horas": 168,
+      "recompensa": { "xp": 60, "ouro": 35, "itens": ["Pão da Vida", "Cálice Sagrado"] },
+      "referencia_biblica": "1 Tessalonicenses 5.18 — 'Em tudo dai graças'",
+      "ativo": true
+    },
+    {
+      "id": "mod-13",
+      "titulo": "Ajudar um necessitado",
+      "subtitulo": "Missão de Tarefa de Amor",
+      "descricao": "Ajude alguém em necessidade. Pode ser com comida, roupas, tempo ou recursos.",
+      "tipo": "tarefa",
+      "icone": "bi-hand-thumbs-up",
+      "prazo_padrao_horas": 168,
+      "recompensa": { "xp": 45, "ouro": 22, "itens": ["Cálice Sagrado"] },
+      "referencia_biblica": "Mateus 25.40 — 'Quando o fizestes a um destes meus pequeninos irmãos, a mim o fizestes'",
+      "ativo": true
+    },
+    {
+      "id": "mod-14",
+      "titulo": "Memorizar um versículo",
+      "subtitulo": "Missão de Conhecimento",
+      "descricao": "Memorize um versículo bíblico e recite-o diariamente. A Palavra no coração transforma.",
+      "tipo": "conhecimento",
+      "icone": "bi-brain",
+      "prazo_padrao_horas": 168,
+      "recompensa": { "xp": 20, "ouro": 10, "itens": [] },
+      "referencia_biblica": "Salmos 119.11 — 'Guardo no coração as tuas palavras'",
+      "ativo": true
+    },
+    {
+      "id": "mod-15",
+      "titulo": "Fazer 3 boas ações",
+      "subtitulo": "Missão de Tarefa",
+      "descricao": "Realize três atos de bondade hoje. Demonstre amor ao próximo através de ações práticas.",
+      "tipo": "tarefa",
+      "icone": "bi-check-circle",
+      "prazo_padrao_horas": 168,
+      "checklist_template": [
+        "Ajudar alguém com uma necessidade prática",
+        "Fazer um elogio sincero a alguém",
+        "Doar algo para alguém necessitado"
+      ],
+      "recompensa": { "xp": 15, "ouro": 5, "itens": [] },
+      "referencia_biblica": "Mateus 5.16 — 'Assim brilhe a vossa luz'",
+      "ativo": true
+    },
+    {
+      "id": "mod-16",
+      "titulo": "Evangelizar 10 pessoas juntos",
+      "subtitulo": "Missão Colaborativa Espiritual",
+      "descricao": "Trabalhem juntos para compartilhar o evangelho com 10 pessoas.",
+      "tipo": "espiritual",
+      "icone": "bi-people-fill",
+      "prazo_padrao_horas": 168,
+      "tipo_colaborativa": true,
+      "meta_total": 100,
+      "recompensa": { "xp": 150, "ouro": 75, "itens": ["Cálice Sagrado", "Bíblia Sagrada"] },
+      "referencia_biblica": "Salmos 133.1 — 'Eis que bom e quão suave é que os irmãos vivam em união'",
+      "ativo": true
+    }
+  ],
+  "status_possiveis": {
+    "ativa":      { "cor": "#10b981", "label": "Em andamento" },
+    "concluida":  { "cor": "#6366f1", "label": "Concluída" },
+    "expirada":   { "cor": "#f59e0b", "label": "Expirada" },
+    "abandonada": { "cor": "#ef4444", "label": "Abandonada" }
+  }
+}

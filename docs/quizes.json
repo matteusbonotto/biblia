@@ -1,0 +1,291 @@
+{
+  "_meta": {
+    "descricao": "Todas as perguntas de quiz do app Jornada Bíblica, organizadas por trilha e aula.",
+    "regras": [
+      "Cada aula pode ter um quiz próprio (quiz inline).",
+      "Cada trilha tem um quiz de módulo (quizModulo) com perguntas gerais.",
+      "A alternativa correta é indicada pelo índice (0-based) no array 'alternativas'.",
+      "Errar uma resposta consome 1 coração (vida). O Escudo da Fé tem 20% de chance de proteger.",
+      "Acertar todas as perguntas de um quiz de aula marca a aula como 'quizAprovado'.",
+      "XP ganho: variável por contexto (aula, módulo, missão de quiz)."
+    ],
+    "total_trilhas": 5,
+    "total_perguntas": 35
+  },
+  "trilhas": [
+    {
+      "id": "solas",
+      "titulo": "As Solas da Reforma",
+      "quiz_modulo": {
+        "id": "quiz-modulo-solas",
+        "total_perguntas": 5,
+        "perguntas": [
+          {
+            "id": "q-solas-1",
+            "pergunta": "Qual das Solas afirma que a Bíblia é a única regra infalível de fé e prática?",
+            "alternativas": ["Sola Fide", "Sola Scriptura", "Sola Gratia", "Solus Christus"],
+            "correta": 1,
+            "explicacao": "Sola Scriptura = Somente a Escritura. A Bíblia é a única regra infalível de fé e prática da Igreja.",
+            "referencia": "2 Timóteo 3.16-17"
+          },
+          {
+            "id": "q-solas-2",
+            "pergunta": "Pela graça sois salvos, por meio da...",
+            "alternativas": ["obras", "fé", "tradição", "razão"],
+            "correta": 1,
+            "explicacao": "Efésios 2.8 — 'Pela graça sois salvos, por meio da fé'. Sola Fide = Somente a fé.",
+            "referencia": "Efésios 2.8-9"
+          },
+          {
+            "id": "q-solas-3",
+            "pergunta": "Quem é o único Mediador entre Deus e os homens?",
+            "alternativas": ["Maria", "O papa", "Cristo", "Os santos"],
+            "correta": 2,
+            "explicacao": "1 Timóteo 2.5 — 'Há um só Deus, e um só Mediador entre Deus e os homens, Jesus Cristo'.",
+            "referencia": "1 Timóteo 2.5"
+          },
+          {
+            "id": "q-solas-4",
+            "pergunta": "'A ele, pois, a glória para sempre' refere-se a qual Sola?",
+            "alternativas": ["Sola Scriptura", "Soli Deo Gloria", "Sola Gratia", "Sola Fide"],
+            "correta": 1,
+            "explicacao": "Soli Deo Gloria = Glória somente a Deus. Romanos 11.36 — 'A ele, pois, a glória para sempre'.",
+            "referencia": "Romanos 11.36"
+          },
+          {
+            "id": "q-solas-5",
+            "pergunta": "A salvação é iniciativa de quem?",
+            "alternativas": ["Do homem", "De Deus (graça)", "Da igreja", "Das obras"],
+            "correta": 1,
+            "explicacao": "Sola Gratia = Somente a graça. A iniciativa da salvação é sempre de Deus — o homem morto em pecados não pode se salvar.",
+            "referencia": "Efésios 2.1-5"
+          }
+        ]
+      },
+      "quizzes_aulas": [
+        {
+          "aula_id": "sola-scriptura",
+          "aula_titulo": "Sola Scriptura — Só a Escritura",
+          "perguntas": [
+            {
+              "id": "q-scriptura-1",
+              "pergunta": "O que é a única regra infalível de fé e prática?",
+              "alternativas": ["A tradição da igreja", "A Bíblia (Escritura)", "Os concílios", "A razão humana"],
+              "correta": 1,
+              "referencia": "2 Timóteo 3.16"
+            },
+            {
+              "id": "q-scriptura-2",
+              "pergunta": "Em 2 Timóteo 3.16, a Escritura é útil para:",
+              "alternativas": ["Apenas ensino", "Ensinar, repreender, corrigir e educar na justiça", "Apenas correção", "Apenas repreensão"],
+              "correta": 1,
+              "referencia": "2 Timóteo 3.16-17"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "doutrinas-graca",
+      "titulo": "Doutrinas da Graça (TULIP)",
+      "quiz_modulo": {
+        "id": "quiz-modulo-tulip",
+        "total_perguntas": 5,
+        "perguntas": [
+          {
+            "id": "q-tulip-1",
+            "pergunta": "O que a letra T de TULIP significa?",
+            "alternativas": ["Total depravação", "Eleição incondicional", "Expiação limitada", "Graça irresistível"],
+            "correta": 0,
+            "explicacao": "T = Total Depravação. Por causa da queda, o ser humano está espiritualmente morto e incapaz de se voltar para Deus por si mesmo.",
+            "referencia": "Romanos 3.10-18"
+          },
+          {
+            "id": "q-tulip-2",
+            "pergunta": "A eleição é baseada em mérito humano?",
+            "alternativas": ["Sim", "Não, é incondicional", "Às vezes", "Só para alguns"],
+            "correta": 1,
+            "explicacao": "U = Eleição Incondicional. Deus elegeu antes da fundação do mundo, não com base em mérito ou fé prevista.",
+            "referencia": "Efésios 1.4-5"
+          },
+          {
+            "id": "q-tulip-3",
+            "pergunta": "Por quem Cristo deu a vida (João 10.11)?",
+            "alternativas": ["Por todos indistintamente", "Pelas ovelhas (seus)", "Por quem quiser", "Por ninguém"],
+            "correta": 1,
+            "explicacao": "L = Expiação Definida (ou Limitada). Cristo morreu para salvar efetivamente os seus — os eleitos.",
+            "referencia": "João 10.11, 15"
+          },
+          {
+            "id": "q-tulip-4",
+            "pergunta": "Quem garante a perseverança dos santos?",
+            "alternativas": ["O crente sozinho", "Deus", "A igreja", "As obras"],
+            "correta": 1,
+            "explicacao": "P = Perseverança dos Santos. Os que Deus escolheu e regenerou não se perdem — é obra de Deus, não do homem.",
+            "referencia": "Filipenses 1.6"
+          },
+          {
+            "id": "q-tulip-5",
+            "pergunta": "O chamado eficaz de Deus é...",
+            "alternativas": ["Sempre rejeitado", "Irresistível para os eleitos", "Apenas externo", "Raro"],
+            "correta": 1,
+            "explicacao": "I = Graça Irresistível. Quando Deus chama internamente pela Palavra e pelo Espírito, esse chamado é eficaz.",
+            "referencia": "João 6.37, 44"
+          }
+        ]
+      },
+      "quizzes_aulas": []
+    },
+    {
+      "id": "soberania-deus",
+      "titulo": "Soberania de Deus",
+      "quiz_modulo": {
+        "id": "quiz-modulo-soberania",
+        "total_perguntas": 3,
+        "perguntas": [
+          {
+            "id": "q-sob-1",
+            "pergunta": "Quem estabeleceu o trono nos céus e domina sobre tudo (Sl 103.19)?",
+            "alternativas": ["O homem", "O Senhor", "Os anjos", "A natureza"],
+            "correta": 1,
+            "referencia": "Salmos 103.19"
+          },
+          {
+            "id": "q-sob-2",
+            "pergunta": "A salvação depende de quem quer ou de quem corre?",
+            "alternativas": ["Sim", "Não, de Deus que usa de misericórdia", "De ambos", "Do sacerdote"],
+            "correta": 1,
+            "referencia": "Romanos 9.15-18"
+          },
+          {
+            "id": "q-sob-3",
+            "pergunta": "Deus faz tudo o que lhe...",
+            "alternativas": ["pedem", "apraz", "obrigam", "sugerem"],
+            "correta": 1,
+            "referencia": "Salmos 115.3"
+          }
+        ]
+      },
+      "quizzes_aulas": []
+    },
+    {
+      "id": "pactos",
+      "titulo": "Os Pactos na Bíblia",
+      "quiz_modulo": {
+        "id": "quiz-modulo-pactos",
+        "total_perguntas": 4,
+        "perguntas": [
+          {
+            "id": "q-pacto-1",
+            "pergunta": "Com quem Deus fez o pacto das obras (vida por obediência)?",
+            "alternativas": ["Abraão", "Adão", "Moisés", "Noé"],
+            "correta": 1,
+            "referencia": "Gênesis 2.16-17"
+          },
+          {
+            "id": "q-pacto-2",
+            "pergunta": "O que a queda de Adão trouxe a todos (Rm 5.12)?",
+            "alternativas": ["Bênção", "Pecado e morte", "Sabedoria", "Riqueza"],
+            "correta": 1,
+            "referencia": "Romanos 5.12"
+          },
+          {
+            "id": "q-pacto-3",
+            "pergunta": "Quem é a 'descendência' de Abraão em quem as promessas se cumprem (Gl 3.16)?",
+            "alternativas": ["Israel", "Cristo", "A igreja", "Os apóstolos"],
+            "correta": 1,
+            "referencia": "Gálatas 3.16"
+          },
+          {
+            "id": "q-pacto-4",
+            "pergunta": "O pacto da graça foi prometido logo após a queda em qual texto?",
+            "alternativas": ["Êxodo", "Gênesis 3.15", "Romanos", "Hebreus"],
+            "correta": 1,
+            "referencia": "Gênesis 3.15"
+          }
+        ]
+      },
+      "quizzes_aulas": []
+    },
+    {
+      "id": "obras-carne-fruto-espirito",
+      "titulo": "Obras da Carne e Fruto do Espírito",
+      "quiz_modulo": {
+        "id": "quiz-modulo-obras-fruto",
+        "total_perguntas": 4,
+        "perguntas": [
+          {
+            "id": "q-of-1",
+            "pergunta": "Onde na Bíblia estão as obras da carne e o fruto do Espírito?",
+            "alternativas": ["Romanos 8", "Gálatas 5.19-23", "Efésios 6", "João 15"],
+            "correta": 1,
+            "referencia": "Gálatas 5.19-23"
+          },
+          {
+            "id": "q-of-2",
+            "pergunta": "Quem não herdará o reino de Deus segundo Gálatas 5.21?",
+            "alternativas": ["Quem não ora", "Quem pratica as obras da carne", "Quem não jejua", "Quem não lê a Bíblia"],
+            "correta": 1,
+            "referencia": "Gálatas 5.21"
+          },
+          {
+            "id": "q-of-3",
+            "pergunta": "O fruto do Espírito inclui:",
+            "alternativas": ["Inveja", "Amor, alegria, paz", "Contendas", "Idolatria"],
+            "correta": 1,
+            "referencia": "Gálatas 5.22-23"
+          },
+          {
+            "id": "q-of-4",
+            "pergunta": "O crente deve andar no...",
+            "alternativas": ["carnal", "Espírito", "pecado", "mundo"],
+            "correta": 1,
+            "referencia": "Gálatas 5.16"
+          }
+        ]
+      },
+      "quizzes_aulas": [
+        {
+          "aula_id": "obras-da-carne",
+          "aula_titulo": "Obras da Carne (atributos negativos)",
+          "perguntas": [
+            {
+              "id": "q-obras-1",
+              "pergunta": "Onde na Bíblia encontramos a lista das obras da carne?",
+              "alternativas": ["Romanos 8", "Gálatas 5.19-21", "Efésios 6", "João 3"],
+              "correta": 1,
+              "referencia": "Gálatas 5.19-21"
+            },
+            {
+              "id": "q-obras-2",
+              "pergunta": "Quem não herdará o reino de Deus segundo o texto?",
+              "alternativas": ["Quem não ora", "Quem pratica as obras da carne", "Quem não jejua", "Quem não lê a Bíblia"],
+              "correta": 1,
+              "referencia": "Gálatas 5.21"
+            }
+          ]
+        },
+        {
+          "aula_id": "fruto-do-espirito",
+          "aula_titulo": "Fruto do Espírito (atributos positivos)",
+          "perguntas": [
+            {
+              "id": "q-fruto-1",
+              "pergunta": "Onde na Bíblia encontramos o fruto do Espírito?",
+              "alternativas": ["Efésios 6", "Gálatas 5.22-23", "Romanos 12", "1 Coríntios 13"],
+              "correta": 1,
+              "referencia": "Gálatas 5.22-23"
+            },
+            {
+              "id": "q-fruto-2",
+              "pergunta": "O fruto do Espírito é produzido por:",
+              "alternativas": ["Esforço humano", "O Espírito Santo na vida do crente", "A lei", "As obras"],
+              "correta": 1,
+              "referencia": "Gálatas 5.22-23"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

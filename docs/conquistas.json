@@ -1,0 +1,337 @@
+{
+  "_meta": {
+    "descricao": "Catálogo completo de conquistas (achievements) do app Jornada Bíblica.",
+    "regras": [
+      "Conquistas são desbloqueadas automaticamente ao cumprir critérios.",
+      "Uma vez desbloqueada, não pode ser perdida.",
+      "Cada conquista concede XP bônus e às vezes itens.",
+      "Algumas conquistas são únicas (só podem ser obtidas uma vez).",
+      "O critério é avaliado pelo backend (Supabase) ou localmente no demo."
+    ],
+    "categorias": ["progressao", "biblia", "missoes", "inventario", "social", "armadura", "estudo", "harpa"]
+  },
+  "conquistas": [
+    {
+      "id": "conquista-primeira-missao",
+      "slug": "primeira-missao",
+      "nome": "Primeiro Passo",
+      "descricao": "Conclua sua primeira missão.",
+      "descricao_completa": "Todo grande caminho começa com um único passo. Você completou sua primeira missão e está no caminho certo!",
+      "icone": "🎯",
+      "icone_bi": "bi-flag-fill",
+      "categoria": "missoes",
+      "raridade": "comum",
+      "recompensa": { "xp": 25, "ouro": 10, "itens": [] },
+      "criterios": {
+        "tipo": "missoes_concluidas",
+        "quantidade": 1
+      },
+      "referencia_biblica": "Filipenses 3.14 — 'Prossigo para o alvo'",
+      "unica": true,
+      "ativo": true
+    },
+    {
+      "id": "conquista-10-missoes",
+      "slug": "dez-missoes",
+      "nome": "Servo Fiel",
+      "descricao": "Conclua 10 missões.",
+      "descricao_completa": "A fidelidade no pequeno abre portas para o grande. Você concluiu 10 missões e está crescendo na jornada!",
+      "icone": "🏅",
+      "icone_bi": "bi-award",
+      "categoria": "missoes",
+      "raridade": "raro",
+      "recompensa": { "xp": 100, "ouro": 50, "itens": ["Pão da Vida"] },
+      "criterios": {
+        "tipo": "missoes_concluidas",
+        "quantidade": 10
+      },
+      "referencia_biblica": "Mateus 25.21 — 'Bem está, servo bom e fiel'",
+      "unica": true,
+      "ativo": true
+    },
+    {
+      "id": "conquista-50-missoes",
+      "slug": "cinquenta-missoes",
+      "nome": "Mestre das Missões",
+      "descricao": "Conclua 50 missões.",
+      "descricao_completa": "Você demonstrou perseverança extraordinária. 50 missões concluídas — você é um verdadeiro soldado de Cristo!",
+      "icone": "🏆",
+      "icone_bi": "bi-trophy-fill",
+      "categoria": "missoes",
+      "raridade": "epico",
+      "recompensa": { "xp": 500, "ouro": 200, "itens": ["Cálice Sagrado"] },
+      "criterios": {
+        "tipo": "missoes_concluidas",
+        "quantidade": 50
+      },
+      "referencia_biblica": "Hebreus 12.1 — 'Corramos com perseverança a corrida que nos é proposta'",
+      "unica": true,
+      "ativo": true
+    },
+    {
+      "id": "conquista-primeiro-capitulo",
+      "slug": "primeiro-capitulo",
+      "nome": "A Lâmpada Acesa",
+      "descricao": "Leia seu primeiro capítulo da Bíblia.",
+      "descricao_completa": "A Palavra de Deus é lâmpada para os nossos pés. Você acendeu a lâmpada ao ler seu primeiro capítulo!",
+      "icone": "💡",
+      "icone_bi": "bi-book-open",
+      "categoria": "biblia",
+      "raridade": "comum",
+      "recompensa": { "xp": 20, "ouro": 5, "itens": [] },
+      "criterios": {
+        "tipo": "capitulos_lidos",
+        "quantidade": 1
+      },
+      "referencia_biblica": "Salmos 119.105 — 'Lâmpada para os meus pés é a tua palavra'",
+      "unica": true,
+      "ativo": true
+    },
+    {
+      "id": "conquista-100-capitulos",
+      "slug": "cem-capitulos",
+      "nome": "Leitor Dedicado",
+      "descricao": "Leia 100 capítulos da Bíblia.",
+      "descricao_completa": "Você leu 100 capítulos! A Palavra está se tornando parte do seu dia a dia. Continue essa jornada maravilhosa.",
+      "icone": "📖",
+      "icone_bi": "bi-book-fill",
+      "categoria": "biblia",
+      "raridade": "raro",
+      "recompensa": { "xp": 200, "ouro": 80, "itens": [] },
+      "criterios": {
+        "tipo": "capitulos_lidos",
+        "quantidade": 100
+      },
+      "referencia_biblica": "Josué 1.8 — 'Não se aparte da tua boca o livro desta lei'",
+      "unica": true,
+      "ativo": true
+    },
+    {
+      "id": "conquista-biblia-completa",
+      "slug": "biblia-completa",
+      "nome": "Toda a Escritura",
+      "descricao": "Leia todos os 1.189 capítulos da Bíblia.",
+      "descricao_completa": "Uma conquista lendária! Você leu a Bíblia inteira. 'Toda a Escritura é inspirada por Deus' — e você conhece toda ela!",
+      "icone": "👑",
+      "icone_bi": "bi-stars",
+      "categoria": "biblia",
+      "raridade": "lendario",
+      "recompensa": { "xp": 5000, "ouro": 1000, "itens": ["Bíblia Sagrada", "Espada do Espírito"] },
+      "criterios": {
+        "tipo": "capitulos_lidos",
+        "quantidade": 1189
+      },
+      "referencia_biblica": "2 Timóteo 3.16 — 'Toda a Escritura é inspirada por Deus'",
+      "unica": true,
+      "ativo": true
+    },
+    {
+      "id": "conquista-armadura-completa",
+      "slug": "armadura-completa",
+      "nome": "Soldado de Cristo",
+      "descricao": "Vista todas as 6 peças da Armadura de Deus.",
+      "descricao_completa": "Você equipou toda a Armadura de Deus! Cinto, Couraça, Calçados, Escudo, Capacete e Espada. Estais fortes no Senhor!",
+      "icone": "⚔️",
+      "icone_bi": "bi-shield-fill-check",
+      "categoria": "armadura",
+      "raridade": "lendario",
+      "recompensa": { "xp": 1000, "ouro": 300, "itens": [] },
+      "criterios": {
+        "tipo": "armadura_slots_equipados",
+        "quantidade": 6,
+        "slots": ["cinto", "couraca", "calcados", "escudo", "capacete", "espada"]
+      },
+      "referencia_biblica": "Efésios 6.11 — 'Revesti-vos de toda a armadura de Deus'",
+      "unica": true,
+      "ativo": true
+    },
+    {
+      "id": "conquista-sequencia-7",
+      "slug": "sequencia-7-dias",
+      "nome": "Uma Semana Fiel",
+      "descricao": "Mantenha uma sequência de 7 dias consecutivos.",
+      "descricao_completa": "Sete dias de fidelidade! A consistência transforma. Você está construindo um hábito espiritual duradouro.",
+      "icone": "🔥",
+      "icone_bi": "bi-fire",
+      "categoria": "progressao",
+      "raridade": "raro",
+      "recompensa": { "xp": 150, "ouro": 60, "itens": ["Cálice Sagrado"] },
+      "criterios": {
+        "tipo": "sequencia_dias",
+        "quantidade": 7
+      },
+      "referencia_biblica": "Lamentações 3.23 — 'Novas cada manhã; grande é a tua fidelidade'",
+      "unica": false,
+      "ativo": true
+    },
+    {
+      "id": "conquista-sequencia-30",
+      "slug": "sequencia-30-dias",
+      "nome": "Mês de Fidelidade",
+      "descricao": "Mantenha uma sequência de 30 dias consecutivos.",
+      "descricao_completa": "30 dias sem falhar! Você está construindo um dos hábitos mais valiosos da vida cristã.",
+      "icone": "🌟",
+      "icone_bi": "bi-star-fill",
+      "categoria": "progressao",
+      "raridade": "epico",
+      "recompensa": { "xp": 600, "ouro": 200, "itens": ["Pão da Vida", "Cálice Sagrado"] },
+      "criterios": {
+        "tipo": "sequencia_dias",
+        "quantidade": 30
+      },
+      "referencia_biblica": "1 Coríntios 9.27 — 'Disciplino o meu corpo e o reduzo à servidão'",
+      "unica": false,
+      "ativo": true
+    },
+    {
+      "id": "conquista-nivel-5",
+      "slug": "nivel-5",
+      "nome": "Crescendo na Graça",
+      "descricao": "Alcance o nível 5.",
+      "descricao_completa": "Nível 5! Você está crescendo na graça e no conhecimento de nosso Senhor e Salvador Jesus Cristo.",
+      "icone": "⭐",
+      "icone_bi": "bi-star",
+      "categoria": "progressao",
+      "raridade": "raro",
+      "recompensa": { "xp": 200, "ouro": 75, "itens": [] },
+      "criterios": {
+        "tipo": "nivel_alcancado",
+        "quantidade": 5
+      },
+      "referencia_biblica": "2 Pedro 3.18 — 'Crescei na graça e no conhecimento'",
+      "unica": true,
+      "ativo": true
+    },
+    {
+      "id": "conquista-nivel-10",
+      "slug": "nivel-10",
+      "nome": "Discípulo Maduro",
+      "descricao": "Alcance o nível 10.",
+      "descricao_completa": "Nível 10! Você demonstrou maturidade espiritual. O caminho de progressão revela um coração comprometido.",
+      "icone": "💎",
+      "icone_bi": "bi-gem",
+      "categoria": "progressao",
+      "raridade": "epico",
+      "recompensa": { "xp": 500, "ouro": 200, "itens": ["Espada do Espírito"] },
+      "criterios": {
+        "tipo": "nivel_alcancado",
+        "quantidade": 10
+      },
+      "referencia_biblica": "Efésios 4.13 — 'Até que todos cheguemos à unidade da fé e do conhecimento do Filho de Deus'",
+      "unica": true,
+      "ativo": true
+    },
+    {
+      "id": "conquista-primeira-trilha",
+      "slug": "primeira-trilha",
+      "nome": "Estudante da Palavra",
+      "descricao": "Conclua sua primeira trilha de estudo.",
+      "descricao_completa": "Você completou uma trilha inteira! Isso exige dedicação e amor à Palavra. Continue estudando!",
+      "icone": "📚",
+      "icone_bi": "bi-journal-bookmark-fill",
+      "categoria": "estudo",
+      "raridade": "raro",
+      "recompensa": { "xp": 300, "ouro": 100, "itens": [] },
+      "criterios": {
+        "tipo": "trilhas_concluidas",
+        "quantidade": 1
+      },
+      "referencia_biblica": "Atos 17.11 — 'Examinavam as Escrituras todos os dias'",
+      "unica": true,
+      "ativo": true
+    },
+    {
+      "id": "conquista-todas-trilhas",
+      "slug": "todas-trilhas",
+      "nome": "Teólogo da Graça",
+      "descricao": "Conclua todas as trilhas de estudo disponíveis.",
+      "descricao_completa": "Você concluiu todas as trilhas! Solas da Reforma, TULIP, Soberania de Deus, Pactos, Obras e Fruto. Um estudo profundo e abrangente!",
+      "icone": "🎓",
+      "icone_bi": "bi-mortarboard-fill",
+      "categoria": "estudo",
+      "raridade": "lendario",
+      "recompensa": { "xp": 2000, "ouro": 500, "itens": ["Espada do Espírito"] },
+      "criterios": {
+        "tipo": "trilhas_concluidas",
+        "quantidade": 5,
+        "todas": true
+      },
+      "referencia_biblica": "2 Timóteo 2.15 — 'Procura apresentar-te a Deus aprovado, como obreiro que não tem de que se envergonhar'",
+      "unica": true,
+      "ativo": true
+    },
+    {
+      "id": "conquista-primeiro-hino",
+      "slug": "primeiro-hino",
+      "nome": "Novo Cântico",
+      "descricao": "Acesse a Harpa Cristã e leia um hino.",
+      "descricao_completa": "Cantai ao Senhor um cântico novo! Você descobriu o tesouro dos hinos da Harpa Cristã.",
+      "icone": "🎵",
+      "icone_bi": "bi-music-note-beamed",
+      "categoria": "harpa",
+      "raridade": "comum",
+      "recompensa": { "xp": 30, "ouro": 10, "itens": [] },
+      "criterios": {
+        "tipo": "hinos_acessados",
+        "quantidade": 1
+      },
+      "referencia_biblica": "Salmos 96.1 — 'Cantai ao Senhor um cântico novo'",
+      "unica": true,
+      "ativo": true
+    },
+    {
+      "id": "conquista-100-hinos",
+      "slug": "cem-hinos",
+      "nome": "Cantor do Senhor",
+      "descricao": "Acesse 100 hinos da Harpa Cristã.",
+      "descricao_completa": "100 hinos! Você está mergulhado no louvor. As palavras dos hinos estão transformando seu coração.",
+      "icone": "🎶",
+      "icone_bi": "bi-music-note-list",
+      "categoria": "harpa",
+      "raridade": "raro",
+      "recompensa": { "xp": 200, "ouro": 75, "itens": [] },
+      "criterios": {
+        "tipo": "hinos_acessados",
+        "quantidade": 100
+      },
+      "referencia_biblica": "Efésios 5.19 — 'Falando entre vós com salmos, hinos e cânticos espirituais'",
+      "unica": true,
+      "ativo": true
+    },
+    {
+      "id": "conquista-quiz-perfeito",
+      "slug": "quiz-perfeito",
+      "nome": "Nenhum Erro",
+      "descricao": "Complete um quiz sem errar nenhuma questão.",
+      "descricao_completa": "Perfeição no quiz! Você conhece bem a Palavra. Continue estudando para manter esse nível.",
+      "icone": "💯",
+      "icone_bi": "bi-patch-check-fill",
+      "categoria": "estudo",
+      "raridade": "raro",
+      "recompensa": { "xp": 100, "ouro": 40, "itens": [] },
+      "criterios": {
+        "tipo": "quiz_perfeito",
+        "quantidade": 1
+      },
+      "referencia_biblica": "Salmos 119.11 — 'Guardo no coração as tuas palavras'",
+      "unica": false,
+      "ativo": true
+    }
+  ],
+  "categorias_descricao": {
+    "progressao": "Conquistas relacionadas a nível, XP e sequência de dias",
+    "biblia":     "Conquistas de leitura bíblica",
+    "missoes":    "Conquistas de missões concluídas",
+    "inventario": "Conquistas de itens obtidos/equipados",
+    "armadura":   "Conquistas da Armadura de Deus",
+    "estudo":     "Conquistas de aulas e trilhas concluídas",
+    "harpa":      "Conquistas da Harpa Cristã",
+    "social":     "Conquistas de missões colaborativas e social"
+  },
+  "raridades": {
+    "comum":   { "cor": "#6b7280", "xp_bonus": 25  },
+    "raro":    { "cor": "#3b82f6", "xp_bonus": 100 },
+    "epico":   { "cor": "#8b5cf6", "xp_bonus": 500 },
+    "lendario":{ "cor": "#f59e0b", "xp_bonus": 2000 }
+  }
+}

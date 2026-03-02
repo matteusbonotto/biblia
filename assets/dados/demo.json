@@ -35,30 +35,125 @@
     {
       "id": "efeito-demo-1",
       "termina_em": "2027-12-31T20:00:00.000Z",
-      "itens": { "nome": "Cálice Sagrado", "duracao_minutos": 30 }
+      "itens": {
+        "nome": "Cálice Sagrado",
+        "duracao_minutos": 30
+      }
     }
   ],
   "inventario": [
     {
       "id": "inv-demo-1",
       "item_id": "item-pao",
-      "quantidade": 2,
+      "quantidade": 3,
       "equipado": false,
-      "itens": { "nome": "Pão da Vida", "tipo": "consumivel" }
+      "itens": {
+        "nome": "Pão da Vida",
+        "tipo": "consumivel",
+        "icone": "bi-bread-slice",
+        "raridade": "comum",
+        "descricao": "Recupera resistência espiritual."
+      }
     },
     {
       "id": "inv-demo-2",
       "item_id": "item-cinto",
       "quantidade": 1,
       "equipado": true,
-      "itens": { "nome": "Cinto da Verdade", "tipo": "armadura" }
+      "itens": {
+        "nome": "Cinto da Verdade",
+        "tipo": "armadura",
+        "slot": "cinto",
+        "icone": "bi-award-fill",
+        "raridade": "raro",
+        "descricao": "A verdade como fundação — Efésios 6.14a."
+      }
     },
     {
       "id": "inv-demo-3",
       "item_id": "item-biblia",
       "quantidade": 1,
       "equipado": false,
-      "itens": { "nome": "Bíblia Sagrada", "tipo": "permanente" }
+      "itens": {
+        "nome": "Bíblia Sagrada",
+        "tipo": "permanente",
+        "icone": "bi-book-fill",
+        "raridade": "epico"
+      }
+    },
+    {
+      "id": "inv-demo-4",
+      "item_id": "item-elmo",
+      "quantidade": 1,
+      "equipado": true,
+      "itens": {
+        "nome": "Capacete da Salvação",
+        "tipo": "armadura",
+        "slot": "capacete",
+        "icone": "bi-shield-fill-check",
+        "raridade": "raro",
+        "descricao": "A salvação protege a mente — Efésios 6.17a."
+      }
+    },
+    {
+      "id": "inv-demo-5",
+      "item_id": "item-escudo",
+      "quantidade": 1,
+      "equipado": true,
+      "itens": {
+        "nome": "Escudo da Fé",
+        "tipo": "armadura",
+        "slot": "escudo",
+        "icone": "bi-shield-check",
+        "raridade": "epico",
+        "descricao": "A fé extingue os dardos do maligno — Efésios 6.16."
+      }
+    },
+    {
+      "id": "inv-demo-6",
+      "item_id": "item-peitoral",
+      "quantidade": 1,
+      "equipado": false,
+      "itens": {
+        "nome": "Couraça da Justiça",
+        "tipo": "armadura",
+        "slot": "couraca",
+        "icone": "bi-shield-fill",
+        "raridade": "epico",
+        "descricao": "A justiça protege o coração — Efésios 6.14b."
+      }
+    },
+    {
+      "id": "inv-demo-7",
+      "item_id": "item-espada",
+      "quantidade": 1,
+      "equipado": false,
+      "itens": {
+        "nome": "Espada do Espírito",
+        "tipo": "permanente",
+        "icone": "bi-sword",
+        "raridade": "lendario",
+        "descricao": "A Palavra de Deus como arma ofensiva (Ef 6.17).",
+        "preco_ouro": 100,
+        "nivel_requerido": 10,
+        "efeito_bonus": "Acesso ao Estudo do Evangelho"
+      }
+    },
+    {
+      "id": "inv-demo-8",
+      "item_id": "item-harpa",
+      "quantidade": 1,
+      "equipado": false,
+      "itens": {
+        "nome": "Harpa Cristã",
+        "tipo": "permanente",
+        "icone": "bi-music-note-beamed",
+        "raridade": "raro",
+        "descricao": "Cantai ao Senhor um cântico novo (Sl 96.1).",
+        "preco_ouro": 30,
+        "nivel_requerido": 1,
+        "efeito_bonus": "Acesso à Harpa Cristã"
+      }
     }
   ],
   "todasMissoes": [
@@ -155,9 +250,24 @@
       "prazo_em": "2027-01-20T23:59:00.000Z",
       "modelo_id": "mod-4",
       "checklist": [
-        { "id": "check-1", "texto": "Ajudar alguém com uma necessidade prática", "concluida": true, "concluida_em": "2027-01-13T10:00:00.000Z" },
-        { "id": "check-2", "texto": "Fazer um elogio sincero a alguém", "concluida": true, "concluida_em": "2027-01-13T14:00:00.000Z" },
-        { "id": "check-3", "texto": "Doar algo para alguém necessitado", "concluida": true, "concluida_em": "2027-01-13T18:00:00.000Z" }
+        {
+          "id": "check-1",
+          "texto": "Ajudar alguém com uma necessidade prática",
+          "concluida": true,
+          "concluida_em": "2027-01-13T10:00:00.000Z"
+        },
+        {
+          "id": "check-2",
+          "texto": "Fazer um elogio sincero a alguém",
+          "concluida": true,
+          "concluida_em": "2027-01-13T14:00:00.000Z"
+        },
+        {
+          "id": "check-3",
+          "texto": "Doar algo para alguém necessitado",
+          "concluida": true,
+          "concluida_em": "2027-01-13T18:00:00.000Z"
+        }
       ],
       "modelos_missao": {
         "id": "mod-4",
@@ -193,9 +303,23 @@
       "prazo_em": "2027-01-22T23:59:00.000Z",
       "modelo_id": "mod-15",
       "checklist": [
-        { "id": "check-1", "texto": "Ajudar alguém com uma necessidade prática", "concluida": false },
-        { "id": "check-2", "texto": "Fazer um elogio sincero a alguém", "concluida": true, "concluida_em": "2027-01-15T14:00:00.000Z", "concluida_por": "demo" },
-        { "id": "check-3", "texto": "Doar algo para alguém necessitado", "concluida": false }
+        {
+          "id": "check-1",
+          "texto": "Ajudar alguém com uma necessidade prática",
+          "concluida": false
+        },
+        {
+          "id": "check-2",
+          "texto": "Fazer um elogio sincero a alguém",
+          "concluida": true,
+          "concluida_em": "2027-01-15T14:00:00.000Z",
+          "concluida_por": "demo"
+        },
+        {
+          "id": "check-3",
+          "texto": "Doar algo para alguém necessitado",
+          "concluida": false
+        }
       ],
       "modelos_missao": {
         "id": "mod-15",
@@ -232,9 +356,27 @@
       "modelo_id": "mod-16",
       "tipo_colaborativa": true,
       "participantes": [
-        { "usuario_id": "demo", "nome": "Demo Usuário", "avatar": null, "entrou_em": "2027-01-15T09:00:00.000Z", "progresso": 33 },
-        { "usuario_id": "u2", "nome": "Maria Silva", "avatar": null, "entrou_em": "2027-01-15T10:00:00.000Z", "progresso": 66 },
-        { "usuario_id": "u3", "nome": "João Santos", "avatar": null, "entrou_em": "2027-01-15T11:00:00.000Z", "progresso": 0 }
+        {
+          "usuario_id": "demo",
+          "nome": "Demo Usuário",
+          "avatar": null,
+          "entrou_em": "2027-01-15T09:00:00.000Z",
+          "progresso": 33
+        },
+        {
+          "usuario_id": "u2",
+          "nome": "Maria Silva",
+          "avatar": null,
+          "entrou_em": "2027-01-15T10:00:00.000Z",
+          "progresso": 66
+        },
+        {
+          "usuario_id": "u3",
+          "nome": "João Santos",
+          "avatar": null,
+          "entrou_em": "2027-01-15T11:00:00.000Z",
+          "progresso": 0
+        }
       ],
       "progresso_total": 66,
       "meta_total": 100,
@@ -253,7 +395,10 @@
         "recompensas": {
           "xp": 150,
           "ouro": 75,
-          "itens": ["Cálice Sagrado", "Bíblia Sagrada"]
+          "itens": [
+            "Cálice Sagrado",
+            "Bíblia Sagrada"
+          ]
         },
         "consequencias": {
           "xp_perdido": 0,
@@ -281,7 +426,9 @@
         "recompensas": {
           "xp": 50,
           "ouro": 25,
-          "itens": ["Pão da Vida"]
+          "itens": [
+            "Pão da Vida"
+          ]
         },
         "consequencias": {
           "xp_perdido": 0,
@@ -309,7 +456,10 @@
         "recompensas": {
           "xp": 75,
           "ouro": 30,
-          "itens": ["Cálice Sagrado", "Bíblia Sagrada"]
+          "itens": [
+            "Cálice Sagrado",
+            "Bíblia Sagrada"
+          ]
         },
         "consequencias": {
           "xp_perdido": 0,
@@ -338,7 +488,10 @@
         "recompensas": {
           "xp": 100,
           "ouro": 50,
-          "itens": ["Bíblia Sagrada", "Cinto da Verdade"]
+          "itens": [
+            "Bíblia Sagrada",
+            "Cinto da Verdade"
+          ]
         },
         "consequencias": {
           "xp_perdido": 0,
@@ -366,7 +519,9 @@
         "recompensas": {
           "xp": 30,
           "ouro": 15,
-          "itens": ["Cálice Sagrado"]
+          "itens": [
+            "Cálice Sagrado"
+          ]
         },
         "consequencias": {
           "xp_perdido": 0,
@@ -394,7 +549,9 @@
         "recompensas": {
           "xp": 40,
           "ouro": 20,
-          "itens": ["Pão da Vida"]
+          "itens": [
+            "Pão da Vida"
+          ]
         },
         "consequencias": {
           "xp_perdido": 0,
@@ -479,7 +636,10 @@
         "recompensas": {
           "xp": 60,
           "ouro": 35,
-          "itens": ["Pão da Vida", "Cálice Sagrado"]
+          "itens": [
+            "Pão da Vida",
+            "Cálice Sagrado"
+          ]
         },
         "consequencias": {
           "xp_perdido": 0,
@@ -508,7 +668,9 @@
         "recompensas": {
           "xp": 45,
           "ouro": 22,
-          "itens": ["Cálice Sagrado"]
+          "itens": [
+            "Cálice Sagrado"
+          ]
         },
         "consequencias": {
           "xp_perdido": 0,
@@ -653,7 +815,9 @@
       "recompensas": {
         "xp": 50,
         "ouro": 25,
-        "itens": ["Pão da Vida"]
+        "itens": [
+          "Pão da Vida"
+        ]
       },
       "consequencias": {
         "xp_perdido": 0,
@@ -676,7 +840,10 @@
       "recompensas": {
         "xp": 75,
         "ouro": 30,
-        "itens": ["Cálice Sagrado", "Bíblia Sagrada"]
+        "itens": [
+          "Cálice Sagrado",
+          "Bíblia Sagrada"
+        ]
       },
       "consequencias": {
         "xp_perdido": 0,
@@ -699,7 +866,10 @@
       "recompensas": {
         "xp": 100,
         "ouro": 50,
-        "itens": ["Bíblia Sagrada", "Cinto da Verdade"]
+        "itens": [
+          "Bíblia Sagrada",
+          "Cinto da Verdade"
+        ]
       },
       "consequencias": {
         "xp_perdido": 0,
@@ -722,7 +892,9 @@
       "recompensas": {
         "xp": 30,
         "ouro": 15,
-        "itens": ["Cálice Sagrado"]
+        "itens": [
+          "Cálice Sagrado"
+        ]
       },
       "consequencias": {
         "xp_perdido": 0,
@@ -745,7 +917,9 @@
       "recompensas": {
         "xp": 40,
         "ouro": 20,
-        "itens": ["Pão da Vida"]
+        "itens": [
+          "Pão da Vida"
+        ]
       },
       "consequencias": {
         "xp_perdido": 0,
@@ -814,7 +988,10 @@
       "recompensas": {
         "xp": 60,
         "ouro": 35,
-        "itens": ["Pão da Vida", "Cálice Sagrado"]
+        "itens": [
+          "Pão da Vida",
+          "Cálice Sagrado"
+        ]
       },
       "consequencias": {
         "xp_perdido": 0,
@@ -837,7 +1014,9 @@
       "recompensas": {
         "xp": 45,
         "ouro": 22,
-        "itens": ["Cálice Sagrado"]
+        "itens": [
+          "Cálice Sagrado"
+        ]
       },
       "consequencias": {
         "xp_perdido": 0,
@@ -913,7 +1092,10 @@
       "recompensas": {
         "xp": 150,
         "ouro": 75,
-        "itens": ["Cálice Sagrado", "Bíblia Sagrada"]
+        "itens": [
+          "Cálice Sagrado",
+          "Bíblia Sagrada"
+        ]
       },
       "consequencias": {
         "xp_perdido": 0,
@@ -1040,12 +1222,60 @@
       "imagem": "https://via.placeholder.com/128x128/8e44ad/ffffff?text=Elmo",
       "categoria": "Armadura",
       "slot": "cabeca"
+    },
+    {
+      "id": "item-biblia",
+      "nome": "Bíblia Sagrada",
+      "descricao": "A Palavra de Deus. Equipar desbloqueia a seção de Leitura Bíblica (Sl 119.105).",
+      "preco_ouro": 50,
+      "tipo": "permanente",
+      "raridade": "epico",
+      "nivel_requerido": 1,
+      "icone": "bi-book-fill",
+      "categoria": "Relíquia",
+      "efeito_bonus": "Acesso à Leitura Bíblica"
+    },
+    {
+      "id": "item-harpa",
+      "nome": "Harpa Cristã",
+      "descricao": "Instrumento de louvor. Equipar desbloqueia a Harpa Cristã (Sl 96.1).",
+      "preco_ouro": 30,
+      "tipo": "permanente",
+      "raridade": "raro",
+      "nivel_requerido": 1,
+      "icone": "bi-music-note-beamed",
+      "categoria": "Instrumento",
+      "efeito_bonus": "Acesso à Harpa Cristã"
     }
   ],
   "ranking": [
-    { "usuario_id": "demo", "nome_exibicao": "Demo Usuário", "nivel": 3, "xp_total": 185, "dias_sequencia": 7 },
-    { "usuario_id": "u2", "nome_exibicao": "Maria Silva", "nivel": 5, "xp_total": 420, "dias_sequencia": 12 },
-    { "usuario_id": "u3", "nome_exibicao": "João Santos", "nivel": 4, "xp_total": 310, "dias_sequencia": 5 },
-    { "usuario_id": "u4", "nome_exibicao": "Ana Oliveira", "nivel": 3, "xp_total": 200, "dias_sequencia": 3 }
+    {
+      "usuario_id": "demo",
+      "nome_exibicao": "Demo Usuário",
+      "nivel": 3,
+      "xp_total": 185,
+      "dias_sequencia": 7
+    },
+    {
+      "usuario_id": "u2",
+      "nome_exibicao": "Maria Silva",
+      "nivel": 5,
+      "xp_total": 420,
+      "dias_sequencia": 12
+    },
+    {
+      "usuario_id": "u3",
+      "nome_exibicao": "João Santos",
+      "nivel": 4,
+      "xp_total": 310,
+      "dias_sequencia": 5
+    },
+    {
+      "usuario_id": "u4",
+      "nome_exibicao": "Ana Oliveira",
+      "nivel": 3,
+      "xp_total": 200,
+      "dias_sequencia": 3
+    }
   ]
 }

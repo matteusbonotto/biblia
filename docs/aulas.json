@@ -1,0 +1,276 @@
+{
+  "_meta": {
+    "descricao": "Estrutura completa de todas as trilhas e aulas do Estudo do Evangelho.",
+    "fonte": "assets/js/dados/estudoEvangelho.js → TRILHAS_ESTUDO",
+    "regras": [
+      "Cada trilha (TRILHA) agrupa aulas temáticas.",
+      "Cada aula tem: id, titulo, refsBiblicas[], conteudo[], videos[], materiais[], quiz[].",
+      "O progresso de cada aula é armazenado localmente (localStorage) no demo.",
+      "Requer item 'Espada do Espírito' equipado para acessar o Estudo do Evangelho.",
+      "Cada aula pode ter quiz inline (perguntas individuais).",
+      "Cada trilha tem um quizModulo (perguntas gerais da trilha)."
+    ],
+    "total_trilhas": 5,
+    "total_aulas": 17
+  },
+  "trilhas": [
+    {
+      "id": "solas",
+      "titulo": "As Solas da Reforma",
+      "descricao": "Os cinco pilares bíblicos que marcaram a Reforma Protestante.",
+      "icone": "bi-journal-bookmark",
+      "total_aulas": 5,
+      "aulas": [
+        {
+          "id": "sola-scriptura",
+          "titulo": "Sola Scriptura — Só a Escritura",
+          "refs_biblicas": ["2 Timóteo 3.16-17", "Isaías 8.20", "João 17.17"],
+          "tem_video": true,
+          "tem_materiais": true,
+          "tem_quiz": true,
+          "total_perguntas_quiz": 2,
+          "resumo": "A Bíblia é a única regra infalível de fé e prática. Toda doutrina deve ser provada pela Escritura.",
+          "conteudo_resumido": [
+            "A Bíblia é a única regra infalível de fé e prática.",
+            "A tradição e os concílios têm valor apenas quando conformes à Palavra."
+          ],
+          "videos": [
+            {
+              "youtube_id": "wgbmtEVlxvA",
+              "titulo": "Sola Scriptura — Reforma Protestante",
+              "descricao": "Introdução ao princípio da autoridade bíblica na Reforma."
+            }
+          ],
+          "materiais": [
+            { "tipo": "pdf", "titulo": "Confissão de Westminster", "url": "assets/pdf/westminster.pdf" },
+            { "tipo": "pdf", "titulo": "Catecismo Maior de Westminster", "url": "assets/pdf/catecismo-maior.pdf" }
+          ]
+        },
+        {
+          "id": "sola-fide",
+          "titulo": "Sola Fide — Somente a fé",
+          "refs_biblicas": ["Romanos 3.28", "Gálatas 2.16", "Efésios 2.8-9", "Habacuque 2.4"],
+          "tem_video": false,
+          "tem_materiais": false,
+          "tem_quiz": false,
+          "resumo": "O pecador é justificado diante de Deus somente pela fé em Cristo, e não por obras da lei.",
+          "conteudo_resumido": [
+            "A fé é o instrumento pelo qual recebemos a justiça de Cristo.",
+            "As obras são o fruto da salvação, não a causa."
+          ]
+        },
+        {
+          "id": "sola-gratia",
+          "titulo": "Sola Gratia — Somente a graça",
+          "refs_biblicas": ["Efésios 2.1-5", "Tito 3.5", "Romanos 9.16"],
+          "tem_video": false,
+          "tem_materiais": false,
+          "tem_quiz": false,
+          "resumo": "A salvação é inteiramente pela graça de Deus. O homem, morto em pecados, não contribui com mérito algum.",
+          "conteudo_resumido": [
+            "A iniciativa da salvação é sempre de Deus.",
+            "A graça é soberana e não merecida."
+          ]
+        },
+        {
+          "id": "solus-christus",
+          "titulo": "Solus Christus — Somente Cristo",
+          "refs_biblicas": ["João 14.6", "Atos 4.12", "1 Timóteo 2.5", "Hebreus 7.25"],
+          "tem_video": false,
+          "tem_materiais": false,
+          "tem_quiz": false,
+          "resumo": "Não há outro nome pelo qual devamos ser salvos. Jesus é o único Mediador entre Deus e os homens.",
+          "conteudo_resumido": [
+            "Cristo é o único Salvador e Sumo Sacerdote.",
+            "Toda esperança centralizada em Cristo."
+          ]
+        },
+        {
+          "id": "soli-deo-gloria",
+          "titulo": "Soli Deo Gloria — Glória somente a Deus",
+          "refs_biblicas": ["Romanos 11.36", "1 Coríntios 10.31", "Apocalipse 4.11"],
+          "tem_video": false,
+          "tem_materiais": false,
+          "tem_quiz": false,
+          "resumo": "A criação e a redenção existem para o louvor da glória de Deus. A vida do crente deve glorificar a Deus em tudo.",
+          "conteudo_resumido": [
+            "Dele, e por meio dele, e para ele são todas as coisas.",
+            "A glória de Deus é o fim último de tudo."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "doutrinas-graca",
+      "titulo": "Doutrinas da Graça (TULIP)",
+      "descricao": "Resumo bíblico da soberania de Deus na salvação.",
+      "icone": "bi-flower1",
+      "total_aulas": 5,
+      "aulas": [
+        {
+          "id": "depravacao-total",
+          "titulo": "Depravação Total",
+          "refs_biblicas": ["Romanos 3.10-18", "Efésios 2.1-3", "Jeremias 17.9"],
+          "tem_video": false,
+          "tem_materiais": false,
+          "tem_quiz": false,
+          "resumo": "Por causa da queda, o ser humano está espiritualmente morto e incapaz de se voltar para Deus por si mesmo.",
+          "acrostico": "T — Total Depravação"
+        },
+        {
+          "id": "eleicao-incondicional",
+          "titulo": "Eleição Incondicional",
+          "refs_biblicas": ["Efésios 1.4-5", "Romanos 9.11-13", "João 15.16"],
+          "tem_video": false,
+          "tem_materiais": false,
+          "tem_quiz": false,
+          "resumo": "Antes da fundação do mundo, Deus escolheu um povo para si, não com base em mérito ou fé prevista no homem.",
+          "acrostico": "U — Eleição Incondicional (Unconditional Election)"
+        },
+        {
+          "id": "expiacao-definida",
+          "titulo": "Expiação Definida (ou Limitada)",
+          "refs_biblicas": ["João 10.11, 15", "Efésios 5.25", "Mateus 1.21", "Isaías 53.11"],
+          "tem_video": false,
+          "tem_materiais": false,
+          "tem_quiz": false,
+          "resumo": "Cristo morreu para salvar efetivamente os seus — os eleitos — e não apenas para tornar a salvação possível para todos.",
+          "acrostico": "L — Expiação Limitada (Limited Atonement)"
+        },
+        {
+          "id": "graca-irresistivel",
+          "titulo": "Graça Irresistível",
+          "refs_biblicas": ["João 6.37, 44", "Atos 16.14", "Ezequiel 36.26-27"],
+          "tem_video": false,
+          "tem_materiais": false,
+          "tem_quiz": false,
+          "resumo": "Quando Deus chama internamente o pecador pela Palavra e pelo Espírito, esse chamado é eficaz.",
+          "acrostico": "I — Graça Irresistível (Irresistible Grace)"
+        },
+        {
+          "id": "perseveranca-santos",
+          "titulo": "Perseverança dos Santos",
+          "refs_biblicas": ["Filipenses 1.6", "João 10.28-29", "Romanos 8.38-39"],
+          "tem_video": false,
+          "tem_materiais": false,
+          "tem_quiz": false,
+          "resumo": "Os que Deus escolheu e regenerou não se perdem; eles perseveram na fé até o fim.",
+          "acrostico": "P — Perseverança dos Santos (Perseverance of the Saints)"
+        }
+      ]
+    },
+    {
+      "id": "soberania-deus",
+      "titulo": "Soberania de Deus",
+      "descricao": "O Deus da Bíblia reina sobre toda a criação e sobre a salvação.",
+      "icone": "bi-globe2",
+      "total_aulas": 2,
+      "aulas": [
+        {
+          "id": "reino-universal",
+          "titulo": "O Reino Universal de Deus",
+          "refs_biblicas": ["Salmos 115.3", "Salmos 103.19", "Daniel 4.34-35"],
+          "tem_video": false,
+          "tem_materiais": false,
+          "tem_quiz": false,
+          "resumo": "O Senhor está nos céus e faz tudo o que lhe apraz. Nada escapa ao seu governo."
+        },
+        {
+          "id": "providencia",
+          "titulo": "Providência e Soberania na Salvação",
+          "refs_biblicas": ["Efésios 1.11", "Romanos 9.15-18", "Provérbios 21.1"],
+          "tem_video": false,
+          "tem_materiais": false,
+          "tem_quiz": false,
+          "resumo": "Deus não apenas oferece a salvação; ele efetua a salvação na vida dos que ele chama."
+        }
+      ]
+    },
+    {
+      "id": "pactos",
+      "titulo": "Os Pactos na Bíblia",
+      "descricao": "Introdução à teologia bíblica dos pactos (alianças).",
+      "icone": "bi-bookmark-heart",
+      "total_aulas": 2,
+      "aulas": [
+        {
+          "id": "pacto-adamico",
+          "titulo": "Pacto das Obras (Adão)",
+          "refs_biblicas": ["Gênesis 2.16-17", "Romanos 5.12-19", "Oseias 6.7"],
+          "tem_video": false,
+          "tem_materiais": false,
+          "tem_quiz": false,
+          "resumo": "Deus estabeleceu com Adão uma aliança de vida: obediência traria vida; desobediência, morte."
+        },
+        {
+          "id": "pacto-graca",
+          "titulo": "Pacto da Graça (Cristo)",
+          "refs_biblicas": ["Gênesis 3.15", "Gálatas 3.16", "Hebreus 8.6-13"],
+          "tem_video": false,
+          "tem_materiais": false,
+          "tem_quiz": false,
+          "resumo": "Logo após a queda, Deus prometeu a semente que esmagaria a serpente — o evangelho em embrião."
+        }
+      ]
+    },
+    {
+      "id": "obras-carne-fruto-espirito",
+      "titulo": "Obras da Carne e Fruto do Espírito",
+      "descricao": "Atributos negativos e positivos segundo Gálatas 5.19-23.",
+      "icone": "bi-heart-half",
+      "total_aulas": 2,
+      "aulas": [
+        {
+          "id": "obras-da-carne",
+          "titulo": "Obras da Carne (Atributos Negativos)",
+          "refs_biblicas": ["Gálatas 5.19-21"],
+          "tem_video": false,
+          "tem_materiais": false,
+          "tem_quiz": true,
+          "total_perguntas_quiz": 2,
+          "resumo": "A Bíblia chama de 'obras da carne' as práticas que caracterizam quem vive segundo a natureza pecaminosa.",
+          "obras_listadas": [
+            "Imoralidade (prostituição, impureza, lascívia)",
+            "Idolatria",
+            "Feitiçaria",
+            "Ódio (inimizades, contendas)",
+            "Inveja (ciúmes, invejas)",
+            "Ira",
+            "Discórdia (discórdias, dissensões)",
+            "Sectarismo (facções)",
+            "Excessos (bebedices, glutonarias)"
+          ]
+        },
+        {
+          "id": "fruto-do-espirito",
+          "titulo": "Fruto do Espírito (Atributos Positivos)",
+          "refs_biblicas": ["Gálatas 5.22-23"],
+          "tem_video": false,
+          "tem_materiais": false,
+          "tem_quiz": true,
+          "total_perguntas_quiz": 2,
+          "resumo": "O fruto do Espírito são as virtudes que o Espírito Santo produz na vida de quem anda nele.",
+          "frutos_listados": [
+            "Amor",
+            "Alegria",
+            "Paz",
+            "Longanimidade",
+            "Benignidade",
+            "Bondade",
+            "Fidelidade",
+            "Mansidão",
+            "Domínio próprio"
+          ]
+        }
+      ]
+    }
+  ],
+  "resumo_geral": {
+    "total_trilhas": 5,
+    "total_aulas": 17,
+    "aulas_com_video": 1,
+    "aulas_com_materiais_pdf": 1,
+    "aulas_com_quiz_inline": 3,
+    "trilhas_com_quiz_modulo": 5
+  }
+}

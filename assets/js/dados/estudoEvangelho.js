@@ -13,13 +13,37 @@ export const REFS_BIBLICAS = {
 
 /** Slots da Armadura de Deus (Ef 6.10-18) — cada peça com nome e ref para tooltip */
 export const ARMADURA_DEUS_SLOTS = [
-  { id: 'cinto', nome: 'Cinto da verdade', ref: 'Efésios 6.14a' },
-  { id: 'couraca', nome: 'Couraça da justiça', ref: 'Efésios 6.14b' },
-  { id: 'calcados', nome: 'Calçados do evangelho', ref: 'Efésios 6.15' },
-  { id: 'escudo', nome: 'Escudo da fé', ref: 'Efésios 6.16' },
-  { id: 'capacete', nome: 'Capacete da salvação', ref: 'Efésios 6.17a' },
-  { id: 'espada', nome: 'Espada do Espírito', ref: 'Efésios 6.17b' }
+  { id: 'cinto',    nome: 'Cinto da Verdade',       ref: 'Efésios 6.14a' },
+  { id: 'couraca',  nome: 'Couraça da Justiça',      ref: 'Efésios 6.14b' },
+  { id: 'calcados', nome: 'Calçados do Evangelho',   ref: 'Efésios 6.15'  },
+  { id: 'escudo',   nome: 'Escudo da Fé',            ref: 'Efésios 6.16'  },
+  { id: 'capacete', nome: 'Capacete da Salvação',    ref: 'Efésios 6.17a' },
+  { id: 'espada',   nome: 'Espada do Espírito',      ref: 'Efésios 6.17b' }
 ];
+
+/**
+ * Efeitos espirituais de cada peça da Armadura de Deus.
+ * Cada efeito é temático e inspirado em Efésios 6.
+ * `tipo`  → chave usada em getBonusAtivo(tipo) do app.js
+ * `valor` → valor numérico aplicado (percentual ou absoluto)
+ */
+export const ARMADURA_EFEITOS = {
+  cinto:    { bonus: '+10% resistência',        tipo: 'resistencia',     valor: 10,  desc: 'A verdade cinge os seus rins — Ef 6.14a',       cor: '#c8902a', icone: '🔶' },
+  couraca:  { bonus: '+15% proteção espiritual',tipo: 'protecao',        valor: 15,  desc: 'A justiça protege o coração — Ef 6.14b',         cor: '#2c6ebf', icone: '🛡️' },
+  calcados: { bonus: '+10 XP por missão',       tipo: 'xp_missao',       valor: 10,  desc: 'Pés firmes no evangelho da paz — Ef 6.15',        cor: '#7a5c3a', icone: '👟' },
+  escudo:   { bonus: '-20% penalidade quiz',    tipo: 'penalidade_quiz', valor: -20, desc: 'A fé extingue os dardos do maligno — Ef 6.16',    cor: '#1565c0', icone: '✨' },
+  capacete: { bonus: '+5% XP por leitura',      tipo: 'xp_leitura',      valor: 5,   desc: 'A salvação guarda a mente — Ef 6.17a',            cor: '#7b68ee', icone: '⛑️' },
+  espada:   { bonus: '+20% XP por estudo',      tipo: 'xp_estudo',       valor: 20,  desc: 'A Palavra de Deus: arma do Espírito — Ef 6.17b',  cor: '#b8a030', icone: '⚔️' },
+};
+
+/**
+ * Slots de itens permanentes (podem ser equipados, máximo 3 simultâneos).
+ * São bônus passivos que se aplicam enquanto equipados.
+ */
+export const SLOTS_PERMANENTES = {
+  maximo: 3,
+  label: 'Itens Permanentes',
+};
 
 /**
  * Obras da carne — 9 termos agrupados (Gálatas 5.19-21).
@@ -284,6 +308,13 @@ export const TRILHAS_ESTUDO = [
         conteudo: [
           'A Bíblia é a única regra infalível de fé e prática. Toda doutrina e toda prática da igreja devem ser provadas e medidas pela Escritura. "Toda a Escritura é inspirada por Deus e útil para o ensino, para a repreensão, para a correção, para a educação na justiça" (2 Tm 3.16). O Senhor Jesus orou: "Santifica-os na verdade; a tua palavra é a verdade" (Jo 17.17). A tradição e os concílios têm valor apenas quando estão em conformidade com a Palavra.',
           'A igreja reformada submete toda pregação, ensino e disciplina ao crivo das Escrituras. Nada que contradiga a Bíblia pode ser aceito como doutrina.'
+        ],
+        videos: [
+          { titulo: 'Sola Scriptura — Reforma Protestante', youtubeId: 'wgbmtEVlxvA', descricao: 'Introdução ao princípio da autoridade bíblica na Reforma.' }
+        ],
+        materiais: [
+          { tipo: 'pdf', titulo: 'Confissão de Westminster', url: 'assets/pdf/westminster.pdf' },
+          { tipo: 'pdf', titulo: 'Catecismo Maior de Westminster', url: 'assets/pdf/catecismo-maior.pdf' }
         ],
         quiz: [
           { pergunta: 'O que é a única regra infalível de fé e prática?', alternativas: ['A tradição da igreja', 'A Bíblia (Escritura)', 'Os concílios', 'A razão humana'], correta: 1 },
