@@ -28,12 +28,12 @@ export const ARMADURA_DEUS_SLOTS = [
  * `valor` → valor numérico aplicado (percentual ou absoluto)
  */
 export const ARMADURA_EFEITOS = {
-  cinto:    { bonus: '+10% resistência',        tipo: 'resistencia',     valor: 10,  desc: 'A verdade cinge os seus rins — Ef 6.14a',       cor: '#c8902a', icone: '🔶' },
-  couraca:  { bonus: '+15% proteção espiritual',tipo: 'protecao',        valor: 15,  desc: 'A justiça protege o coração — Ef 6.14b',         cor: '#2c6ebf', icone: '🛡️' },
-  calcados: { bonus: '+10 XP por missão',       tipo: 'xp_missao',       valor: 10,  desc: 'Pés firmes no evangelho da paz — Ef 6.15',        cor: '#7a5c3a', icone: '👟' },
-  escudo:   { bonus: '-20% penalidade quiz',    tipo: 'penalidade_quiz', valor: -20, desc: 'A fé extingue os dardos do maligno — Ef 6.16',    cor: '#1565c0', icone: '✨' },
-  capacete: { bonus: '+5% XP por leitura',      tipo: 'xp_leitura',      valor: 5,   desc: 'A salvação guarda a mente — Ef 6.17a',            cor: '#7b68ee', icone: '⛑️' },
-  espada:   { bonus: '+20% XP por estudo',      tipo: 'xp_estudo',       valor: 20,  desc: 'A Palavra de Deus: arma do Espírito — Ef 6.17b',  cor: '#b8a030', icone: '⚔️' },
+  cinto:    { bonus: '+10% resistência',        tipo: 'resistencia',     valor: 10,  desc: 'A verdade cinge os seus rins — Ef 6.14a',       cor: '#c8902a', iconeBI: 'bi-link-45deg'          },
+  couraca:  { bonus: '+15% proteção espiritual',tipo: 'protecao',        valor: 15,  desc: 'A justiça protege o coração — Ef 6.14b',         cor: '#2c6ebf', iconeBI: 'bi-shield-fill'          },
+  calcados: { bonus: '+10 XP por missão',       tipo: 'xp_missao',       valor: 10,  desc: 'Pés firmes no evangelho da paz — Ef 6.15',        cor: '#7a5c3a', iconeBI: 'bi-bootstrap-reboot'    },
+  escudo:   { bonus: '-20% penalidade quiz',    tipo: 'penalidade_quiz', valor: -20, desc: 'A fé extingue os dardos do maligno — Ef 6.16',    cor: '#1565c0', iconeBI: 'bi-shield-shaded'        },
+  capacete: { bonus: '+5% XP por leitura',      tipo: 'xp_leitura',      valor: 5,   desc: 'A salvação guarda a mente — Ef 6.17a',            cor: '#7b68ee', iconeBI: 'bi-award-fill'           },
+  espada:   { bonus: '+20% XP por estudo',      tipo: 'xp_estudo',       valor: 20,  desc: 'A Palavra de Deus: arma do Espírito — Ef 6.17b',  cor: '#b8a030', iconeBI: 'bi-lightning-charge-fill'},
 };
 
 /**
@@ -143,7 +143,7 @@ export const TOOLTIPS_OBRA = [
     termos: 'Prostituição · Impureza · Lascívia',
     versiculo: 'Gálatas 5.19 · 1 Coríntios 6.18-20 · Mateus 5.28',
     descricao: 'Do grego porneia (prostituição), akatharsia (impureza) e aselgeia (lascívia/devassidão). Engloba toda forma de pecado sexual: adultério, fornicação, pornografia, luxúria no pensamento (Mt 5.28 — "quem olha para uma mulher com desejo já adulterou no coração"), relações fora do casamento, qualquer uso do corpo contrário ao plano de Deus. Não é apenas o ato físico — inclui o olhar, o pensamento cultivado, o entretenimento que alimenta a lascívia. "O corpo não é para a imoralidade, mas para o Senhor" (1 Co 6.13).',
-    aplicacao: '⚠️ Atenção: pornografia, conversas sensuais, séries com conteúdo explícito, "ficar" sem compromisso, adultério emocional — tudo entra nessa categoria. O remédio bíblico é radical: "Fugi da imoralidade sexual" (1 Co 6.18) — não negociar, mas fugir.'
+    aplicacao: '[Atenção] pornografia, conversas sensuais, séries com conteúdo explícito, "ficar" sem compromisso, adultério emocional — tudo entra nessa categoria. O remédio bíblico é radical: "Fugi da imoralidade sexual" (1 Co 6.18) — não negociar, mas fugir.'
   },
   {
     titulo: 'Idolatria',
@@ -152,7 +152,7 @@ export const TOOLTIPS_OBRA = [
     termos: 'Idolatria',
     versiculo: 'Gálatas 5.20 · Colossenses 3.5 · Mateus 6.24 · Ezequiel 14.3',
     descricao: 'Não precisa ser uma estátua de pedra. Ídolo é qualquer coisa que ocupa o lugar de Deus no coração: dinheiro, sucesso profissional, a opinião dos outros, a família, um relacionamento, o celular, o esporte favorito. Colossenses 3.5 chama a cobiça de "idolatria". Ezequiel fala de "ídolos no coração" (Ez 14.3). "Ninguém pode servir a dois senhores" (Mt 6.24) — sempre haverá uma lealdade dominante.',
-    aplicacao: '⚠️ Atenção: se você não consegue viver sem algo além de Deus — seja aprovação nas redes sociais, um relacionamento, dinheiro ou entretenimento — aquilo provavelmente é um ídolo. Pergunte: "O que ocupa mais meus pensamentos? O que me gera mais ansiedade perder?"'
+    aplicacao: '[Atenção] se você não consegue viver sem algo além de Deus — seja aprovação nas redes sociais, um relacionamento, dinheiro ou entretenimento — aquilo provavelmente é um ídolo. Pergunte: "O que ocupa mais meus pensamentos? O que me gera mais ansiedade perder?"'
   },
   {
     titulo: 'Feitiçaria',
@@ -161,7 +161,7 @@ export const TOOLTIPS_OBRA = [
     termos: 'Feitiçaria · Magia',
     versiculo: 'Gálatas 5.20 · Deuteronômio 18.10-12 · Isaías 8.19',
     descricao: 'Do grego pharmakeia (origem da palavra "farmácia" — uso de substâncias em rituais ocultistas). Não inclui apenas bruxaria declarada, mas qualquer busca de poder, orientação espiritual ou "proteção" fora de Deus: horóscopo, tarô, búzios, simpatias, uso de cristais com intenção espiritual, numerologia, jogos de azar como esperança de vida, superstições ("bater na madeira", "sal grosso", "amuletos"). "Por que irieis consultar os mortos em favor dos vivos?" (Is 8.19). Deus condena todas essas práticas em Deuteronômio 18.10-12.',
-    aplicacao: '⚠️ Atenção: consultar o horóscopo "só por curiosidade", usar simpatias "inofensivas", confiar na sorte ou no destino, ver tarô online, usar pulseirinhas com "proteção" — são práticas que substituem a dependência de Deus por fontes que Ele condena. A alternativa: buscar orientação somente na Palavra e na oração (Tg 1.5).'
+    aplicacao: '[Atenção] consultar o horóscopo "só por curiosidade", usar simpatias "inofensivas", confiar na sorte ou no destino, ver tarô online, usar pulseirinhas com "proteção" — são práticas que substituem a dependência de Deus por fontes que Ele condena. A alternativa: buscar orientação somente na Palavra e na oração (Tg 1.5).'
   },
   {
     titulo: 'Ódio',
@@ -170,7 +170,7 @@ export const TOOLTIPS_OBRA = [
     termos: 'Inimizades · Contendas',
     versiculo: 'Gálatas 5.20 · Mateus 5.21-22 · 1 João 3.15 · Hebreus 12.15',
     descricao: 'Do grego echtrai (inimizades) e ereis (contendas e brigas). Não é só sentimento extremo de ódio declarado — é nutrir hostilidade, guardar rancor, recusar reconciliação, criar brigas, buscar destruir a reputação do outro. Jesus foi radical: equiparou a raiva injusta ao assassinato (Mt 5.21-22). "Quem odeia ao seu irmão é homicida" (1 Jo 3.15). A raiz amarga contamina a muitos (Hb 12.15).',
-    aplicacao: '⚠️ Atenção: falar mal de alguém repetidamente, alimentar mágoa antiga, evitar um irmão na fé sem buscar reconciliação, criar "lados" em conflitos relacionais. Não há adoração aceitável enquanto há ódio não resolvido: "Reconciliai-vos primeiro com teu irmão, e então vem oferecer tua dádiva" (Mt 5.24).'
+    aplicacao: '[Atenção] falar mal de alguém repetidamente, alimentar mágoa antiga, evitar um irmão na fé sem buscar reconciliação, criar "lados" em conflitos relacionais. Não há adoração aceitável enquanto há ódio não resolvido: "Reconciliai-vos primeiro com teu irmão, e então vem oferecer tua dádiva" (Mt 5.24).'
   },
   {
     titulo: 'Inveja',
@@ -179,7 +179,7 @@ export const TOOLTIPS_OBRA = [
     termos: 'Ciúmes · Invejas',
     versiculo: 'Gálatas 5.21 · Provérbios 14.30 · Tiago 3.14-16 · Romanos 12.15',
     descricao: 'Do grego zelos (ciúmes, rivalidade) e phthonoi (invejas). É o ressentimento pelo bem alheio: sentir amargura pelo sucesso, beleza, relacionamento ou bênção do próximo, querer o que o outro tem acompanhado de amargor. "A inveja é podridão dos ossos" (Pv 14.30) — literalmente corrói o ser. Tiago liga diretamente a inveja a "toda perturbação e toda obra maligna" (Tg 3.16). Foi a inveja que levou Caim a matar Abel, e os irmãos de José a vendê-lo.',
-    aplicacao: '⚠️ Atenção: comparar-se nas redes sociais e sentir amargura, torcer silenciosamente contra alguém que prosperou, sentir-se ameaçado pelo sucesso de um colega ou irmão de fé, celebrar as quedas alheias. O remédio: "Alegrai-vos com os que se alegram" (Rm 12.15) e cultivar gratidão pelo que Deus deu a você.'
+    aplicacao: '[Atenção] comparar-se nas redes sociais e sentir amargura, torcer silenciosamente contra alguém que prosperou, sentir-se ameaçado pelo sucesso de um colega ou irmão de fé, celebrar as quedas alheias. O remédio: "Alegrai-vos com os que se alegram" (Rm 12.15) e cultivar gratidão pelo que Deus deu a você.'
   },
   {
     titulo: 'Ira',
@@ -188,7 +188,7 @@ export const TOOLTIPS_OBRA = [
     termos: 'Iras · Raiva descontrolada',
     versiculo: 'Gálatas 5.20 · Efésios 4.26-27 · Tiago 1.20 · Provérbios 14.17',
     descricao: 'Do grego thumoi — explosões de raiva descontrolada, acessos de fúria, violência verbal ou física. É diferente da "ira justa" (que reage ao pecado por amor à justiça — Jesus e Deus a possuem). A ira da carne é egoísta: nasce de orgulho ferido, de não conseguir o que se quer, de frustração acumulada. "A ira do homem não produz a justiça de Deus" (Tg 1.20). "Irai-vos, mas não pequeis; não deixeis que o sol se ponha sobre a vossa ira" (Ef 4.26).',
-    aplicacao: '⚠️ Atenção: gritar em discussões, bater objetos, xingar, dizer coisas cruéis para ferir, guardar raiva por dias. A raiva em si não é pecado — o pecado está em perder o controle. Estratégia bíblica: "Todo homem seja pronto para ouvir, tardio para falar e tardio para irar-se" (Tg 1.19). Pausar antes de reagir salva relacionamentos.'
+    aplicacao: '[Atenção] gritar em discussões, bater objetos, xingar, dizer coisas cruéis para ferir, guardar raiva por dias. A raiva em si não é pecado — o pecado está em perder o controle. Estratégia bíblica: "Todo homem seja pronto para ouvir, tardio para falar e tardio para irar-se" (Tg 1.19). Pausar antes de reagir salva relacionamentos.'
   },
   {
     titulo: 'Discórdia',
@@ -197,7 +197,7 @@ export const TOOLTIPS_OBRA = [
     termos: 'Discórdias · Dissensões · Intrigas',
     versiculo: 'Gálatas 5.20 · Provérbios 6.16-19 · Romanos 16.17',
     descricao: 'Do grego eritheiai (ambição egoísta, intriga) e dichostasiai (divisões). É criar conflito por interesse próprio, usar a discordância para se promover, semear desentendimentos entre pessoas, fazer fofoca que divide. Deus "odeia" quem "semeia discórdias entre irmãos" — aparece na lista das 7 coisas que Deus odeia (Pv 6.16-19). Paulo instrui: "notai os que causam divisões... e desviai-vos deles" (Rm 16.17).',
-    aplicacao: '⚠️ Atenção: fofoca que divide a família ou a Igreja, "jogar" uma pessoa contra outra, criar polêmica desnecessária em grupos de WhatsApp para chamar atenção, usar informações de outros para se destacar. O remédio: ir diretamente à pessoa com quem há conflito (Mt 18.15), não espalhar para terceiros.'
+    aplicacao: '[Atenção] fofoca que divide a família ou a Igreja, "jogar" uma pessoa contra outra, criar polêmica desnecessária em grupos de WhatsApp para chamar atenção, usar informações de outros para se destacar. O remédio: ir diretamente à pessoa com quem há conflito (Mt 18.15), não espalhar para terceiros.'
   },
   {
     titulo: 'Sectarismo',
@@ -206,7 +206,7 @@ export const TOOLTIPS_OBRA = [
     termos: 'Facções · Cismas · Partidarismos',
     versiculo: 'Gálatas 5.20 · 1 Coríntios 1.10-13 · 3.3-4 · João 17.21',
     descricao: 'Do grego haireseis — facções, partidos, cismas dentro do Corpo de Cristo. É dividir a Igreja por lealdades humanas, denominações, estilos de louvor, preferências de pregadores ou doutrinas secundárias, quebrando a unidade que pertence somente a Cristo. Corinto se dividiu: "eu sou de Paulo", "eu sou de Apolo", "eu sou de Cristo" (1 Co 1.12). Jesus orou para que todos sejam um (Jo 17.21) — o sectarismo crucifica essa oração.',
-    aplicacao: '⚠️ Atenção: "minha denominação é a única certa", rejeitar irmãos em Cristo por não serem do mesmo estilo de culto, brigar por instrumentos musicais, dias de culto ou metodologias de evangelismo a ponto de dividir o corpo. Questões secundárias não devem romper a unidade primária em Cristo.'
+    aplicacao: '[Atenção] "minha denominação é a única certa", rejeitar irmãos em Cristo por não serem do mesmo estilo de culto, brigar por instrumentos musicais, dias de culto ou metodologias de evangelismo a ponto de dividir o corpo. Questões secundárias não devem romper a unidade primária em Cristo.'
   },
   {
     titulo: 'Excessos',
@@ -215,7 +215,7 @@ export const TOOLTIPS_OBRA = [
     termos: 'Bebedices · Glutonarias · Orgias',
     versiculo: 'Gálatas 5.21 · Efésios 5.18 · 1 Coríntios 6.12 · Romanos 13.13',
     descricao: 'Do grego methai (embriaguez) e komoi (glutonarias, festas desregradas). Não é proibição de prazer, mas condenação da perda de controle: embriaguez que altera o juízo, uso de drogas, compulsão alimentar, festas que levam ao pecado. "Não vos embriagueis com vinho... mas enchei-vos do Espírito" (Ef 5.18). O princípio geral é: "Tudo me é lícito, mas nem tudo convém; tudo me é lícito, mas eu não me deixarei dominar por coisa alguma" (1 Co 6.12).',
-    aplicacao: '⚠️ Atenção: o vício não é só álcool — vício em séries, jogos, celular, comida, compras, pornografia ou qualquer coisa que te "domina" (1 Co 6.12) entra nessa categoria. O crente não deve ser escravo de nada além de Cristo. Quando algo começa a controlar você, é sinal de alarme espiritual.'
+    aplicacao: '[Atenção] o vício não é só álcool — vício em séries, jogos, celular, comida, compras, pornografia ou qualquer coisa que te "domina" (1 Co 6.12) entra nessa categoria. O crente não deve ser escravo de nada além de Cristo. Quando algo começa a controlar você, é sinal de alarme espiritual.'
   },
 ];
 

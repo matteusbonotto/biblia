@@ -82,15 +82,15 @@
     <div class="cad-step" x-show="passoCadastro === 0"
          x-transition:enter="cad-enter" x-transition:enter-start="cad-enter-start" x-transition:enter-end="cad-enter-end"
          x-transition:leave="cad-leave" x-transition:leave-start="cad-leave-start" x-transition:leave-end="cad-leave-end">
-      <div class="cad-hero-ico">🙏</div>
+      <div class="cad-hero-ico"><i class="bi bi-stars"></i></div>
       <h1 class="cad-titulo">Bem-vindo à<br><em class="cad-titulo-marca">Jornada da Fé</em></h1>
       <p class="cad-sub">Seu app de crescimento espiritual gratuito</p>
 
       <div class="cad-features-grid">
-        <div class="cad-feat"><span>📖</span><div><strong>Bíblia diária</strong><small>Leitura com marcações e notas</small></div></div>
-        <div class="cad-feat"><span>⚡</span><div><strong>Missões & XP</strong><small>Gamificação espiritual</small></div></div>
-        <div class="cad-feat"><span>🧠</span><div><strong>Quizzes bíblicos</strong><small>Aprenda enquanto avança</small></div></div>
-        <div class="cad-feat"><span>🛡</span><div><strong>Armadura de Deus</strong><small>Efésios 6 na prática</small></div></div>
+        <div class="cad-feat"><span><i class="bi bi-book-open"></i></span><div><strong>Bíblia diária</strong><small>Leitura com marcações e notas</small></div></div>
+        <div class="cad-feat"><span><i class="bi bi-lightning-charge-fill"></i></span><div><strong>Missões & XP</strong><small>Gamificação espiritual</small></div></div>
+        <div class="cad-feat"><span><i class="bi bi-cpu-fill"></i></span><div><strong>Quizzes bíblicos</strong><small>Aprenda enquanto avança</small></div></div>
+        <div class="cad-feat"><span><i class="bi bi-shield-fill"></i></span><div><strong>Armadura de Deus</strong><small>Efésios 6 na prática</small></div></div>
       </div>
 
       <div class="cad-termos-bloco">
@@ -117,7 +117,7 @@
     <div class="cad-step" x-show="passoCadastro === 1"
          x-transition:enter="cad-enter" x-transition:enter-start="cad-enter-start" x-transition:enter-end="cad-enter-end"
          x-transition:leave="cad-leave" x-transition:leave-start="cad-leave-start" x-transition:leave-end="cad-leave-end">
-      <div class="cad-hero-ico">✨</div>
+      <div class="cad-hero-ico"><i class="bi bi-sparkle"></i></div>
       <h2 class="cad-titulo">Como devemos<br>te chamar?</h2>
       <p class="cad-sub">Seu nome será exibido no seu perfil</p>
       <div class="cad-campos">
@@ -143,7 +143,7 @@
     <div class="cad-step" x-show="passoCadastro === 2"
          x-transition:enter="cad-enter" x-transition:enter-start="cad-enter-start" x-transition:enter-end="cad-enter-end"
          x-transition:leave="cad-leave" x-transition:leave-start="cad-leave-start" x-transition:leave-end="cad-leave-end">
-      <div class="cad-hero-ico">🎂</div>
+      <div class="cad-hero-ico"><i class="bi bi-balloon-fill"></i></div>
       <h2 class="cad-titulo">Quando você nasceu,<br><em class="cad-titulo-nome" x-text="nomeCadastro || 'amigo'"></em>?</h2>
       <p class="cad-sub">Opcional — você pode pular se preferir <span class="cad-opcional-tag">Pular →</span></p>
       <div class="cad-campos">
@@ -160,7 +160,7 @@
     <div class="cad-step" x-show="passoCadastro === 3"
          x-transition:enter="cad-enter" x-transition:enter-start="cad-enter-start" x-transition:enter-end="cad-enter-end"
          x-transition:leave="cad-leave" x-transition:leave-start="cad-leave-start" x-transition:leave-end="cad-leave-end">
-      <div class="cad-hero-ico">📧</div>
+      <div class="cad-hero-ico"><i class="bi bi-envelope-fill"></i></div>
       <h2 class="cad-titulo">Qual seu<br>e-mail?</h2>
       <p class="cad-sub">Para acessar sua conta com segurança</p>
       <div class="cad-campos">
@@ -184,7 +184,7 @@
     <div class="cad-step" x-show="passoCadastro === 4"
          x-transition:enter="cad-enter" x-transition:enter-start="cad-enter-start" x-transition:enter-end="cad-enter-end"
          x-transition:leave="cad-leave" x-transition:leave-start="cad-leave-start" x-transition:leave-end="cad-leave-end">
-      <div class="cad-hero-ico">🔐</div>
+      <div class="cad-hero-ico"><i class="bi bi-lock-fill"></i></div>
       <h2 class="cad-titulo">Crie uma<br>senha segura</h2>
       <p class="cad-sub">Mínimo de 6 caracteres</p>
       <div class="cad-campos">
@@ -241,26 +241,26 @@
     <div class="cad-step" x-show="passoCadastro === 5"
          x-transition:enter="cad-enter" x-transition:enter-start="cad-enter-start" x-transition:enter-end="cad-enter-end"
          x-transition:leave="cad-leave" x-transition:leave-start="cad-leave-start" x-transition:leave-end="cad-leave-end">
-      <div class="cad-hero-ico">💡</div>
+      <div class="cad-hero-ico"><i class="bi bi-lightbulb-fill"></i></div>
       <h2 class="cad-titulo">Qual seu<br>estado civil?</h2>
       <p class="cad-sub">Opcional — ajuda a personalizar o conteúdo</p>
 
       <div class="cad-cards-escolha">
         <button class="cad-card-opcao" :class="{ 'selecionado': estadoCivilCadastro === 'solteiro' }"
                 @click="estadoCivilCadastro = 'solteiro'; avancarCadastro()">
-          <span class="cad-card-ico">🧍</span>
+          <span class="cad-card-ico"><i class="bi bi-person-fill"></i></span>
           <span class="cad-card-nome">Solteiro(a)</span>
           <i class="bi bi-check-circle-fill cad-card-check"></i>
         </button>
         <button class="cad-card-opcao" :class="{ 'selecionado': estadoCivilCadastro === 'casado' }"
                 @click="estadoCivilCadastro = 'casado'; avancarCadastro()">
-          <span class="cad-card-ico">💍</span>
+          <span class="cad-card-ico"><i class="bi bi-gem"></i></span>
           <span class="cad-card-nome">Casado(a)</span>
           <i class="bi bi-check-circle-fill cad-card-check"></i>
         </button>
         <button class="cad-card-opcao" :class="{ 'selecionado': estadoCivilCadastro === 'outro' }"
                 @click="estadoCivilCadastro = 'outro'; avancarCadastro()">
-          <span class="cad-card-ico">✨</span>
+          <span class="cad-card-ico"><i class="bi bi-stars"></i></span>
           <span class="cad-card-nome">Outro</span>
           <i class="bi bi-check-circle-fill cad-card-check"></i>
         </button>
@@ -273,7 +273,7 @@
     <div class="cad-step cad-step-avatar" x-show="passoCadastro === 6"
          x-transition:enter="cad-enter" x-transition:enter-start="cad-enter-start" x-transition:enter-end="cad-enter-end"
          x-transition:leave="cad-leave" x-transition:leave-start="cad-leave-start" x-transition:leave-end="cad-leave-end">
-      <div class="cad-hero-ico">🎨</div>
+      <div class="cad-hero-ico"><i class="bi bi-palette-fill"></i></div>
       <h2 class="cad-titulo">Crie seu<br>personagem!</h2>
       <p class="cad-sub">Este será seu avatar na jornada</p>
 
@@ -284,7 +284,7 @@
         </div>
         <p class="pedit-avatar-hint">
           <strong x-text="nomeCadastro ? nomeCadastro + ', seu personagem' : 'Seu personagem'"></strong>
-          Alterações aparecem aqui em tempo real ✨
+          Alterações aparecem aqui em tempo real <i class="bi bi-stars" style="color:var(--cor-primaria)"></i>
         </p>
       </div>
 
@@ -526,7 +526,7 @@
         </template>
         <template x-if="!(carregando && passoCadastro === 6)">
           <span>
-            <span x-text="passoCadastro === 6 ? '🎉 Criar minha conta!' : 'Continuar'"></span>
+            <span x-text="passoCadastro === 6 ? 'Criar minha conta!' : 'Continuar'"></span>
             <i class="bi bi-arrow-right cad-cta-arrow" x-show="passoCadastro < 6"></i>
           </span>
         </template>
@@ -567,6 +567,48 @@
         </div>
       </header>
 
+      <!-- ═══ HUD DE ITENS ═══════════════════════════════════════════════════ -->
+      <div class="items-hud"
+           x-show="pagina !== 'login' && pagina !== 'cadastro' && (armaduraEquipada().length > 0 || efeitosAtivos.length > 0 || inventario.filter(l=>l.equipado&&l.itens?.tipo==='permanente').length > 0)"
+           x-transition>
+        <!-- 6 dots da armadura -->
+        <a href="#inventario" @click="viewInventario='equipamentos'" class="ihb-armor-row" title="Armadura de Deus">
+          <template x-for="slot in ARMADURA_DEUS_SLOTS" :key="slot.id">
+            <div class="ihb-dot"
+                 :class="getItemEquipadoSlot(slot.id) ? 'ihb-dot--on' : 'ihb-dot--off'"
+                 :style="getItemEquipadoSlot(slot.id) ? 'background:' + ARMADURA_EFEITOS[slot.id].cor + ';box-shadow:0 0 6px ' + ARMADURA_EFEITOS[slot.id].cor + '99' : ''"
+                 :title="slot.nome + (getItemEquipadoSlot(slot.id) ? ' (ativo)' : '')">
+              <i x-show="getItemEquipadoSlot(slot.id)" class="bi ihb-dot-ico" :class="ARMADURA_EFEITOS[slot.id]?.iconeBI || 'bi-shield-fill'"></i>
+            </div>
+          </template>
+        </a>
+        <!-- Separador -->
+        <div class="ihb-sep" x-show="efeitosAtivos.length > 0 || inventario.filter(l=>l.equipado&&l.itens?.tipo==='permanente').length > 0"></div>
+        <!-- Permanentes equipados -->
+        <template x-for="linha in inventario.filter(l=>l.equipado&&l.itens?.tipo==='permanente')" :key="linha.id">
+          <a href="#inventario" @click="viewInventario='permanentes'"
+             class="ihb-perm-ico" :title="linha.itens?.nome">
+            <i class="bi" :class="linha.itens?.icone || 'bi-star-fill'"></i>
+          </a>
+        </template>
+        <!-- Consumíveis ativos -->
+        <template x-for="e in efeitosAtivos" :key="e.id">
+          <div class="ihb-effect-pill" :title="e.itens?.nome">
+            <i class="bi" :class="e.itens?.icone || 'bi-flask-fill'"></i>
+            <span class="ihb-effect-timer" x-text="tempoRestante(e.termina_em)"></span>
+          </div>
+        </template>
+        <!-- Link inventário -->
+        <a href="#inventario" class="ihb-open-link" title="Abrir inventário">
+          <i class="bi bi-chevron-right"></i>
+        </a>
+      </div>
+      <!-- ═══════════════════════════════════════════════════════════════════ -->
+      <!-- Spacer para compensar a items-hud fixa -->
+      <div class="items-hud-spacer"
+           x-show="pagina !== 'login' && pagina !== 'cadastro' && (armaduraEquipada().length > 0 || efeitosAtivos.length > 0 || inventario.filter(l=>l.equipado&&l.itens?.tipo==='permanente').length > 0)"
+           style="height:36px; flex-shrink:0; display:none;"></div>
+
       <main class="area-principal p-3">
         <p x-show="erro" class="alert alert-danger py-2" x-text="erro"></p>
         <p x-show="sucesso" class="alert alert-success py-2" x-text="sucesso"></p>
@@ -582,15 +624,7 @@
               <span class="efeito-ativo me-1" x-text="(e.itens?.nome || '') + ' – ' + tempoRestante(e.termina_em)"></span>
             </template>
           </div>
-          <p class="texto-secundario mb-3">Ações rápidas</p>
-          <div class="acoes-rapidas mb-4">
-            <button type="button" @click="orarParaGanharCoracao()" title="Orar para ganhar 1 coração (1x por dia)">
-              <i class="bi bi-heart-fill"></i> Orar
-            </button>
-            <button type="button" @click="registrarAcaoRapida('perdoar')"><i class="bi bi-hand-thumbs-up"></i> Perdoar</button>
-            <button type="button" @click="registrarAcaoRapida('confessar')"><i class="bi bi-chat-dots"></i> Confessar</button>
-            <button type="button" @click="registrarAcaoRapida('interceder')"><i class="bi bi-people"></i> Interceder</button>
-          </div>
+          <!-- Ações rápidas ocultas temporariamente -->
           <p class="fw-600 mb-2">Atalhos</p>
           <div class="atalhos-home">
             <!-- Missões — livre -->
@@ -618,18 +652,23 @@
             </a>
 
             <!-- Livre -->
+            <a href="#feed"><i class="bi bi-newspaper"></i> Feed</a>
             <a href="#inventario"><i class="bi bi-backpack"></i> Inventário</a>
             <a href="#loja"><i class="bi bi-shop"></i> Loja</a>
             <a href="#ranking"><i class="bi bi-trophy"></i> Ranking</a>
             <a href="#perfil"><i class="bi bi-person"></i> Perfil</a>
             <a href="#configuracoes"><i class="bi bi-gear"></i> Configurações</a>
+            <!-- Admin (apenas admins) -->
+            <a href="#admin" x-show="isAdmin()" style="background:var(--cor-primaria);color:#fff;border-radius:8px">
+              <i class="bi bi-shield-lock-fill"></i> Admin
+            </a>
           </div>
         </div>
 
         <!-- Loja -->
         <div x-show="pagina === 'loja'" style="display: none;" class="loja-rpg">
           <div class="loja-header mb-4">
-            <h2 class="titulo-pagina mb-1">🏪 Loja do Reino</h2>
+            <h2 class="titulo-pagina mb-1"><i class="bi bi-shop"></i> Loja do Reino</h2>
             <div class="loja-saldo">
               <i class="bi bi-coin"></i>
               <span class="fw-600" x-text="(moeda?.ouro ?? 0)"></span>
@@ -689,7 +728,7 @@
                 
                 <!-- Botão Comprar -->
                 <button class="btn-comprar" 
-                        @click.stop="comprarItem(item)" 
+                        @click.stop="pedirConfirmacao({ titulo:'Confirmar compra', msg:'Deseja comprar este item?', detalhe: item.nome + ' — ' + item.preco_ouro + ' ouro', tipo:'info', icone:'bi-bag-check-fill', labelOk:'Comprar', acao:()=>comprarItem(item) })"
                         :disabled="(moeda?.ouro ?? 0) < item.preco_ouro || (nivel?.nivel ?? 1) < (item.nivel_requerido || 1)"
                         :class="{ 'sem-recursos': (moeda?.ouro ?? 0) < item.preco_ouro || (nivel?.nivel ?? 1) < (item.nivel_requerido || 1) }">
                   <template x-if="(moeda?.ouro ?? 0) < item.preco_ouro">
@@ -741,7 +780,7 @@
                       <span class="texto-secundario">ouro</span>
                     </div>
                     <button class="btn btn-primario w-100 mt-3" 
-                            @click="comprarItem(itemSelecionado); fecharDetalhesItem()"
+                            @click="pedirConfirmacao({ titulo:'Confirmar compra', msg:'Deseja comprar este item?', detalhe: itemSelecionado.nome + ' — ' + itemSelecionado.preco_ouro + ' ouro', tipo:'info', icone:'bi-bag-check-fill', labelOk:'Comprar', acao:()=>{ comprarItem(itemSelecionado); fecharDetalhesItem(); } })"
                             :disabled="(moeda?.ouro ?? 0) < itemSelecionado.preco_ouro || (nivel?.nivel ?? 1) < (itemSelecionado.nivel_requerido || 1)">
                       Comprar Agora
                     </button>
@@ -1023,7 +1062,7 @@
                           :class="aulaAtualMarcadaLida ? 'bnav-quiz-livro' : 'bnav-prox'"
                           @click="toggleLidaEstudo()">
                     <i :class="aulaAtualMarcadaLida ? 'bi bi-check-circle-fill' : 'bi bi-check-lg'"></i>
-                    <span x-text="aulaAtualMarcadaLida ? 'Lida ✓' : 'Marcar como lida'"></span>
+                    <span x-text="aulaAtualMarcadaLida ? 'Lida' : 'Marcar como lida'"></span>
                   </button>
                 </div>
                 <div x-show="aulaAtualMarcadaLida" class="bnav-row-quiz" x-transition>
@@ -1140,12 +1179,43 @@
           </template>
         </div>
 
-        <!-- Conquistas (placeholder) -->
-        <div x-show="pagina === 'conquistas'" style="display: none;">
-          <h2 class="titulo-pagina mb-1">Conquistas</h2>
-          <p class="subtitulo-pagina mb-3">Medalhas e marcos desbloqueados na sua jornada</p>
-          <div class="card-tema p-3">
-            <p class="texto-secundario mb-0">Em breve: lista de conquistas desbloqueadas.</p>
+        <!-- Conquistas -->
+        <div x-show="pagina === 'conquistas'" style="display: none;"
+             x-init="$watch('pagina', v => { if (v === 'conquistas') verificarNovasConquistas(); })">
+          <h2 class="titulo-pagina mb-1"><i class="bi bi-trophy-fill"></i> Conquistas</h2>
+          <p class="subtitulo-pagina mb-1">Medalhas desbloqueadas na sua jornada</p>
+
+          <!-- Resumo -->
+          <div class="conquistas-resumo mb-4">
+            <div class="conquistas-resumo-num">
+              <span x-text="(conquistas ? conquistas().filter(c=>c.conquistado).length : 0)"></span>
+              /
+              <span x-text="(conquistas ? conquistas().length : 0)"></span>
+            </div>
+            <p class="texto-secundario fs-menor mb-0">conquistas desbloqueadas</p>
+            <div class="conquistas-barra">
+              <div class="conquistas-barra-fill"
+                   :style="'width:' + ((conquistas && conquistas().length > 0 ? conquistas().filter(c=>c.conquistado).length / conquistas().length * 100 : 0).toFixed(0)) + '%'">
+              </div>
+            </div>
+          </div>
+
+          <!-- Grid de conquistas -->
+          <div class="conquistas-grid">
+            <template x-for="c in (conquistas ? conquistas() : [])" :key="c.titulo">
+              <div class="conquista-card" :class="c.conquistado ? 'conquista-card--desbloqueada' : 'conquista-card--bloqueada'">
+                <div class="conquista-icone"
+                     :style="c.conquistado ? ('background:' + (c.cor === 'success' ? '#d1fae5' : c.cor === 'danger' ? '#fee2e2' : c.cor === 'warning' ? '#fef3c7' : c.cor === 'primary' ? '#ede9fe' : '#e0f2fe') + ';color:' + (c.cor === 'success' ? '#065f46' : c.cor === 'danger' ? '#7f1d1d' : c.cor === 'warning' ? '#92400e' : c.cor === 'primary' ? '#4c1d95' : '#0c4a6e')) : 'background:#f1f5f9;color:#94a3b8'">
+                  <i class="bi" :class="c.icone"></i>
+                </div>
+                <div class="conquista-info">
+                  <span class="conquista-titulo" x-text="c.titulo"></span>
+                  <span class="conquista-desc fs-menor texto-secundario" x-text="c.desc"></span>
+                </div>
+                <div x-show="c.conquistado" class="conquista-check"><i class="bi bi-check-circle-fill"></i></div>
+                <div x-show="!c.conquistado" class="conquista-lock"><i class="bi bi-lock-fill"></i></div>
+              </div>
+            </template>
           </div>
         </div>
 
@@ -1420,7 +1490,7 @@
                     </div>
                     <p class="pedit-avatar-hint">
                       <strong x-text="(perfilEditando?.nome || 'Seu') + ' personagem'"></strong>
-                      Alterações aparecem aqui em tempo real ✨
+                      Alterações aparecem aqui em tempo real <i class="bi bi-stars" style="color:var(--cor-primaria)"></i>
                     </p>
                   </div>
 
@@ -2090,419 +2160,282 @@
         </div>
 
         <!-- Inventário -->
-        <div x-show="pagina === 'inventario'" style="display: none;" class="inventario-rpg">
-          <h2 class="titulo-pagina mb-1">🎒 Inventário</h2>
-          
-          <!-- Tabs de Navegação -->
-          <div class="inventario-tabs mb-4">
-            <button class="tab-btn" :class="{ ativo: viewInventario === 'equipamentos' }" @click="viewInventario = 'equipamentos'">
+        <div x-show="pagina === 'inventario'" style="display: none;" class="inv-root">
+
+          <!-- ── Cabeçalho ── -->
+          <div class="inv-header">
+            <div>
+              <h2 class="inv-title"><i class="bi bi-grid-3x3-gap-fill"></i> Inventário</h2>
+              <p class="inv-subtitle">
+                <span x-text="inventario.filter(l=>l.equipado).length"></span> equipados
+                · <span x-text="inventario.length"></span> total
+              </p>
+            </div>
+            <div class="inv-header-ouro">
+              <i class="bi bi-coin"></i>
+              <span x-text="moeda?.ouro ?? 0"></span>
+            </div>
+          </div>
+
+          <!-- ── Tabs ── -->
+          <div class="inv-tabs-bar">
+            <button class="inv-tab" :class="{'inv-tab--on': viewInventario === 'equipamentos'}"
+                    @click="viewInventario = 'equipamentos'">
               <i class="bi bi-shield-fill"></i>
               <span>Armadura</span>
+              <span class="inv-tab-badge" x-show="armaduraEquipada().length > 0"
+                    x-text="armaduraEquipada().length + '/6'"></span>
             </button>
-            <button class="tab-btn" :class="{ ativo: viewInventario === 'consumiveis' }" @click="viewInventario = 'consumiveis'">
-              <i class="bi bi-droplet-fill"></i>
-              <span>Consumíveis</span>
-            </button>
-            <button class="tab-btn" :class="{ ativo: viewInventario === 'permanentes' }" @click="viewInventario = 'permanentes'">
-              <i class="bi bi-star-fill"></i>
+            <button class="inv-tab" :class="{'inv-tab--on': viewInventario === 'permanentes'}"
+                    @click="viewInventario = 'permanentes'">
+              <i class="bi bi-stars"></i>
               <span>Permanentes</span>
+              <span class="inv-tab-badge inv-tab-badge--perm"
+                    x-show="inventario.filter(l=>l.equipado&&l.itens?.tipo==='permanente').length > 0"
+                    x-text="inventario.filter(l=>l.equipado&&l.itens?.tipo==='permanente').length + '/' + SLOTS_PERMANENTES.maximo"></span>
             </button>
-            <button class="tab-btn" :class="{ ativo: viewInventario === 'fruto' }" @click="viewInventario = 'fruto'; setTimeout(() => renderizarFrutosSVG(), 100)">
+            <button class="inv-tab" :class="{'inv-tab--on': viewInventario === 'consumiveis'}"
+                    @click="viewInventario = 'consumiveis'">
+              <i class="bi bi-flask-fill"></i>
+              <span>Consumíveis</span>
+              <span class="inv-tab-badge inv-tab-badge--alert"
+                    x-show="efeitosAtivos.length > 0"
+                    x-text="efeitosAtivos.length + ' ativo'+ (efeitosAtivos.length > 1 ? 's' : '')"></span>
+            </button>
+            <button class="inv-tab" :class="{'inv-tab--on': viewInventario === 'fruto'}"
+                    @click="viewInventario = 'fruto'; setTimeout(() => renderizarFrutosSVG(), 100)">
               <i class="bi bi-tree-fill"></i>
               <span>Fruto</span>
             </button>
-            <button class="tab-btn" :class="{ ativo: viewInventario === 'obras' }" @click="viewInventario = 'obras'; setTimeout(() => renderizarObrasSVG(), 100)">
-              <i class="bi bi-heart-fill"></i>
+            <button class="inv-tab" :class="{'inv-tab--on': viewInventario === 'obras'}"
+                    @click="viewInventario = 'obras'; setTimeout(() => renderizarObrasSVG(), 100)">
+              <i class="bi bi-fire"></i>
               <span>Obras</span>
             </button>
-            <!-- Batalha Espiritual — oculta, disponível via botão "Saiba mais" -->
-            <!-- <button class="tab-btn" :class="{ ativo: viewInventario === 'batalha' }" @click="viewInventario = 'batalha'">
-              <i class="bi bi-yin-yang"></i>
-              <span>Batalha</span>
-            </button> -->
           </div>
 
-          <!-- Aba: Equipamentos -->
-          <div x-show="viewInventario === 'equipamentos'">
-            <!-- Armadura de Deus (Ef 6.10-18) -->
-            <div class="inventario-secao mb-4">
-              <h3 class="secao-titulo">
-                <i class="bi bi-shield-fill"></i>
-                Armadura de Deus
-                <span class="ref-biblica" :title="REFS_BIBLICAS.ARMADURA_DEUS">Efésios 6.10-18</span>
-              </h3>
+          <!-- ══════════════════════════════════════════════════════════════ -->
+          <!-- ABA: ARMADURA DE DEUS -->
+          <!-- ══════════════════════════════════════════════════════════════ -->
+          <div x-show="viewInventario === 'equipamentos'" class="inv-armor-pane">
 
-              <!-- Layout principal: SVG guerreiro + lista de slots -->
-              <div class="armadura-display">
-
-                <!-- Figura SVG interativa -->
-                <div class="armadura-figura-wrap">
-                  <svg class="armadura-svg" viewBox="0 0 240 350" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Armadura de Deus">
-                    <defs>
-                      <linearGradient id="grad-pele" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" style="stop-color:#d4a574"/>
-                        <stop offset="100%" style="stop-color:#b8895a"/>
-                      </linearGradient>
-                      <filter id="glow-eq" x="-30%" y="-30%" width="160%" height="160%">
-                        <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="b"/>
-                        <feFlood flood-color="#fff" flood-opacity="0.5" result="c"/>
-                        <feComposite in="c" in2="b" operator="in" result="d"/>
-                        <feMerge><feMergeNode in="d"/><feMergeNode in="SourceGraphic"/></feMerge>
-                      </filter>
-                    </defs>
-
-                    <!-- === BASE SILHUETA === -->
-                    <!-- Tronco (base) -->
-                    <path d="M80,80 L160,80 L152,198 L88,198 Z" fill="#444" opacity="0.18"/>
-                    <!-- Braço esquerdo (base) -->
-                    <rect x="46" y="84" width="32" height="96" rx="14" fill="#444" opacity="0.18"/>
-                    <!-- Braço direito (base) -->
-                    <rect x="162" y="84" width="32" height="96" rx="14" fill="#444" opacity="0.18"/>
-                    <!-- Perna esquerda (base) -->
-                    <rect x="82" y="198" width="32" height="100" rx="10" fill="#444" opacity="0.18"/>
-                    <!-- Perna direita (base) -->
-                    <rect x="126" y="198" width="32" height="100" rx="10" fill="#444" opacity="0.18"/>
-                    <!-- Pescoço -->
-                    <rect x="112" y="72" width="16" height="14" rx="3" fill="url(#grad-pele)"/>
-                    <!-- Cabeça (pele) -->
-                    <circle cx="120" cy="50" r="26" fill="url(#grad-pele)"/>
-                    <!-- Olhos -->
-                    <ellipse cx="112" cy="48" rx="3.5" ry="4" fill="#6b4226" opacity="0.7"/>
-                    <ellipse cx="128" cy="48" rx="3.5" ry="4" fill="#6b4226" opacity="0.7"/>
-                    <!-- Boca -->
-                    <path d="M113,60 Q120,66 127,60" stroke="#6b4226" stroke-width="1.5" fill="none" opacity="0.6"/>
-
-                    <!-- === 1. CAPACETE === -->
-                    <g :opacity="getItemEquipadoSlot('capacete') ? 1 : 0.22"
-                       :filter="getItemEquipadoSlot('capacete') ? 'url(#glow-eq)' : 'none'"
-                       @click="toggleEquiparSlot('capacete')"
-                       style="cursor:pointer" title="Capacete da Salvação">
-                      <!-- Calota do elmo -->
-                      <path d="M94,54 Q94,18 120,18 Q146,18 146,54 L143,63 Q131,57 120,57 Q109,57 97,63 Z"
-                            :fill="getItemEquipadoSlot('capacete') ? '#7b68ee' : '#777'"/>
-                      <!-- Guarda-nariz -->
-                      <rect x="117" y="53" width="6" height="18" rx="1.5"
-                            :fill="getItemEquipadoSlot('capacete') ? '#5a4fd0' : '#666'"/>
-                      <!-- Guarda-bochechas -->
-                      <path d="M97,63 L91,76 Q102,79 105,68 Z"
-                            :fill="getItemEquipadoSlot('capacete') ? '#7b68ee' : '#777'"/>
-                      <path d="M143,63 L149,76 Q138,79 135,68 Z"
-                            :fill="getItemEquipadoSlot('capacete') ? '#7b68ee' : '#777'"/>
-                      <!-- Visor -->
-                      <rect x="103" y="60" width="34" height="6" rx="2"
-                            :fill="getItemEquipadoSlot('capacete') ? '#cc3333' : '#555'" opacity="0.9"/>
-                      <!-- Penacho (só equipado) -->
-                      <path d="M115,18 Q118,3 121,18" :stroke="getItemEquipadoSlot('capacete') ? '#cc2222' : 'none'" stroke-width="5" fill="none" stroke-linecap="round"/>
-                      <!-- Label -->
-                      <text x="120" y="14" text-anchor="middle" font-size="7" fill="#7b68ee"
-                            :opacity="getItemEquipadoSlot('capacete') ? 0 : 0.7" font-family="sans-serif">⛑</text>
-                    </g>
-
-                    <!-- === 2. COURAÇA === -->
-                    <g :opacity="getItemEquipadoSlot('couraca') ? 1 : 0.22"
-                       :filter="getItemEquipadoSlot('couraca') ? 'url(#glow-eq)' : 'none'"
-                       @click="toggleEquiparSlot('couraca')"
-                       style="cursor:pointer" title="Couraça da Justiça">
-                      <!-- Placa principal -->
-                      <path d="M80,82 L160,82 L152,198 L88,198 Z"
-                            :fill="getItemEquipadoSlot('couraca') ? '#2c6ebf' : '#777'"/>
-                      <!-- Quilha central -->
-                      <path d="M120,86 L116,196 L124,196 Z"
-                            :fill="getItemEquipadoSlot('couraca') ? '#1a5592' : '#666'"/>
-                      <!-- Pauldrons (ombros) -->
-                      <path d="M80,82 Q62,80 48,94 L60,106 Q72,96 84,90 Z"
-                            :fill="getItemEquipadoSlot('couraca') ? '#2c6ebf' : '#777'"/>
-                      <path d="M160,82 Q178,80 192,94 L180,106 Q168,96 156,90 Z"
-                            :fill="getItemEquipadoSlot('couraca') ? '#2c6ebf' : '#777'"/>
-                      <!-- Detalhe superior -->
-                      <path d="M88,92 Q120,85 152,92 L150,108 Q120,100 90,108 Z"
-                            :fill="getItemEquipadoSlot('couraca') ? '#3a82cc' : '#888'" opacity="0.75"/>
-                      <!-- Cruz -->
-                      <line x1="120" y1="120" x2="120" y2="175"
-                            :stroke="getItemEquipadoSlot('couraca') ? '#fff' : 'none'" stroke-width="3" opacity="0.45"/>
-                      <line x1="104" y1="142" x2="136" y2="142"
-                            :stroke="getItemEquipadoSlot('couraca') ? '#fff' : 'none'" stroke-width="3" opacity="0.45"/>
-                    </g>
-
-                    <!-- === 3. CINTO === -->
-                    <g :opacity="getItemEquipadoSlot('cinto') ? 1 : 0.22"
-                       :filter="getItemEquipadoSlot('cinto') ? 'url(#glow-eq)' : 'none'"
-                       @click="toggleEquiparSlot('cinto')"
-                       style="cursor:pointer" title="Cinto da Verdade">
-                      <!-- Correia -->
-                      <rect x="84" y="196" width="72" height="16" rx="4"
-                            :fill="getItemEquipadoSlot('cinto') ? '#c8902a' : '#777'"/>
-                      <!-- Fivela -->
-                      <rect x="113" y="197" width="14" height="14" rx="2.5"
-                            :fill="getItemEquipadoSlot('cinto') ? '#f0c040' : '#999'"/>
-                      <rect x="116" y="200" width="8" height="8" rx="1.5"
-                            :fill="getItemEquipadoSlot('cinto') ? '#c8902a' : '#777'"/>
-                      <!-- Rebites -->
-                      <circle cx="96"  cy="204" r="2.5" :fill="getItemEquipadoSlot('cinto') ? '#f0c040' : '#999'"/>
-                      <circle cx="144" cy="204" r="2.5" :fill="getItemEquipadoSlot('cinto') ? '#f0c040' : '#999'"/>
-                    </g>
-
-                    <!-- === 4. CALÇADOS === -->
-                    <g :opacity="getItemEquipadoSlot('calcados') ? 1 : 0.22"
-                       :filter="getItemEquipadoSlot('calcados') ? 'url(#glow-eq)' : 'none'"
-                       @click="toggleEquiparSlot('calcados')"
-                       style="cursor:pointer" title="Calçados do Evangelho">
-                      <!-- Bota esquerda (cano) -->
-                      <rect x="80" y="270" width="36" height="32" rx="7"
-                            :fill="getItemEquipadoSlot('calcados') ? '#7a5c3a' : '#777'"/>
-                      <!-- Bota esquerda (sola) -->
-                      <rect x="76" y="296" width="44" height="14" rx="6"
-                            :fill="getItemEquipadoSlot('calcados') ? '#5a3e26' : '#666'"/>
-                      <!-- Bota direita (cano) -->
-                      <rect x="124" y="270" width="36" height="32" rx="7"
-                            :fill="getItemEquipadoSlot('calcados') ? '#7a5c3a' : '#777'"/>
-                      <!-- Bota direita (sola) -->
-                      <rect x="120" y="296" width="44" height="14" rx="6"
-                            :fill="getItemEquipadoSlot('calcados') ? '#5a3e26' : '#666'"/>
-                      <!-- Cadarços -->
-                      <line x1="82" y1="279" x2="114" y2="279" :stroke="getItemEquipadoSlot('calcados') ? '#c8a878' : 'none'" stroke-width="1.5"/>
-                      <line x1="82" y1="287" x2="114" y2="287" :stroke="getItemEquipadoSlot('calcados') ? '#c8a878' : 'none'" stroke-width="1.5"/>
-                      <line x1="126" y1="279" x2="158" y2="279" :stroke="getItemEquipadoSlot('calcados') ? '#c8a878' : 'none'" stroke-width="1.5"/>
-                      <line x1="126" y1="287" x2="158" y2="287" :stroke="getItemEquipadoSlot('calcados') ? '#c8a878' : 'none'" stroke-width="1.5"/>
-                    </g>
-
-                    <!-- === 5. ESCUDO (esquerda) === -->
-                    <g :opacity="getItemEquipadoSlot('escudo') ? 1 : 0.22"
-                       :filter="getItemEquipadoSlot('escudo') ? 'url(#glow-eq)' : 'none'"
-                       @click="toggleEquiparSlot('escudo')"
-                       style="cursor:pointer" title="Escudo da Fé">
-                      <!-- Corpo do escudo -->
-                      <path d="M6,118 L48,110 L52,200 Q30,216 6,200 Z"
-                            :fill="getItemEquipadoSlot('escudo') ? '#1565c0' : '#777'"/>
-                      <!-- Borda -->
-                      <path d="M6,118 L48,110 L52,200 Q30,216 6,200 Z"
-                            fill="none" :stroke="getItemEquipadoSlot('escudo') ? '#0a4f9f' : '#666'" stroke-width="2.5"/>
-                      <!-- Cruz do escudo -->
-                      <line x1="29" y1="124" x2="29" y2="200" :stroke="getItemEquipadoSlot('escudo') ? '#fff' : 'none'" stroke-width="2.5" opacity="0.65"/>
-                      <line x1="9" y1="158" x2="50" y2="158" :stroke="getItemEquipadoSlot('escudo') ? '#fff' : 'none'" stroke-width="2.5" opacity="0.65"/>
-                      <!-- Umbo central -->
-                      <circle cx="29" cy="158" r="9"
-                              :fill="getItemEquipadoSlot('escudo') ? '#2980b9' : '#888'"
-                              :stroke="getItemEquipadoSlot('escudo') ? '#0a4f9f' : '#666'" stroke-width="2"/>
-                    </g>
-
-                    <!-- === 6. ESPADA (direita) === -->
-                    <g :opacity="getItemEquipadoSlot('espada') ? 1 : 0.22"
-                       :filter="getItemEquipadoSlot('espada') ? 'url(#glow-eq)' : 'none'"
-                       @click="toggleEquiparSlot('espada')"
-                       style="cursor:pointer" title="Espada do Espírito">
-                      <!-- Lâmina -->
-                      <path d="M198,92 L193,202 L203,202 Z"
-                            :fill="getItemEquipadoSlot('espada') ? '#d0d0c8' : '#888'"/>
-                      <!-- Fio da lâmina -->
-                      <line x1="195" y1="202" x2="200" y2="96"
-                            :stroke="getItemEquipadoSlot('espada') ? '#e8e8e0' : 'none'" stroke-width="1.5"/>
-                      <!-- Guarda -->
-                      <rect x="184" y="134" width="34" height="12" rx="4"
-                            :fill="getItemEquipadoSlot('espada') ? '#c8902a' : '#888'"/>
-                      <!-- Punho -->
-                      <rect x="193" y="146" width="12" height="44" rx="5"
-                            :fill="getItemEquipadoSlot('espada') ? '#6b3a1a' : '#777'"/>
-                      <!-- Pomo -->
-                      <circle cx="199" cy="194" r="9"
-                              :fill="getItemEquipadoSlot('espada') ? '#c8902a' : '#888'"/>
-                      <!-- Brilho ponta (equipado) -->
-                      <g :opacity="getItemEquipadoSlot('espada') ? 1 : 0">
-                        <line x1="198" y1="88" x2="198" y2="80" stroke="#fffaaa" stroke-width="2" stroke-linecap="round"/>
-                        <line x1="202" y1="92" x2="208" y2="86" stroke="#fffaaa" stroke-width="2" stroke-linecap="round"/>
-                        <line x1="194" y1="92" x2="188" y2="86" stroke="#fffaaa" stroke-width="2" stroke-linecap="round"/>
-                      </g>
-                    </g>
-
-                    <!-- Braços (pele, sobre armadura) -->
-                    <rect x="50" y="106" width="24" height="70" rx="12" fill="url(#grad-pele)" opacity="0.7"/>
-                    <rect x="166" y="106" width="24" height="70" rx="12" fill="url(#grad-pele)" opacity="0.7"/>
-                  </svg>
-                  <p class="armadura-dica">Toque para equipar / desequipar</p>
+            <!-- Banner de progresso -->
+            <div class="armor-banner">
+              <div class="armor-banner-left">
+                <span class="armor-banner-title">Armadura de Deus</span>
+                <span class="armor-banner-verse">Efésios 6.10–18</span>
+              </div>
+              <div class="armor-banner-right">
+                <div class="armor-prog-dots">
+                  <template x-for="slot in ARMADURA_DEUS_SLOTS" :key="slot.id">
+                    <div class="apd"
+                         :class="getItemEquipadoSlot(slot.id) ? 'apd--on' : 'apd--off'"
+                         :style="getItemEquipadoSlot(slot.id) ? 'background:' + ARMADURA_EFEITOS[slot.id].cor + ';box-shadow:0 0 6px ' + ARMADURA_EFEITOS[slot.id].cor + '80' : ''"
+                         :title="slot.nome"></div>
+                  </template>
                 </div>
+                <span class="armor-prog-label"
+                      x-text="armaduraEquipada().length + '/6 peças'"></span>
+              </div>
+            </div>
 
-                <!-- Lista de slots com efeitos -->
-                <div class="armadura-slots-lista">
-                <template x-for="slot in ARMADURA_DEUS_SLOTS" :key="slot.id">
-                    <div class="armadura-slot-item"
-                         :class="{ 'equipado': getItemEquipadoSlot(slot.id) }"
-                         @click="toggleEquiparSlot(slot.id)">
-                      <div class="slot-status-dot" :class="getItemEquipadoSlot(slot.id) ? 'ativo' : 'vazio'"></div>
-                      <div class="slot-info-wrap">
-                        <span class="slot-nome-item" x-text="getItemEquipadoSlot(slot.id)?.nome || slot.nome"></span>
-                        <span class="slot-ref-item" x-text="slot.ref"></span>
-                        <span class="slot-efeito-item"
-                              x-show="getItemEquipadoSlot(slot.id)"
-                              x-text="ARMADURA_EFEITOS[slot.id]?.bonus"></span>
+            <!-- Versículo motivacional -->
+            <p class="armor-verse-quote">
+              "Revesti-vos de toda a armadura de Deus, para que possais ficar firmes..." — Ef 6.11
+            </p>
+
+            <!-- Grid de slots (2 × 3) -->
+            <div class="armor-slots-grid">
+              <template x-for="slot in ARMADURA_DEUS_SLOTS" :key="slot.id">
+                <div class="armor-slot"
+                     :class="getItemEquipadoSlot(slot.id) ? 'armor-slot--on' : 'armor-slot--off'"
+                     :style="getItemEquipadoSlot(slot.id)
+                       ? '--slotcor:' + ARMADURA_EFEITOS[slot.id].cor
+                       : '--slotcor:#94a3b8'"
+                     @click="toggleEquiparSlot(slot.id)">
+                  <!-- Glow overlay -->
+                  <div class="armor-slot-glow" x-show="getItemEquipadoSlot(slot.id)"></div>
+                  <!-- Ícone -->
+                  <div class="armor-slot-ico-wrap">
+                    <i class="armor-slot-ico bi" :class="ARMADURA_EFEITOS[slot.id]?.iconeBI || 'bi-shield-fill'"></i>
+                  </div>
+                  <!-- Texto -->
+                  <div class="armor-slot-body">
+                    <span class="armor-slot-nome" x-text="slot.nome"></span>
+                    <span class="armor-slot-ref" x-text="slot.ref"></span>
+                    <span class="armor-slot-bonus"
+                          x-show="getItemEquipadoSlot(slot.id)"
+                          x-text="ARMADURA_EFEITOS[slot.id]?.bonus"></span>
+                    <span class="armor-slot-hint"
+                          x-show="!getItemEquipadoSlot(slot.id)">+ Tocar para equipar</span>
+                  </div>
+                  <!-- Status tag -->
+                  <div class="armor-slot-status-tag" x-show="getItemEquipadoSlot(slot.id)"><i class="bi bi-check-lg"></i> ATIVO</div>
+                </div>
+              </template>
+            </div>
+
+            <!-- Painel de bônus ativos -->
+            <div class="armor-bonuses" x-show="armaduraEquipada().length > 0" x-transition>
+              <div class="armor-bonuses-header">
+                <span><i class="bi bi-lightning-charge-fill"></i> Bônus Ativos</span>
+                <span class="armor-bonuses-count"
+                      x-text="armaduraEquipada().length + ' peça' + (armaduraEquipada().length > 1 ? 's' : '') + ' equipada' + (armaduraEquipada().length > 1 ? 's' : '')"></span>
+              </div>
+              <div class="armor-bonuses-list">
+                <template x-for="slot in armaduraEquipada()" :key="slot.id">
+                  <div class="armor-bonus-row"
+                       :style="'--boncor:' + ARMADURA_EFEITOS[slot.id]?.cor">
+                    <i class="bi armor-bonus-ico" :class="ARMADURA_EFEITOS[slot.id]?.iconeBI || 'bi-shield-fill'"></i>
+                    <div class="armor-bonus-info">
+                      <span class="armor-bonus-val"
+                            x-text="ARMADURA_EFEITOS[slot.id]?.bonus"></span>
+                      <span class="armor-bonus-desc"
+                            x-text="ARMADURA_EFEITOS[slot.id]?.desc"></span>
                     </div>
-                      <button class="btn-slot-acao"
-                              :class="getItemEquipadoSlot(slot.id) ? 'desequipar' : 'equipar'"
-                              x-text="getItemEquipadoSlot(slot.id) ? 'Desequipar' : '+ Equipar'"
-                              @click.stop="toggleEquiparSlot(slot.id)"></button>
+                  </div>
+                </template>
+              </div>
+            </div>
+
+            <!-- Estado vazio -->
+            <div x-show="armaduraEquipada().length === 0" class="armor-empty-state">
+              <div class="armor-empty-ico"><i class="bi bi-shield-fill"></i></div>
+              <p class="fw-600 mb-1">Nenhuma peça da armadura equipada</p>
+              <p class="texto-secundario fs-menor">Clique nas peças acima para ativá-las e receber bônus espirituais.</p>
+            </div>
+          </div>
+
+          <!-- ══════════════════════════════════════════════════════════════ -->
+          <!-- ABA: PERMANENTES -->
+          <!-- ══════════════════════════════════════════════════════════════ -->
+          <div x-show="viewInventario === 'permanentes'" class="inv-perm-pane">
+
+            <!-- Frames de slots equipados -->
+            <div class="perm-slots-header">
+              <span class="perm-slots-label">Slots de Equipamento</span>
+              <span class="perm-slots-count">
+                <span x-text="inventario.filter(l=>l.equipado&&l.itens?.tipo==='permanente').length"></span>
+                / <span x-text="SLOTS_PERMANENTES.maximo"></span> usados
+              </span>
+            </div>
+            <div class="perm-frames">
+              <template x-for="i in SLOTS_PERMANENTES.maximo" :key="i">
+                <div class="perm-frame"
+                     :class="inventario.filter(l=>l.equipado&&l.itens?.tipo==='permanente')[i-1]
+                       ? 'perm-frame--filled'
+                       : 'perm-frame--empty'">
+                  <!-- Slot preenchido -->
+                  <template x-if="inventario.filter(l=>l.equipado&&l.itens?.tipo==='permanente')[i-1]">
+                    <div class="perm-frame-inner">
+                      <div class="perm-frame-ico"
+                           :class="'inv-rar-' + (inventario.filter(l=>l.equipado&&l.itens?.tipo==='permanente')[i-1]?.itens?.raridade || 'comum')">
+                        <i class="bi"
+                           :class="inventario.filter(l=>l.equipado&&l.itens?.tipo==='permanente')[i-1]?.itens?.icone || 'bi-star-fill'"></i>
+                      </div>
+                      <div class="perm-frame-info">
+                        <span class="perm-frame-nome"
+                              x-text="inventario.filter(l=>l.equipado&&l.itens?.tipo==='permanente')[i-1]?.itens?.nome"></span>
+                        <span class="perm-frame-rar"
+                              x-text="inventario.filter(l=>l.equipado&&l.itens?.tipo==='permanente')[i-1]?.itens?.raridade || 'comum'"></span>
+                      </div>
+                      <button class="perm-frame-remove"
+                              @click.stop="pedirConfirmacao({ titulo:'Desequipar item?', msg:'O bônus deste item será removido.', detalhe: inventario.filter(l=>l.equipado&&l.itens?.tipo==='permanente')[i-1]?.itens?.nome, tipo:'aviso', icone:'bi-dash-circle-fill', labelOk:'Desequipar', acao:()=>equiparItemInventario(inventario.filter(l=>l.equipado&&l.itens?.tipo==='permanente')[i-1]?.id) })"
+                              title="Desequipar">
+                        <i class="bi bi-x-lg"></i>
+                      </button>
+                    </div>
+                  </template>
+                  <!-- Slot vazio -->
+                  <template x-if="!inventario.filter(l=>l.equipado&&l.itens?.tipo==='permanente')[i-1]">
+                    <div class="perm-frame-empty-inner">
+                      <i class="bi bi-plus-circle-dotted"></i>
+                      <span>Slot livre</span>
                     </div>
                   </template>
                 </div>
-              </div>
+              </template>
+            </div>
 
-              <!-- Painel de bônus ativos -->
-              <div class="armadura-efeitos-ativos" x-show="armaduraEquipada().length > 0" x-transition>
-                <h4><i class="bi bi-stars"></i> Bônus Ativos da Armadura</h4>
-                <div class="efeitos-armadura-grid">
-                  <template x-for="slot in armaduraEquipada()" :key="slot.id">
-                    <div class="efeito-armadura-badge"
-                         :style="`border-left-color: ${ARMADURA_EFEITOS[slot.id]?.cor}`">
-                      <span class="efeito-arm-icone" x-text="ARMADURA_EFEITOS[slot.id]?.icone"></span>
-                      <div>
-                        <div class="efeito-arm-bonus" x-text="ARMADURA_EFEITOS[slot.id]?.bonus"></div>
-                        <div class="efeito-arm-desc" x-text="ARMADURA_EFEITOS[slot.id]?.desc"></div>
-                    </div>
+            <!-- Todos os permanentes na bolsa -->
+            <p class="inv-section-label mt-4 mb-2">Permanentes na bolsa</p>
+            <template x-if="inventario.filter(l => l.itens?.tipo === 'permanente').length === 0">
+              <div class="inv-empty-state">
+                <i class="bi bi-bag-x"></i>
+                <p>Nenhum item permanente</p>
+                <a href="#loja" class="btn btn-sm btn-primary mt-2">Visitar Loja</a>
+              </div>
+            </template>
+            <div class="inv-cards-grid">
+              <template x-for="linha in inventario.filter(l => l.itens?.tipo === 'permanente')" :key="linha.id">
+                <div class="inv-card"
+                     :class="['inv-rar-' + (linha.itens?.raridade || 'comum'), linha.equipado ? 'inv-card--on' : '']"
+                     @click="abrirInventarioItem(linha.id)">
+                  <div class="inv-card-ico-wrap">
+                    <i class="bi" :class="linha.itens?.icone || 'bi-box'"></i>
+                    <span class="inv-card-equipped-check" x-show="linha.equipado"><i class="bi bi-check-circle-fill"></i></span>
                   </div>
-                </template>
+                  <div class="inv-card-body">
+                    <span class="inv-card-nome" x-text="linha.itens?.nome"></span>
+                    <span class="inv-card-rar-badge" x-text="linha.itens?.raridade || 'comum'"></span>
+                    <span class="inv-card-desc" x-text="linha.itens?.descricao"></span>
+                  </div>
+                  <div class="inv-card-foot">
+                    <span class="inv-card-action-tag"
+                          :class="linha.equipado ? 'inv-card-action-tag--on' : 'inv-card-action-tag--off'"
+                          x-text="linha.equipado ? 'Equipado' : 'Equipar'"></span>
+                  </div>
                 </div>
-              </div>
+              </template>
             </div>
+          </div>
 
-            <!-- Itens Permanentes Equipados -->
-            <div class="inventario-secao mb-4" x-show="inventario.filter(l => l.equipado && l.itens?.tipo === 'permanente').length > 0">
-              <h3 class="secao-titulo">
-                <i class="bi bi-star-fill"></i>
-                Itens Permanentes
-              </h3>
-              <div class="itens-grid">
-                <template x-for="linha in inventario.filter(l => l.equipado && l.itens?.tipo === 'permanente')" :key="linha.id">
-                  <div class="item-inventario item-clicavel" :class="'raridade-' + (linha.itens?.raridade || 'comum')"
-                       @click="abrirInventarioItem(linha)" title="Ver opções">
-                    <div class="item-inventario-icone">
-                      <i :class="'bi ' + (linha.itens?.icone || 'bi-box')"></i>
-                      <span class="item-equipado-badge">✓</span>
-                    </div>
-                    <div class="item-inventario-info">
-                      <span class="item-inventario-nome" x-text="linha.itens?.nome"></span>
-                      <span class="item-inventario-desc" x-text="linha.itens?.descricao"></span>
-                    </div>
-                  </div>
-                </template>
-              </div>
-            </div>
+          <!-- ══════════════════════════════════════════════════════════════ -->
+          <!-- ABA: CONSUMÍVEIS -->
+          <!-- ══════════════════════════════════════════════════════════════ -->
+          <div x-show="viewInventario === 'consumiveis'" class="inv-cons-pane">
 
-            <!-- Efeitos Ativos (Consumíveis em Uso) -->
-            <div class="inventario-secao mb-4" x-show="efeitosAtivos.length > 0">
-              <h3 class="secao-titulo">
-                <i class="bi bi-lightning-charge-fill"></i>
-                Efeitos Ativos
-              </h3>
-              <div class="efeitos-ativos-grid">
+            <!-- Efeitos ativos (banner topo) -->
+            <div class="cons-effects-banner" x-show="efeitosAtivos.length > 0" x-transition>
+              <p class="cons-effects-title"><i class="bi bi-lightning-charge-fill"></i> Efeitos em andamento</p>
+              <div class="cons-effects-list">
                 <template x-for="e in efeitosAtivos" :key="e.id">
-                  <div class="efeito-ativo-card">
-                    <div class="efeito-ativo-icone">
-                      <i :class="'bi ' + (e.itens?.icone || 'bi-flask')"></i>
-                    </div>
-                    <div class="efeito-ativo-info">
-                      <span class="efeito-ativo-nome" x-text="e.itens?.nome || 'Efeito'"></span>
-                      <span class="efeito-ativo-tempo" x-text="tempoRestante(e.termina_em)"></span>
-                    </div>
+                  <div class="cons-effect-pill">
+                    <i class="bi" :class="e.itens?.icone || 'bi-flask-fill'"></i>
+                    <span x-text="e.itens?.nome || 'Efeito'"></span>
+                    <span class="cons-effect-timer" x-text="tempoRestante(e.termina_em)"></span>
                   </div>
                 </template>
               </div>
             </div>
-          </div>
 
-          <!-- Aba: Consumíveis -->
-          <div x-show="viewInventario === 'consumiveis'">
-            <div class="inventario-secao">
-              <h3 class="secao-titulo">
+            <!-- Grid de consumíveis -->
+            <template x-if="inventario.filter(l => l.itens?.tipo === 'consumivel' && l.quantidade > 0).length === 0">
+              <div class="inv-empty-state">
                 <i class="bi bi-flask"></i>
-                Consumíveis na Bolsa
-              </h3>
-              <template x-if="inventario.filter(l => l.itens?.tipo === 'consumivel' && l.quantidade > 0).length === 0">
-                <p class="texto-secundario text-center py-4">Nenhum consumível na bolsa. Visite a loja!</p>
+                <p>Nenhum consumível na bolsa</p>
+                <a href="#loja" class="btn btn-sm btn-primary mt-2">Visitar Loja</a>
+              </div>
+            </template>
+            <div class="inv-cards-grid">
+              <template x-for="linha in inventario.filter(l => l.itens?.tipo === 'consumivel' && l.quantidade > 0)" :key="linha.id">
+                <div class="inv-card inv-card--cons"
+                     :class="'inv-rar-' + (linha.itens?.raridade || 'comum')"
+                     @click="abrirInventarioItem(linha.id)">
+                  <div class="inv-card-ico-wrap inv-card-ico-wrap--cons">
+                    <i class="bi" :class="linha.itens?.icone || 'bi-flask-fill'"></i>
+                    <span class="inv-card-qty">×<span x-text="linha.quantidade"></span></span>
+                  </div>
+                  <div class="inv-card-body">
+                    <span class="inv-card-nome" x-text="linha.itens?.nome"></span>
+                    <span class="inv-card-rar-badge inv-card-rar-badge--cons">Consumível</span>
+                    <span class="inv-card-desc" x-text="linha.itens?.descricao"></span>
+                  </div>
+                  <div class="inv-card-foot">
+                    <span class="inv-card-use-btn">▶ Usar</span>
+                  </div>
+                </div>
               </template>
-              <div class="itens-grid">
-                <template x-for="linha in inventario.filter(l => l.itens?.tipo === 'consumivel' && l.quantidade > 0)" :key="linha.id">
-                  <div class="item-inventario consumivel item-clicavel" :class="'raridade-' + (linha.itens?.raridade || 'comum')"
-                       @click="abrirInventarioItem(linha)" title="Ver opções">
-                    <div class="item-inventario-icone">
-                      <i :class="'bi ' + (linha.itens?.icone || 'bi-flask')"></i>
-                      <span class="item-quantidade" x-text="'x' + linha.quantidade"></span>
-                    </div>
-                    <div class="item-inventario-info">
-                      <span class="item-inventario-nome" x-text="linha.itens?.nome"></span>
-                      <span class="item-inventario-desc" x-text="linha.itens?.descricao"></span>
-                    </div>
-                  </div>
-                </template>
-              </div>
-            </div>
-          </div>
-
-          <!-- Aba: Permanentes -->
-          <div x-show="viewInventario === 'permanentes'">
-            <div class="inventario-secao">
-              <h3 class="secao-titulo">
-                <i class="bi bi-star-fill"></i>
-                Itens Permanentes
-                <span class="secao-subtitulo">
-                  (<span x-text="inventario.filter(l => l.equipado && l.itens?.tipo === 'permanente').length"></span>/<span x-text="SLOTS_PERMANENTES.maximo"></span> equipados)
-                </span>
-              </h3>
-              <template x-if="inventario.filter(l => l.itens?.tipo === 'permanente').length === 0">
-                <p class="texto-secundario text-center py-4">
-                  <i class="bi bi-bag-x" style="font-size:2rem; display:block; margin-bottom:8px"></i>
-                  Nenhum item permanente. Visite a loja!
-                </p>
-              </template>
-              <div class="itens-grid">
-                <template x-for="linha in inventario.filter(l => l.itens?.tipo === 'permanente')" :key="linha.id">
-                  <div class="item-inventario item-clicavel"
-                       :class="['raridade-' + (linha.itens?.raridade || 'comum'), { 'item-equipado-ring': linha.equipado }]"
-                       @click="abrirInventarioItem(linha)" title="Ver opções">
-                    <div class="item-inventario-icone">
-                      <i :class="'bi ' + (linha.itens?.icone || 'bi-box')"></i>
-                      <span class="item-equipado-badge" x-show="linha.equipado">✓</span>
-                    </div>
-                    <div class="item-inventario-info">
-                      <span class="item-inventario-nome" x-text="linha.itens?.nome"></span>
-                      <span class="item-inventario-desc" x-text="linha.itens?.descricao"></span>
-                      <span class="item-status-tag"
-                            :class="linha.equipado ? 'tag-equipado' : 'tag-no-inventario'"
-                            x-text="linha.equipado ? '✓ Equipado' : 'No inventário'"></span>
-                    </div>
-                  </div>
-                </template>
-              </div>
-            </div>
-
-            <!-- Bônus ativos (permanentes + armadura + consumíveis) -->
-            <div class="inventario-bonus-painel" x-show="listaBonusAtivos().length > 0" x-transition>
-              <h4 class="bonus-painel-titulo"><i class="bi bi-lightning-charge-fill"></i> Bônus Totais Ativos</h4>
-              <div class="bonus-painel-grid">
-                <template x-for="b in listaBonusAtivos()" :key="b.tipo">
-                  <div class="bonus-painel-item">
-                    <i class="bi"
-                       :class="{
-                         'bi-book-fill': b.tipo === 'xp_leitura',
-                         'bi-mortarboard-fill': b.tipo === 'xp_estudo',
-                         'bi-flag-fill': b.tipo === 'xp_missao',
-                         'bi-shield-fill': b.tipo === 'resistencia',
-                         'bi-stars': b.tipo === 'protecao',
-                         'bi-heart-fill': b.tipo === 'penalidade_quiz'
-                       }"></i>
-                    <div>
-                      <span class="bonus-tipo" x-text="{
-                        xp_leitura: 'XP Leitura',
-                        xp_estudo: 'XP Estudo',
-                        xp_missao: 'XP Missão',
-                        resistencia: 'Resistência',
-                        protecao: 'Proteção',
-                        penalidade_quiz: 'Penalidade Quiz'
-                      }[b.tipo] || b.tipo"></span>
-                      <span class="bonus-valor"
-                            :class="b.valor > 0 ? 'bonus-pos' : 'bonus-neg'"
-                            x-text="(b.valor > 0 ? '+' : '') + b.valor + '%'"></span>
-                    </div>
-                  </div>
-                </template>
-              </div>
             </div>
           </div>
 
@@ -3287,7 +3220,7 @@
                     <i class="bi bi-music-note-beamed hap-ico-nota"></i>
                     <div class="hap-info">
                       <span class="hap-titulo" x-text="harpaAudioNome || 'Prévia musical'"></span>
-                      <span class="hap-badge">🎵 Prévia 30s</span>
+                      <span class="hap-badge"><i class="bi bi-music-note-beamed"></i> Prévia 30s</span>
                     </div>
                   </div>
                   <!-- Barra de progresso clicável -->
@@ -3417,6 +3350,487 @@
           </template>
         </div><!-- /harpa -->
 
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <!-- FEED / COMUNIDADE -->
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <div x-show="pagina === 'feed'" style="display: none;">
+          <div class="feed-header">
+            <h2 class="titulo-pagina mb-0"><i class="bi bi-newspaper"></i> Feed da Comunidade</h2>
+            <button class="feed-novo-btn" @click="abrirFeedModal()">
+              <i class="bi bi-pencil-square"></i> Publicar
+            </button>
+          </div>
+          <p class="subtitulo-pagina mb-3">Compartilhe devocionais, versículos e reflexões</p>
+
+          <!-- Loading -->
+          <div x-show="feedCarregando" class="text-center py-4">
+            <i class="bi bi-arrow-clockwise cad-spin" style="font-size:2rem;color:var(--cor-primaria)"></i>
+          </div>
+
+          <!-- Posts -->
+          <template x-for="post in feedPosts" :key="post.id">
+            <div class="feed-card">
+
+              <!-- Indicador de repost -->
+              <div class="feed-repost-banner" x-show="post.repostDe">
+                <i class="bi bi-arrow-repeat"></i>
+                <span>Recompartilhado de <strong x-text="post.repostDe?.autor"></strong></span>
+              </div>
+
+              <!-- Header -->
+              <div class="feed-card-header">
+                <div class="feed-avatar-wrap">
+                  <span class="feed-avatar"><i class="bi bi-person-circle"></i></span>
+                </div>
+                <div class="feed-card-meta">
+                  <span class="feed-autor" x-text="post.autor"></span>
+                  <span class="feed-tempo" x-text="tempoRelativo(post.data)"></span>
+                </div>
+                <button x-show="isAdmin() || post.autor === ((perfil?.nome || '') + ' ' + (perfil?.sobrenome || '')).trim()"
+                        class="feed-delete-btn"
+                        @click="pedirConfirmacao({ titulo:'Excluir publicação?', msg:'Esta publicação será removida permanentemente.', tipo:'perigo', icone:'bi-trash3-fill', labelOk:'Excluir', acao:()=>deletarPost(post.id) })"
+                        title="Excluir">
+                  <i class="bi bi-trash3"></i>
+                </button>
+              </div>
+
+              <!-- Corpo -->
+              <p class="feed-texto" x-text="post.texto"></p>
+
+              <!-- Badges de versículos -->
+              <div class="feed-versiculos-row" x-show="(post.versiculos && post.versiculos.length > 0) || post.versiculo">
+                <template x-if="post.versiculos && post.versiculos.length > 0">
+                  <div class="feed-versiculos-badges">
+                    <template x-for="v in post.versiculos" :key="v.label">
+                      <span class="feed-badge-ver"><i class="bi bi-bookmark-fill"></i> <span x-text="v.label"></span></span>
+                    </template>
+                  </div>
+                </template>
+                <template x-if="!(post.versiculos && post.versiculos.length > 0) && post.versiculo">
+                  <span class="feed-badge-ver"><i class="bi bi-bookmark-fill"></i> <span x-text="post.versiculo"></span></span>
+                </template>
+              </div>
+
+              <!-- Rodapé de ações -->
+              <div class="feed-card-footer">
+                <!-- Like -->
+                <button class="feed-action-btn feed-curtir-btn"
+                        :class="(post.curtidoPor || []).includes(usuario?.id || 'demo') ? 'feed-curtir-btn--ativo' : ''"
+                        @click="curtirPost(post.id)">
+                  <i class="bi" :class="(post.curtidoPor || []).includes(usuario?.id || 'demo') ? 'bi-heart-fill' : 'bi-heart'"></i>
+                  <span x-text="post.curtidas || 0"></span>
+                </button>
+                <!-- Comentar -->
+                <button class="feed-action-btn feed-comment-btn"
+                        :class="feedComentariosAbertos[post.id] ? 'feed-comment-btn--ativo' : ''"
+                        @click="toggleComentarios(post.id)">
+                  <i class="bi bi-chat-dots"></i>
+                  <span x-text="(post.comentarios || []).length"></span>
+                </button>
+                <!-- Recompartilhar -->
+                <button class="feed-action-btn feed-share-btn"
+                        @click="pedirConfirmacao({ titulo:'Recompartilhar?', msg:'Este devocional aparecerá no seu perfil para outros verem.', tipo:'info', icone:'bi-arrow-repeat', labelOk:'Recompartilhar', acao:()=>recompartilharPost(post) })">
+                  <i class="bi bi-arrow-repeat"></i>
+                  <span x-text="post.compartilhamentos || 0"></span>
+                </button>
+              </div>
+
+              <!-- Seção de comentários (colapsável) -->
+              <div class="feed-comments-section" x-show="feedComentariosAbertos[post.id]" x-transition>
+                <!-- Lista de comentários -->
+                <template x-if="(post.comentarios || []).length === 0">
+                  <p class="feed-comments-empty">Seja o primeiro a comentar <i class="bi bi-hand-thumbs-up-fill"></i></p>
+                </template>
+                <template x-for="cmt in (post.comentarios || [])" :key="cmt.id">
+                  <div class="feed-comment-item">
+                    <span class="feed-comment-avatar"><i class="bi bi-person-circle"></i></span>
+                    <div class="feed-comment-body">
+                      <span class="feed-comment-autor" x-text="cmt.autor"></span>
+                      <p class="feed-comment-texto" x-text="cmt.texto"></p>
+                      <span class="feed-comment-tempo" x-text="tempoRelativo(cmt.data)"></span>
+                    </div>
+                  </div>
+                </template>
+                <!-- Caixa de novo comentário -->
+                <div class="feed-comment-input-row">
+                  <span class="feed-comment-avatar" x-html="perfil?.config_avatar?.avatarUrl ? '<img src='+perfil.config_avatar.avatarUrl+' style=width:100%;height:100%;border-radius:50%;object-fit:cover>' : '<i class=bi bi-person-circle></i>'"></span>
+                  <div class="feed-comment-input-wrap">
+                    <input type="text"
+                           class="feed-comment-input"
+                           placeholder="Escreva um comentário..."
+                           :value="feedNovoComentario[post.id] || ''"
+                           @input="feedNovoComentario = { ...feedNovoComentario, [post.id]: $event.target.value }"
+                           @keydown.enter.prevent="publicarComentario(post.id)">
+                    <button class="feed-comment-send"
+                            @click="publicarComentario(post.id)"
+                            :disabled="!(feedNovoComentario[post.id] || '').trim()">
+                      <i class="bi bi-send-fill"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </template>
+
+          <!-- Vazio -->
+          <div x-show="!feedCarregando && feedPosts.length === 0" class="text-center py-5 texto-secundario">
+            <i class="bi bi-newspaper" style="font-size:3rem;opacity:.3"></i>
+            <p class="mt-2">Nenhuma publicação ainda.<br>Seja o primeiro a compartilhar!</p>
+            <button class="btn btn-primary mt-2" @click="abrirFeedModal()">
+              <i class="bi bi-pencil-square"></i> Publicar devocional
+            </button>
+          </div>
+        </div>
+
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <!-- PAINEL ADMIN -->
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <div x-show="pagina === 'admin'" style="display: none;" x-cloak>
+          <template x-if="!isAdmin()">
+            <div class="text-center py-5">
+              <i class="bi bi-shield-x" style="font-size:3rem;color:#e74c3c"></i>
+              <p class="mt-2 fw-600">Acesso restrito a administradores.</p>
+              <a href="#home" class="btn btn-primary mt-2">Voltar</a>
+            </div>
+          </template>
+          <template x-if="isAdmin()">
+            <div class="admin-shell">
+
+              <!-- Sidebar -->
+              <nav class="admin-sidebar">
+                <div class="admin-sidebar-logo">
+                  <i class="bi bi-shield-lock-fill"></i>
+                  <span>Admin</span>
+                </div>
+                <template x-for="sec in [
+                  {id:'dashboard', label:'Dashboard',   ico:'bi-grid-1x2-fill'},
+                  {id:'itens',     label:'Itens / Loja', ico:'bi-bag-fill'},
+                  {id:'missoes',   label:'Missões',      ico:'bi-flag-fill'},
+                  {id:'conquistas',label:'Conquistas',   ico:'bi-trophy-fill'},
+                  {id:'usuarios',  label:'Usuários',     ico:'bi-people-fill'},
+                ]" :key="sec.id">
+                  <button class="admin-nav-btn" :class="adminSecao === sec.id ? 'admin-nav-btn--ativo' : ''"
+                          @click="adminSecao = sec.id; adminBusca = ''">
+                    <i class="bi" :class="sec.ico"></i>
+                    <span x-text="sec.label"></span>
+                  </button>
+                </template>
+                <div class="admin-sidebar-sep"></div>
+                <button class="admin-nav-btn admin-nav-btn--sair" @click="sairModoAdmin()">
+                  <i class="bi bi-box-arrow-left"></i>
+                  <span>Sair do Admin</span>
+                </button>
+              </nav>
+
+              <!-- Conteúdo principal -->
+              <main class="admin-main">
+
+                <!-- ── Dashboard ── -->
+                <div x-show="adminSecao === 'dashboard'">
+                  <h2 class="admin-titulo-secao"><i class="bi bi-grid-1x2-fill"></i> Dashboard</h2>
+
+                  <!-- Stats -->
+                  <div class="admin-stats">
+                    <div class="admin-stat-card">
+                      <i class="bi bi-bag-fill admin-stat-ico" style="color:#7c3aed"></i>
+                      <div class="admin-stat-valor" x-text="(itensLoja || []).length"></div>
+                      <div class="admin-stat-label">Itens na Loja</div>
+                    </div>
+                    <div class="admin-stat-card">
+                      <i class="bi bi-flag-fill admin-stat-ico" style="color:#2563eb"></i>
+                      <div class="admin-stat-valor" x-text="(modelosMissoes || []).length"></div>
+                      <div class="admin-stat-label">Modelos de Missões</div>
+                    </div>
+                    <div class="admin-stat-card">
+                      <i class="bi bi-trophy-fill admin-stat-ico" style="color:#d97706"></i>
+                      <div class="admin-stat-valor" x-text="(conquistas ? conquistas() : []).length"></div>
+                      <div class="admin-stat-label">Conquistas</div>
+                    </div>
+                    <div class="admin-stat-card">
+                      <i class="bi bi-people-fill admin-stat-ico" style="color:#059669"></i>
+                      <div class="admin-stat-valor">1</div>
+                      <div class="admin-stat-label">Usuários (demo)</div>
+                    </div>
+                  </div>
+
+                  <!-- Economia -->
+                  <h3 class="admin-subtitulo mt-4"><i class="bi bi-cash-stack"></i> Como funciona a Economia</h3>
+                  <div class="admin-economia-grid">
+                    <div class="admin-econ-card">
+                      <div class="admin-econ-titulo"><i class="bi bi-arrow-up-circle-fill"></i> Fontes de Ouro</div>
+                      <ul class="admin-econ-lista">
+                        <li><i class="bi bi-check-circle-fill text-success"></i> Completar missão diária: +5 a +50 ouro</li>
+                        <li><i class="bi bi-check-circle-fill text-success"></i> Vencer quiz: +10 ouro</li>
+                        <li><i class="bi bi-check-circle-fill text-success"></i> Sequência de 7 dias: +20 bônus</li>
+                        <li><i class="bi bi-check-circle-fill text-success"></i> Vender item no inventário: 50% do preço</li>
+                      </ul>
+                    </div>
+                    <div class="admin-econ-card">
+                      <div class="admin-econ-titulo"><i class="bi bi-arrow-down-circle-fill"></i> Gastos de Ouro</div>
+                      <ul class="admin-econ-lista">
+                        <li><i class="bi bi-cart-fill"></i> Comprar item na loja</li>
+                        <li><i class="bi bi-arrow-repeat"></i> Trocar item equipado</li>
+                      </ul>
+                    </div>
+                    <div class="admin-econ-card">
+                      <div class="admin-econ-titulo"><i class="bi bi-star-fill"></i> Fontes de XP</div>
+                      <ul class="admin-econ-lista">
+                        <li><i class="bi bi-book-open"></i> Ler capítulo bíblico: +5 XP</li>
+                        <li><i class="bi bi-pencil-square"></i> Completar aula: +30 XP</li>
+                        <li><i class="bi bi-bullseye"></i> Quiz aprovado: +50 XP</li>
+                        <li><i class="bi bi-check-circle-fill text-success"></i> Missão concluída: +30 a +100 XP</li>
+                        <li><i class="bi bi-trophy-fill"></i> Nova conquista: +50 XP (bônus)</li>
+                      </ul>
+                    </div>
+                    <div class="admin-econ-card">
+                      <div class="admin-econ-titulo"><i class="bi bi-shield-fill"></i> Itens &amp; Buffs</div>
+                      <ul class="admin-econ-lista">
+                        <li><strong>Consumíveis:</strong> efeito temporário (XP 2×, escudo de coração)</li>
+                        <li><strong>Permanentes:</strong> desbloqueia seções (Bíblia, Harpa, Estudo)</li>
+                        <li><strong>Armadura:</strong> buffs passivos permanentes (XP, ouro, defesa)</li>
+                        <li><strong>Raridade:</strong> Comum &lt; Raro &lt; Épico &lt; Lendário</li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <!-- Comunidade (features futuras) -->
+                  <h3 class="admin-subtitulo mt-4"><i class="bi bi-globe"></i> Comunidade — Status das Features</h3>
+                  <div class="admin-features-grid">
+                    <div class="admin-feat-card admin-feat--ok">
+                      <i class="bi bi-check-circle-fill"></i>
+                      <span>Feed de Devocionais</span>
+                      <span class="admin-feat-status"><i class="bi bi-check-circle-fill"></i> Ativo</span>
+                    </div>
+                    <div class="admin-feat-card admin-feat--ok">
+                      <i class="bi bi-trophy-fill"></i>
+                      <span>Ranking</span>
+                      <span class="admin-feat-status"><i class="bi bi-check-circle-fill"></i> Ativo</span>
+                    </div>
+                    <div class="admin-feat-card admin-feat--soon">
+                      <i class="bi bi-chat-dots-fill"></i>
+                      <span>Chat em tempo real</span>
+                      <span class="admin-feat-status">⏳ Requer backend</span>
+                    </div>
+                    <div class="admin-feat-card admin-feat--soon">
+                      <i class="bi bi-people-fill"></i>
+                      <span>Grupos</span>
+                      <span class="admin-feat-status">⏳ Requer backend</span>
+                    </div>
+                    <div class="admin-feat-card admin-feat--soon">
+                      <i class="bi bi-arrow-left-right"></i>
+                      <span>Marketplace de Itens</span>
+                      <span class="admin-feat-status">⏳ Requer backend</span>
+                    </div>
+                    <div class="admin-feat-card admin-feat--soon">
+                      <i class="bi bi-people-fill"></i>
+                      <span>Missões Cooperativas</span>
+                      <span class="admin-feat-status">⏳ Requer backend</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ── Itens da Loja ── -->
+                <div x-show="adminSecao === 'itens'">
+                  <div class="admin-section-header">
+                    <h2 class="admin-titulo-secao"><i class="bi bi-bag-fill"></i> Itens da Loja</h2>
+                    <div class="admin-section-actions">
+                      <button class="admin-btn admin-btn--primary" @click="adminAbrirModal('item','add',{})">
+                        <i class="bi bi-plus-lg"></i> Adicionar
+                      </button>
+                      <div class="admin-export-group">
+                        <button class="admin-btn admin-btn--sec" @click="adminExportarJSON('itens')">⬇ JSON</button>
+                        <button class="admin-btn admin-btn--sec" @click="adminExportarCSV('itens')">⬇ CSV</button>
+                        <label class="admin-btn admin-btn--sec admin-btn--import">
+                          ⬆ Importar
+                          <input type="file" accept=".json,.csv" @change="pedirConfirmacao({ titulo:'Importar dados?', msg:'Os dados existentes serão substituídos pelos dados do arquivo. Esta ação pode ser irreversível.', tipo:'aviso', icone:'bi-cloud-upload-fill', labelOk:'Importar e substituir', acao:()=>adminImportar('itens', $event) })" style="display:none">
+                        </label>
+                        <button class="admin-btn admin-btn--ghost" @click="adminBaixarTemplateCSV('itens')"><i class="bi bi-file-earmark-arrow-down"></i> Template CSV</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div x-show="adminImportErro" class="admin-erro" x-text="adminImportErro"></div>
+                  <input class="admin-busca" type="search" placeholder="Buscar por nome, tipo..."
+                         x-model="adminBusca" @input.debounce.300="$el.value" />
+
+                  <div class="admin-table-wrap">
+                    <table class="admin-table">
+                      <thead>
+                        <tr>
+                          <th>ID</th><th>Nome</th><th>Tipo</th><th>Raridade</th>
+                          <th>Preço</th><th>Nível</th><th>Ações</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <template x-for="item in adminGetItens()" :key="item.id">
+                          <tr>
+                            <td class="admin-td-code" x-text="item.id"></td>
+                            <td>
+                              <span x-show="item.icone" class="me-1"><i class="bi" :class="item.icone"></i></span>
+                              <span x-text="item.nome"></span>
+                            </td>
+                            <td><span class="admin-badge" :class="'admin-badge--' + item.tipo" x-text="item.tipo"></span></td>
+                            <td><span class="admin-badge admin-badge--rar" :class="'rar-' + item.raridade" x-text="item.raridade"></span></td>
+                            <td x-text="(item.preco_ouro || 0) + ' ouro'"></td>
+                            <td x-text="item.nivel_requerido || 1"></td>
+                            <td>
+                              <div class="admin-row-actions">
+                                <button class="admin-row-btn admin-row-btn--edit"
+                                        @click="adminAbrirModal('item','edit', JSON.parse(JSON.stringify(item)))">
+                                  <i class="bi bi-pencil-fill"></i>
+                                </button>
+                                <button class="admin-row-btn admin-row-btn--del"
+                                        @click="adminIniciarDelete('item', item.id, item.nome)">
+                                  <i class="bi bi-trash3-fill"></i>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        </template>
+                        <tr x-show="adminGetItens().length === 0">
+                          <td colspan="7" class="admin-table-empty">Nenhum item encontrado.</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <!-- ── Missões ── -->
+                <div x-show="adminSecao === 'missoes'">
+                  <div class="admin-section-header">
+                    <h2 class="admin-titulo-secao"><i class="bi bi-flag-fill"></i> Modelos de Missões</h2>
+                    <div class="admin-section-actions">
+                      <button class="admin-btn admin-btn--primary" @click="adminAbrirModal('missao','add',{})">
+                        <i class="bi bi-plus-lg"></i> Adicionar
+                      </button>
+                      <div class="admin-export-group">
+                        <button class="admin-btn admin-btn--sec" @click="adminExportarJSON('missoes')">⬇ JSON</button>
+                        <button class="admin-btn admin-btn--sec" @click="adminExportarCSV('missoes')">⬇ CSV</button>
+                        <label class="admin-btn admin-btn--sec admin-btn--import">
+                          ⬆ Importar
+                          <input type="file" accept=".json,.csv" @change="pedirConfirmacao({ titulo:'Importar dados?', msg:'Os dados existentes serão substituídos pelos dados do arquivo. Esta ação pode ser irreversível.', tipo:'aviso', icone:'bi-cloud-upload-fill', labelOk:'Importar e substituir', acao:()=>adminImportar('missoes', $event) })" style="display:none">
+                        </label>
+                        <button class="admin-btn admin-btn--ghost" @click="adminBaixarTemplateCSV('missoes')"><i class="bi bi-file-earmark-arrow-down"></i> Template CSV</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div x-show="adminImportErro" class="admin-erro" x-text="adminImportErro"></div>
+                  <input class="admin-busca" type="search" placeholder="Buscar missão..."
+                         x-model="adminBusca" />
+                  <div class="admin-table-wrap">
+                    <table class="admin-table">
+                      <thead>
+                        <tr><th>ID</th><th>Título</th><th>Tipo</th><th>XP</th><th>Ouro</th><th>Ações</th></tr>
+                      </thead>
+                      <tbody>
+                        <template x-for="m in adminGetMissoes()" :key="m.id">
+                          <tr>
+                            <td class="admin-td-code" x-text="m.id"></td>
+                            <td x-text="m.titulo"></td>
+                            <td><span class="admin-badge" :class="'admin-badge--' + m.tipo" x-text="m.tipo"></span></td>
+                            <td x-text="(m.recompensa_xp || 0) + ' XP'"></td>
+                            <td x-text="(m.recompensa_ouro || 0) + ' ouro'"></td>
+                            <td>
+                              <div class="admin-row-actions">
+                                <button class="admin-row-btn admin-row-btn--edit"
+                                        @click="adminAbrirModal('missao','edit', JSON.parse(JSON.stringify(m)))">
+                                  <i class="bi bi-pencil-fill"></i>
+                                </button>
+                                <button class="admin-row-btn admin-row-btn--del"
+                                        @click="adminIniciarDelete('missao', m.id, m.titulo)">
+                                  <i class="bi bi-trash3-fill"></i>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        </template>
+                        <tr x-show="adminGetMissoes().length === 0">
+                          <td colspan="6" class="admin-table-empty">Nenhuma missão encontrada.</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <!-- ── Conquistas ── -->
+                <div x-show="adminSecao === 'conquistas'">
+                  <div class="admin-section-header">
+                    <h2 class="admin-titulo-secao"><i class="bi bi-trophy-fill"></i> Conquistas</h2>
+                    <div class="admin-section-actions">
+                      <button class="admin-btn admin-btn--sec" @click="adminExportarJSON('conquistas')">⬇ JSON</button>
+                    </div>
+                  </div>
+                  <div class="admin-table-wrap">
+                    <table class="admin-table">
+                      <thead>
+                        <tr><th>Ícone</th><th>Título</th><th>Descrição</th><th>Status</th></tr>
+                      </thead>
+                      <tbody>
+                        <template x-for="c in (conquistas ? conquistas() : [])" :key="c.titulo">
+                          <tr>
+                            <td style="font-size:1.4rem"><i class="bi" :class="c.icone"></i></td>
+                            <td x-text="c.titulo"></td>
+                            <td class="texto-secundario fs-menor" x-text="c.desc"></td>
+                            <td>
+                              <span x-show="c.conquistado" class="admin-badge admin-badge--ok"><i class="bi bi-check-circle-fill"></i> Conquistada</span>
+                              <span x-show="!c.conquistado" class="admin-badge admin-badge--pending">⏳ Pendente</span>
+                            </td>
+                          </tr>
+                        </template>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <!-- ── Usuários ── -->
+                <div x-show="adminSecao === 'usuarios'">
+                  <div class="admin-section-header">
+                    <h2 class="admin-titulo-secao"><i class="bi bi-people-fill"></i> Usuários</h2>
+                    <div class="admin-section-actions">
+                      <button class="admin-btn admin-btn--sec" @click="adminExportarJSON('usuarios')">⬇ JSON</button>
+                      <button class="admin-btn admin-btn--sec" @click="adminExportarCSV('usuarios')">⬇ CSV</button>
+                    </div>
+                  </div>
+                  <p class="fs-menor texto-secundario mb-3">
+                    Em modo demo, exibe apenas o usuário atual. Conecte ao banco de dados para ver todos os usuários.
+                  </p>
+                  <div class="admin-table-wrap">
+                    <table class="admin-table">
+                      <thead>
+                        <tr><th>Nome</th><th>Email</th><th>Nível</th><th>XP</th><th>Ouro</th><th>Perfil</th><th>Criado</th></tr>
+                      </thead>
+                      <tbody>
+                        <template x-for="u in adminGetUsuarios()" :key="u.id">
+                          <tr>
+                            <td x-text="u.nome"></td>
+                            <td x-text="u.email"></td>
+                            <td x-text="u.nivel"></td>
+                            <td x-text="u.xp + ' XP'"></td>
+                            <td x-text="u.ouro + ' ouro'"></td>
+                            <td>
+                              <span class="admin-badge" :class="u.role === 'admin' ? 'admin-badge--admin' : 'admin-badge--user'"
+                                    x-text="u.role"></span>
+                            </td>
+                            <td class="fs-menor texto-secundario" x-text="u.criado_em"></td>
+                          </tr>
+                        </template>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="admin-card mt-4" style="border-left:4px solid #f59e0b;padding:16px">
+                    <p class="fw-600 mb-1"><i class="bi bi-exclamation-triangle-fill text-warning"></i> Gestão real de usuários</p>
+                    <p class="texto-secundario fs-menor mb-0">
+                      Para ver todos os usuários, bloquear, alterar perfil de acesso e gerenciar contas,
+                      conecte o projeto ao Supabase e as APIs de usuário estarão disponíveis automaticamente.
+                    </p>
+                  </div>
+                </div>
+
+              </main>
+            </div>
+          </template>
+        </div>
+
         <!-- Ranking -->
         <div x-show="pagina === 'ranking'" style="display: none;">
           <h2 class="titulo-pagina mb-1">Ranking</h2>
@@ -3467,8 +3881,35 @@
             </div>
             <i class="bi bi-chevron-right config-item-seta"></i>
           </a>
-          <div class="mt-4 pt-2">
-            <button type="button" class="btn btn-outline-danger w-100" @click="sair()">Sair</button>
+          <!-- Painel Admin (só para admins) -->
+          <div x-show="isAdmin()" class="mt-3">
+            <p class="subtitulo-secao mb-2">Administração</p>
+            <a href="#admin" class="config-item config-item--admin">
+              <span class="config-item-icone" style="background:var(--cor-primaria);color:#fff"><i class="bi bi-shield-lock-fill"></i></span>
+              <div class="config-item-texto">
+                <span class="config-item-titulo">Painel Admin</span>
+                <p class="config-item-desc">Gerenciar itens, missões, conquistas e usuários</p>
+              </div>
+              <i class="bi bi-chevron-right config-item-seta"></i>
+            </a>
+          </div>
+          <!-- Ativar admin demo -->
+          <div x-show="modoDemo && !isAdmin()" class="mt-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary w-100"
+                    @click="entrarModoAdminDemo()">
+              <i class="bi bi-shield-lock"></i> Entrar como Admin (demo)
+            </button>
+          </div>
+
+          <div class="mt-4 pt-2" style="display:flex;flex-direction:column;gap:8px">
+            <button type="button" class="btn btn-outline-danger w-100"
+                    @click="pedirConfirmacao({ titulo:'Sair da conta?', msg:'Você será desconectado. Seu progresso ficará salvo.', tipo:'aviso', icone:'bi-box-arrow-right', labelOk:'Sair', acao:()=>sair() })">
+              <i class="bi bi-box-arrow-right"></i> Sair da conta
+            </button>
+            <button type="button" class="btn btn-link text-danger w-100 fs-menor"
+                    @click="pedirConfirmacao({ titulo:'Excluir minha conta', msg:'Esta ação é PERMANENTE e irreversível. Todos os seus dados, progresso, conquistas e itens serão apagados para sempre.', tipo:'perigo', icone:'bi-trash3-fill', labelOk:'Sim, excluir tudo', labelCancelar:'Não, cancelar', acao:()=>excluirConta() })">
+              <i class="bi bi-trash3"></i> Excluir minha conta
+            </button>
           </div>
         </div>
 
@@ -3735,28 +4176,28 @@
 
           <!-- Sugestões de valor -->
           <div class="apoio-sugestoes">
-            <div class="apoio-sugestoes-titulo">Quanto você consegue? 👇 (sem pressão!)</div>
+            <div class="apoio-sugestoes-titulo">Quanto você consegue? <i class="bi bi-arrow-down-circle"></i> (sem pressão!)</div>
             <div class="apoio-sugestoes-grid">
               <div class="apoio-sug apoio-sug--cafe">
-                <span class="apoio-sug-emoji">☕</span>
+                <span class="apoio-sug-emoji"><i class="bi bi-cup-hot-fill"></i></span>
                 <span class="apoio-sug-valor">R$ 5</span>
                 <span class="apoio-sug-desc">Um cafezinho</span>
                 <span class="apoio-sug-msg">Já ajuda demais!</span>
               </div>
               <div class="apoio-sug apoio-sug--pizza">
-                <span class="apoio-sug-emoji">🍕</span>
+                <span class="apoio-sug-emoji"><i class="bi bi-award-fill"></i></span>
                 <span class="apoio-sug-valor">R$ 20</span>
                 <span class="apoio-sug-desc">Uma fatia de pizza</span>
-                <span class="apoio-sug-msg">Você é incrível 🙌</span>
+                <span class="apoio-sug-msg">Você é incrível <i class="bi bi-hand-thumbs-up-fill"></i></span>
               </div>
               <div class="apoio-sug apoio-sug--acai">
-                <span class="apoio-sug-emoji">🍇</span>
+                <span class="apoio-sug-emoji"><i class="bi bi-gift-fill"></i></span>
                 <span class="apoio-sug-valor">R$ 15</span>
                 <span class="apoio-sug-desc">Um açaí</span>
-                <span class="apoio-sug-msg">Deus abençoe! ❤️</span>
+                <span class="apoio-sug-msg">Deus abençoe! <i class="bi bi-heart-fill" style="color:#e74c3c"></i></span>
               </div>
               <div class="apoio-sug apoio-sug--livre">
-                <span class="apoio-sug-emoji">💛</span>
+                <span class="apoio-sug-emoji"><i class="bi bi-star-fill" style="color:#f1c40f"></i></span>
                 <span class="apoio-sug-valor">Livre</span>
                 <span class="apoio-sug-desc">Qualquer valor</span>
                 <span class="apoio-sug-msg">Tudo vale muito!</span>
@@ -3819,7 +4260,7 @@
           </span>
           Bíblia
         </a>
-        <a href="#inventario" :class="{ ativo: pagina === 'inventario' }"><i class="bi bi-backpack"></i> Inventário</a>
+        <a href="#feed" :class="{ ativo: pagina === 'feed' }"><i class="bi bi-newspaper"></i> Feed</a>
         <a href="#perfil" :class="{ ativo: pagina === 'perfil' }"><i class="bi bi-person"></i> Perfil</a>
       </nav>
     </div>
@@ -4001,28 +4442,28 @@
       <p class="apoio-subtitulo">O app é e sempre será gratuito. Mas cada apoio nos ajuda a manter os servidores no ar e a lançar novas funcionalidades.</p>
     </div>
     <div class="apoio-sugestoes">
-      <div class="apoio-sugestoes-titulo">Quanto você consegue? 👇 (sem pressão!)</div>
+      <div class="apoio-sugestoes-titulo">Quanto você consegue? <i class="bi bi-arrow-down-circle"></i> (sem pressão!)</div>
       <div class="apoio-sugestoes-grid">
         <div class="apoio-sug apoio-sug--cafe">
-          <span class="apoio-sug-emoji">☕</span>
+          <span class="apoio-sug-emoji"><i class="bi bi-cup-hot-fill"></i></span>
           <span class="apoio-sug-valor">R$ 5</span>
           <span class="apoio-sug-desc">Um cafezinho</span>
           <span class="apoio-sug-msg">Já ajuda demais!</span>
         </div>
         <div class="apoio-sug apoio-sug--pizza">
-          <span class="apoio-sug-emoji">🍕</span>
+          <span class="apoio-sug-emoji"><i class="bi bi-award-fill"></i></span>
           <span class="apoio-sug-valor">R$ 20</span>
           <span class="apoio-sug-desc">Uma fatia de pizza</span>
-          <span class="apoio-sug-msg">Você é incrível 🙌</span>
+          <span class="apoio-sug-msg">Você é incrível <i class="bi bi-hand-thumbs-up-fill"></i></span>
         </div>
         <div class="apoio-sug apoio-sug--acai">
-          <span class="apoio-sug-emoji">🍇</span>
+          <span class="apoio-sug-emoji"><i class="bi bi-gift-fill"></i></span>
           <span class="apoio-sug-valor">R$ 15</span>
           <span class="apoio-sug-desc">Um açaí</span>
-          <span class="apoio-sug-msg">Deus abençoe! ❤️</span>
+          <span class="apoio-sug-msg">Deus abençoe! <i class="bi bi-heart-fill" style="color:#e74c3c"></i></span>
         </div>
         <div class="apoio-sug apoio-sug--livre">
-          <span class="apoio-sug-emoji">💛</span>
+          <span class="apoio-sug-emoji"><i class="bi bi-star-fill" style="color:#f1c40f"></i></span>
           <span class="apoio-sug-valor">Livre</span>
           <span class="apoio-sug-desc">Qualquer valor</span>
           <span class="apoio-sug-msg">Tudo vale muito!</span>
@@ -4291,6 +4732,11 @@
         <span class="bctx-acao-txt">Copiar texto</span>
         <i class="bi bi-chevron-right bctx-acao-seta"></i>
       </button>
+      <button class="bctx-acao bctx-acao--devocional" @click.stop="compartilharVersiculoComoDevocional()">
+        <span class="bctx-acao-ico bctx-ico-devocional"><i class="bi bi-newspaper"></i></span>
+        <span class="bctx-acao-txt">Criar devocional</span>
+        <i class="bi bi-chevron-right bctx-acao-seta"></i>
+      </button>
       <button class="bctx-acao" @click.stop="selecionarTudoBiblia()">
         <span class="bctx-acao-ico bctx-ico-tudo"><i class="bi bi-text-paragraph"></i></span>
         <span class="bctx-acao-txt">Selecionar tudo</span>
@@ -4445,7 +4891,15 @@
               <!-- Usar (consumível) -->
               <button class="btn-inv btn-inv-usar"
                       x-show="inventarioItemModal.linha.itens?.tipo === 'consumivel'"
-                      @click="usarItemConsumivel(inventarioItemModal.linha.item_id); fecharInventarioItem()">
+                      @click="pedirConfirmacao({
+                        titulo: 'Usar consumível?',
+                        msg: 'O efeito será ativado imediatamente.',
+                        detalhe: inventarioItemModal.linha.itens?.nome,
+                        tipo: 'aviso',
+                        icone: 'bi-lightning-charge-fill',
+                        labelOk: 'Sim, usar agora',
+                        acao: () => { usarItemConsumivel(inventarioItemModal.linha.item_id); fecharInventarioItem(); }
+                      })">
                 <i class="bi bi-lightning-fill"></i> Usar Agora
               </button>
 
@@ -4453,13 +4907,32 @@
               <button class="btn-inv"
                       :class="inventarioItemModal.linha.equipado ? 'btn-inv-desequipar' : 'btn-inv-equipar'"
                       x-show="inventarioItemModal.linha.itens?.tipo !== 'consumivel'"
-                      @click="equiparItemInventario(inventarioItemModal.linha?.id)">
+                      @click="pedirConfirmacao({
+                        titulo: inventarioItemModal.linha.equipado ? 'Desequipar item?' : 'Equipar item?',
+                        msg: inventarioItemModal.linha.equipado
+                          ? 'O bônus deste item será removido.'
+                          : 'O item será equipado e seus bônus ativados.',
+                        detalhe: inventarioItemModal.linha.itens?.nome,
+                        tipo: inventarioItemModal.linha.equipado ? 'aviso' : 'info',
+                        icone: inventarioItemModal.linha.equipado ? 'bi-dash-circle-fill' : 'bi-plus-circle-fill',
+                        labelOk: inventarioItemModal.linha.equipado ? 'Desequipar' : 'Equipar',
+                        acao: () => equiparItemInventario(inventarioItemModal.linha?.id)
+                      })">
                 <i :class="inventarioItemModal.linha.equipado ? 'bi bi-dash-circle-fill' : 'bi bi-plus-circle-fill'"></i>
                 <span x-text="inventarioItemModal.linha.equipado ? 'Desequipar' : 'Equipar'"></span>
               </button>
 
               <!-- Vender -->
-              <button class="btn-inv btn-inv-vender" @click="venderItem(inventarioItemModal.linha?.id)">
+              <button class="btn-inv btn-inv-vender"
+                      @click="pedirConfirmacao({
+                        titulo: 'Vender item?',
+                        msg: 'Esta ação é irreversível. Você receberá metade do valor em ouro.',
+                        detalhe: inventarioItemModal.linha.itens?.nome + ' → ' + Math.max(1, Math.floor((inventarioItemModal.linha.itens?.preco_ouro || 10) * 0.5)) + ' ouro',
+                        tipo: 'perigo',
+                        icone: 'bi-cash-coin',
+                        labelOk: 'Vender item',
+                        acao: () => { venderItem(inventarioItemModal.linha?.id); fecharInventarioItem(); }
+                      })">
                 <i class="bi bi-cash-coin"></i>
                 Vender
                 (<span x-text="Math.max(1, Math.floor((inventarioItemModal.linha.itens?.preco_ouro || 10) * 0.5))"></span> ouro)
@@ -4525,6 +4998,238 @@
           </div>
         </div>
       </template>
+    </div>
+  </div>
+
+  <!-- ══ TOAST CONQUISTA ════════════════════════════════════════════════ -->
+  <div x-show="toastConquista" x-transition
+       style="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:9999;pointer-events:none;width:min(340px,92vw)">
+    <div style="background:#1a1a2e;color:#fff;border-radius:16px;padding:14px 18px;display:flex;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(0,0,0,.4)">
+      <div style="font-size:1.8rem;flex-shrink:0" x-show="toastConquista"><i class="bi" :class="toastConquista?.icone"></i></div>
+      <div>
+        <div style="font-size:.75rem;opacity:.7;letter-spacing:.05em;text-transform:uppercase"><i class="bi bi-trophy-fill"></i> Nova conquista!</div>
+        <div style="font-weight:700;font-size:1rem" x-text="toastConquista?.titulo"></div>
+        <div style="font-size:.8rem;opacity:.8" x-text="toastConquista?.desc"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MODAL ADMIN CRUD ════════════════════════════════════════════════ -->
+  <div x-show="adminModal.aberto" class="modal-overlay" @click.self="adminFecharModal()" x-transition style="display:none">
+    <div class="modal-caixa" style="max-width:520px;width:95vw">
+      <div class="modal-caixa-header">
+        <span class="fw-700" x-text="adminModal.modo === 'add' ? 'Adicionar ' + (adminModal.tipo === 'item' ? 'Item' : 'Missão') : 'Editar ' + (adminModal.tipo === 'item' ? 'Item' : 'Missão')"></span>
+        <button class="modal-fechar" @click="adminFecharModal()"><i class="bi bi-x-lg"></i></button>
+      </div>
+      <div class="modal-caixa-corpo" style="max-height:65vh;overflow-y:auto">
+        <template x-for="campo in adminModal.campos" :key="campo.key">
+          <div class="mb-3">
+            <label class="form-label fw-600 fs-menor" x-text="campo.label + (campo.required ? ' *' : '')"></label>
+            <template x-if="campo.tipo === 'select'">
+              <select class="form-select form-select-sm"
+                      :value="adminModal.dados[campo.key] || ''"
+                      @change="adminModal.dados[campo.key] = $event.target.value">
+                <option value="">Selecionar...</option>
+                <template x-for="op in (campo.opcoes || [])" :key="op">
+                  <option :value="op" :selected="adminModal.dados[campo.key] === op" x-text="op"></option>
+                </template>
+              </select>
+            </template>
+            <template x-if="campo.tipo === 'number'">
+              <input type="number" class="form-control form-control-sm"
+                     :value="adminModal.dados[campo.key] || ''"
+                     @input="adminModal.dados[campo.key] = $event.target.value" min="0" />
+            </template>
+            <template x-if="campo.tipo === 'text'">
+              <input type="text" class="form-control form-control-sm"
+                     :value="adminModal.dados[campo.key] || ''"
+                     @input="adminModal.dados[campo.key] = $event.target.value" />
+            </template>
+          </div>
+        </template>
+      </div>
+      <div class="modal-caixa-rodape">
+        <button class="btn btn-outline-secondary" @click="adminFecharModal()">Cancelar</button>
+        <button class="btn btn-primary" @click="adminSalvarRegistro()">
+          <i class="bi bi-check-lg"></i> Salvar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MODAL ADMIN DELETE CONFIRM ════════════════════════════════════ -->
+  <div x-show="adminDelConfirm.aberto" class="modal-overlay" @click.self="adminDelConfirm.aberto=false" x-transition style="display:none">
+    <div class="modal-caixa" style="max-width:400px">
+      <div class="modal-caixa-header">
+        <span class="fw-700 text-danger"><i class="bi bi-exclamation-triangle-fill"></i> Confirmar exclusão</span>
+        <button class="modal-fechar" @click="adminDelConfirm.aberto=false"><i class="bi bi-x-lg"></i></button>
+      </div>
+      <div class="modal-caixa-corpo">
+        <p>Tem certeza que deseja excluir <strong x-text="adminDelConfirm.nome"></strong>?</p>
+        <p class="texto-secundario fs-menor">Esta ação não pode ser desfeita.</p>
+      </div>
+      <div class="modal-caixa-rodape">
+        <button class="btn btn-outline-secondary" @click="adminDelConfirm.aberto=false">Cancelar</button>
+        <button class="btn btn-danger" @click="adminConfirmarDelete()">
+          <i class="bi bi-trash3-fill"></i> Excluir
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MODAL CONFIRMAÇÃO UNIVERSAL ═══════════════════════════════════ -->
+  <div x-show="modalConfirm.aberto"
+       class="modal-overlay mconf-overlay"
+       @click.self="cancelarConfirmacao()"
+       @keydown.escape.window="cancelarConfirmacao()"
+       x-transition style="display:none">
+    <div class="mconf-caixa"
+         :class="'mconf-caixa--' + modalConfirm.tipo"
+         x-transition:enter="mconf-enter"
+         x-transition:enter-start="mconf-enter-start"
+         x-transition:enter-end="mconf-enter-end">
+
+      <!-- Ícone decorativo grande -->
+      <div class="mconf-icone-wrap" :class="'mconf-icone-wrap--' + modalConfirm.tipo">
+        <i class="bi" :class="modalConfirm.icone"></i>
+      </div>
+
+      <!-- Corpo -->
+      <div class="mconf-body">
+        <h3 class="mconf-titulo" x-text="modalConfirm.titulo"></h3>
+        <p class="mconf-msg" x-text="modalConfirm.msg"></p>
+        <p class="mconf-detalhe" x-show="modalConfirm.detalhe" x-text="modalConfirm.detalhe"></p>
+      </div>
+
+      <!-- Botões -->
+      <div class="mconf-actions">
+        <button class="mconf-btn mconf-btn-cancel" @click="cancelarConfirmacao()">
+          <i class="bi bi-x-lg"></i>
+          <span x-text="modalConfirm.labelCancelar"></span>
+        </button>
+        <button class="mconf-btn mconf-btn-ok"
+                :class="'mconf-btn-ok--' + modalConfirm.tipo"
+                @click="executarConfirmacao()">
+          <i class="bi" :class="{
+            'bi-check-lg': modalConfirm.tipo === 'sucesso' || modalConfirm.tipo === 'info',
+            'bi-exclamation-lg': modalConfirm.tipo === 'aviso',
+            'bi-trash3-fill': modalConfirm.tipo === 'perigo' && modalConfirm.icone === 'bi-trash3-fill',
+            'bi-check-circle-fill': modalConfirm.tipo === 'perigo' && modalConfirm.icone !== 'bi-trash3-fill',
+          }"></i>
+          <span x-text="modalConfirm.labelOk"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MODAL EXCLUIR CONTA ════════════════════════════════════════════ -->
+  <div x-show="modalExcluirConta.aberto" class="modal-overlay" @click.self="modalExcluirConta={aberto:false}" x-transition style="display:none">
+    <div class="modal-caixa" style="max-width:420px">
+      <div class="modal-caixa-header">
+        <span class="fw-700 text-danger"><i class="bi bi-trash3-fill"></i> Excluir minha conta</span>
+        <button class="modal-fechar" @click="modalExcluirConta={aberto:false}"><i class="bi bi-x-lg"></i></button>
+      </div>
+      <div class="modal-caixa-corpo">
+        <p>Esta ação é <strong>permanente e irreversível</strong>. Todos os seus dados, progresso, conquistas e itens serão apagados.</p>
+        <p class="texto-secundario fs-menor">Tem certeza absoluta?</p>
+      </div>
+      <div class="modal-caixa-rodape">
+        <button class="btn btn-outline-secondary" @click="modalExcluirConta={aberto:false}">Cancelar</button>
+        <button class="btn btn-danger" @click="excluirConta()">
+          <i class="bi bi-trash3-fill"></i> Sim, excluir tudo
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MODAL FEED — NOVO DEVOCIONAL ═════════════════════════════════ -->
+  <div x-show="feedModalAberto" class="modal-overlay fmod-overlay"
+       @click.self="feedModalAberto=false" @keydown.escape.window="feedModalAberto=false"
+       x-transition style="display:none">
+    <div class="fmod-sheet">
+
+      <!-- Handle mobile -->
+      <div class="fmod-handle"></div>
+
+      <!-- Header -->
+      <div class="fmod-header">
+        <div class="fmod-header-left">
+          <span class="fmod-avatar"><i class="bi bi-person-circle"></i></span>
+          <div>
+            <p class="fmod-autor" x-text="((perfil?.nome || 'Você') + ' ' + (perfil?.sobrenome || '')).trim()"></p>
+            <p class="fmod-subtitulo">Novo devocional</p>
+          </div>
+        </div>
+        <button class="fmod-fechar" @click="feedModalAberto=false"><i class="bi bi-x-lg"></i></button>
+      </div>
+
+      <!-- Textarea de reflexão -->
+      <textarea class="fmod-textarea"
+                x-model="feedRascunho.texto"
+                placeholder="Compartilhe uma reflexão, oração ou pensamento..."
+                maxlength="600"
+                rows="4"></textarea>
+      <p class="fmod-char-count" x-text="(feedRascunho.texto || '').length + '/600'"></p>
+
+      <!-- Badges de versículos já adicionados -->
+      <div class="fmod-badges-row" x-show="feedRascunho.versiculos.length > 0">
+        <template x-for="v in feedRascunho.versiculos" :key="v.label">
+          <span class="fmod-badge">
+            <i class="bi bi-bookmark-fill"></i>
+            <span x-text="v.label"></span>
+            <button class="fmod-badge-remove" @click="feedRemoverVersiculo(v.label)">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </span>
+        </template>
+      </div>
+
+      <!-- Seletor de versículo -->
+      <details class="fmod-ver-details">
+        <summary class="fmod-ver-summary">
+          <i class="bi bi-plus-circle-fill"></i>
+          Adicionar versículo <span class="fmod-ver-opcional">(opcional)</span>
+        </summary>
+        <div class="fmod-ver-body">
+          <!-- Livro -->
+          <div class="fmod-ver-row">
+            <label class="fmod-ver-label">Livro</label>
+            <select class="fmod-ver-select" x-model="feedVersSel.livro">
+              <option value="">Selecione...</option>
+              <template x-for="livro in livrosBiblia" :key="livro.codigo">
+                <option :value="livro.codigo" x-text="livro.nome"></option>
+              </template>
+            </select>
+          </div>
+          <!-- Capítulo + Versículo -->
+          <div class="fmod-ver-row fmod-ver-row--duo">
+            <div>
+              <label class="fmod-ver-label">Capítulo</label>
+              <input type="number" class="fmod-ver-input" x-model.number="feedVersSel.cap" min="1"
+                     :max="livrosBiblia.find(l=>l.codigo===feedVersSel.livro)?.totalCapitulos || 150">
+            </div>
+            <div>
+              <label class="fmod-ver-label">Versículo</label>
+              <input type="number" class="fmod-ver-input" x-model.number="feedVersSel.ver" min="1" max="200">
+            </div>
+            <button class="fmod-ver-add-btn"
+                    @click="feedAdicionarVersiculo()"
+                    :disabled="!feedVersSel.livro">
+              <i class="bi bi-plus-lg"></i> Adicionar
+            </button>
+          </div>
+        </div>
+      </details>
+
+      <!-- Rodapé -->
+      <div class="fmod-footer">
+        <button class="fmod-btn-cancel" @click="feedModalAberto=false">Cancelar</button>
+        <button class="fmod-btn-publish"
+                @click="publicarNoFeed()"
+                :disabled="!(feedRascunho.texto || '').trim()">
+          <i class="bi bi-send-fill"></i> Publicar
+        </button>
+      </div>
     </div>
   </div>
 

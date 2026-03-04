@@ -200,6 +200,51 @@ document.addEventListener('alpine:init', () => {
     // Modal quando seção está bloqueada
     modalBloqueio: { aberto: false, rota: null, req: null },
 
+    // ── ADMIN ───────────────────────────────────────────────────────────────
+    modoAdmin: false,
+    adminSecao: 'dashboard',
+    adminBusca: '',
+    adminModal: { aberto: false, modo: 'add', tipo: null, dados: {}, campos: [] },
+    adminDelConfirm: { aberto: false, tipo: null, id: null, nome: '' },
+    adminImportErro: '',
+
+    // ── EXCLUIR CONTA ────────────────────────────────────────────────────────
+    modalExcluirConta: { aberto: false },
+
+    // ── CONFIRMAÇÃO UNIVERSAL ─────────────────────────────────────────────────
+    modalConfirm: {
+      aberto: false,
+      titulo: '',
+      msg: '',
+      detalhe: '',         // linha extra opcional (ex: "Item: Espada do Espírito")
+      tipo: 'perigo',      // 'perigo' | 'aviso' | 'info' | 'sucesso'
+      icone: 'bi-question-circle-fill',
+      labelOk: 'Confirmar',
+      labelCancelar: 'Cancelar',
+      _acao: null,
+    },
+
+    // ── FEED / COMUNIDADE ───────────────────────────────────────────────────
+    feedPosts: [],
+    feedCarregando: false,
+    feedModalAberto: false,
+
+    // Rascunho do novo devocional
+    feedRascunho: {
+      texto: '',
+      versiculos: [],           // [{ label:'Jo 3.16', livro:'JHN', cap:3, ver:16 }]
+    },
+    // Seletor de versículo no modal
+    feedVersSel: { livro: '', cap: 1, ver: 1 },
+    // Comentários abertos: postId → true
+    feedComentariosAbertos: {},
+    // Texto de novo comentário por postId
+    feedNovoComentario: {},
+
+    // ── CONQUISTAS TOAST ────────────────────────────────────────────────────
+    toastConquista: null,
+    conquistasNotificadas: [],
+
     // Estudo do evangelho
     TRILHAS_ESTUDO,
     ARMADURA_DEUS_SLOTS,
@@ -339,6 +384,15 @@ document.addEventListener('alpine:init', () => {
         window.location.hash = 'login';
         return;
       }
+      // Guarda: admin só acessa painel se for admin
+      if (r === 'admin' && this.usuario && !this.isAdmin()) {
+        window.location.hash = 'home';
+        return;
+      }
+      // Carregar feed ao navegar para a página de feed
+      if (r === 'feed' && this.usuario) {
+        this.carregarFeed();
+      }
       // Guarda de acesso: se a página requer item e ele não está equipado
       if (this.usuario && !this.temAcesso(r)) {
         const req = this.REQUISITOS_PAGINAS[r];
@@ -349,6 +403,13 @@ document.addEventListener('alpine:init', () => {
         return;
       }
       this.pagina = r;
+
+      // ── Limpar seleção/contexto da Bíblia ao trocar de tela ──────────────
+      this.bibleSelecaoCustom.ativo = false;
+      this.bibleContextMenu.aberto  = false;
+      this.bibleContextMenu.pendente = null;
+      if (window.getSelection) window.getSelection().removeAllRanges();
+
       if (r === 'estudo') {
         this.viewEstudo = 'trilhas';
         this.trilhaSelecionadaEstudo = null;
@@ -1042,9 +1103,17 @@ document.addEventListener('alpine:init', () => {
         };
         this.totalMissoes = todas.length;
         
+        // Carregar admin itens/missoes do localStorage se existirem
+        const adminItens = (() => { try { const s = localStorage.getItem('admin_itens'); return s ? JSON.parse(s) : null; } catch { return null; } })();
+        if (adminItens) this.itensLoja = adminItens;
+        const adminMissoes = (() => { try { const s = localStorage.getItem('admin_missoes'); return s ? JSON.parse(s) : null; } catch { return null; } })();
+        if (adminMissoes) this.modelosMissoes = adminMissoes;
+
         // Inicializar timers após carregar dados do demo
         setTimeout(() => {
           this.reinicializarTimersMissoes();
+          this.verificarNovasConquistas();
+          this.carregarFeed();
         }, 500);
       } catch (e) {
         this.erro = 'Não foi possível carregar os dados da demonstração.';
@@ -1094,7 +1163,7 @@ document.addEventListener('alpine:init', () => {
         { pct: 40,  label: 'Fraca',        classe: 'forca-fraca'  },
         { pct: 60,  label: 'Regular',      classe: 'forca-media'  },
         { pct: 80,  label: 'Boa',          classe: 'forca-boa'    },
-        { pct: 100, label: 'Muito forte 💪', classe: 'forca-forte' },
+        { pct: 100, label: 'Muito forte ', classe: 'forca-forte' },
       ];
       return mapa[Math.min(pts - 1, 4)] || mapa[0];
     },
@@ -3054,7 +3123,7 @@ document.addEventListener('alpine:init', () => {
       // Atualiza a linha no modal com o dado fresco
       const linhaAtualizada = this.inventario.find(i => i.id === linhaId);
       if (linhaAtualizada) this.inventarioItemModal = { ...this.inventarioItemModal, linha: { ...linhaAtualizada } };
-      this.sucesso = linha.equipado ? 'Item desequipado! ✓' : 'Item equipado! ✓';
+      this.sucesso = linha.equipado ? 'Item desequipado!' : 'Item equipado!';
       setTimeout(() => (this.sucesso = ''), 2500);
     },
 
@@ -3087,13 +3156,13 @@ document.addEventListener('alpine:init', () => {
         }
         this.moeda = { ...(this.moeda || {}), ouro: (this.moeda?.ouro || 0) + preco };
         this._salvarInventarioDemo();
-        this.sucesso = `Vendido por ${preco} ouro! 💰`;
+        this.sucesso = `Vendido por ${preco} ouro!`;
         setTimeout(() => (this.sucesso = ''), 2500);
         this.fecharInventarioItem();
         return;
       }
       // Modo real — TODO: chamar API de venda quando disponível
-      this.sucesso = `Vendido por ${preco} ouro! 💰`;
+      this.sucesso = `Vendido por ${preco} ouro!`;
       setTimeout(() => (this.sucesso = ''), 2500);
       this.fecharInventarioItem();
     },
@@ -3153,7 +3222,7 @@ document.addEventListener('alpine:init', () => {
       const reducao = this.getPenalidadeQuizReducao(); // ex: 20
       const salvo = Math.random() * 100 < reducao;
       if (salvo) {
-        this.sucesso = '🛡 Escudo da Fé protegeu seu coração!';
+        this.sucesso = 'Escudo da Fé protegeu seu coração!';
         setTimeout(() => (this.sucesso = ''), 2000);
         return; // não consome
       }
@@ -3789,6 +3858,591 @@ document.addEventListener('alpine:init', () => {
       if (z.scale <= 1) { z.scale = 1; z.tx = 0; z.ty = 0; }
     },
     // ───────────────────────────────────────────────────────────────────────
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // NÍVEIS DE ACESSO
+    // ═══════════════════════════════════════════════════════════════════════
+
+    isAdmin() {
+      return this.modoAdmin || this.perfil?.role === 'admin';
+    },
+
+    // Entra em modo admin demo
+    entrarModoAdminDemo() {
+      this.modoAdmin = true;
+      this.perfil = { ...this.perfil, role: 'admin', nome: this.perfil?.nome || 'Admin Demo' };
+      window.location.hash = 'admin';
+    },
+
+    sairModoAdmin() {
+      this.modoAdmin = false;
+      if (this.perfil) this.perfil = { ...this.perfil, role: 'user' };
+      window.location.hash = 'home';
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // CONFIRMAÇÃO UNIVERSAL
+    // ═══════════════════════════════════════════════════════════════════════
+
+    /**
+     * Abre o modal de confirmação.
+     * @param {object} opts
+     *   titulo, msg, detalhe?, tipo ('perigo'|'aviso'|'info'|'sucesso'),
+     *   icone?, labelOk?, labelCancelar?, acao (função callback)
+     */
+    pedirConfirmacao(opts) {
+      const defaults = {
+        tipo: 'perigo',
+        icone: 'bi-exclamation-triangle-fill',
+        labelOk: 'Sim, confirmar',
+        labelCancelar: 'Cancelar',
+        detalhe: '',
+      };
+      // Ícone padrão por tipo
+      if (!opts.icone) {
+        opts.icone = {
+          perigo: 'bi-exclamation-triangle-fill',
+          aviso: 'bi-exclamation-circle-fill',
+          info: 'bi-info-circle-fill',
+          sucesso: 'bi-check-circle-fill',
+        }[opts.tipo] || 'bi-question-circle-fill';
+      }
+      this.modalConfirm = {
+        ...defaults,
+        ...opts,
+        aberto: true,
+        _acao: opts.acao || null,
+      };
+    },
+
+    /** Executa a ação confirmada e fecha o modal. */
+    executarConfirmacao() {
+      const fn = this.modalConfirm._acao;
+      this.modalConfirm = { ...this.modalConfirm, aberto: false, _acao: null };
+      if (typeof fn === 'function') fn();
+    },
+
+    /** Fecha sem executar. */
+    cancelarConfirmacao() {
+      this.modalConfirm = { ...this.modalConfirm, aberto: false, _acao: null };
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // EXCLUIR CONTA
+    // ═══════════════════════════════════════════════════════════════════════
+
+    async excluirConta() {
+      if (this.modoDemo) {
+        // Demo: limpa localStorage e retorna à tela de login
+        const keys = Object.keys(localStorage);
+        keys.forEach(k => {
+          if (k.startsWith('demo_') || k.startsWith('progresso') || k.startsWith('notas_') || k.startsWith('marcacoes_')) {
+            localStorage.removeItem(k);
+          }
+        });
+        this.modoDemo = false;
+        this.modoAdmin = false;
+        this.usuario = null;
+        this.perfil = null;
+        this.nivel = null;
+        this.moeda = null;
+        this.inventario = [];
+        this.feedPosts = [];
+        this.modalExcluirConta = { aberto: false };
+        window.location.hash = 'login';
+        return;
+      }
+      // Modo real — limpa todos os dados do usuário no Supabase
+      try {
+        this.carregando = true;
+        // Aqui chamaríamos a API para deletar a conta — implementar com Supabase
+        await sair();
+        window.location.hash = 'login';
+      } catch (e) {
+        this.erro = 'Não foi possível excluir a conta. Tente novamente.';
+      } finally {
+        this.carregando = false;
+        this.modalExcluirConta = { aberto: false };
+      }
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // CONQUISTAS — Persistência e Toast
+    // ═══════════════════════════════════════════════════════════════════════
+
+    _carregarConquistasNotificadas() {
+      try {
+        const raw = localStorage.getItem('conquistas_notificadas');
+        this.conquistasNotificadas = raw ? JSON.parse(raw) : [];
+      } catch { this.conquistasNotificadas = []; }
+    },
+
+    verificarNovasConquistas() {
+      this._carregarConquistasNotificadas();
+      const todas = this.conquistas();
+      const novas = todas.filter(c => c.conquistado && !this.conquistasNotificadas.includes(c.titulo));
+      if (novas.length === 0) return;
+      // Notificar a primeira nova
+      const nova = novas[0];
+      this.toastConquista = nova;
+      this.conquistasNotificadas = [...this.conquistasNotificadas, nova.titulo];
+      try { localStorage.setItem('conquistas_notificadas', JSON.stringify(this.conquistasNotificadas)); } catch {}
+      // Recompensar com XP e ouro
+      if (this.modoDemo) {
+        this.nivel = { ...this.nivel, xp_total: (this.nivel?.xp_total || 0) + 50 };
+        this.moeda = { ...this.moeda, ouro: (this.moeda?.ouro || 0) + 10 };
+      }
+      // Dispensar após 4s
+      setTimeout(() => { this.toastConquista = null; }, 4000);
+      // Verificar próxima após 5s
+      if (novas.length > 1) setTimeout(() => this.verificarNovasConquistas(), 5000);
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // ADMIN — Helpers e CRUD
+    // ═══════════════════════════════════════════════════════════════════════
+
+    adminGetItens() {
+      const busca = this.adminBusca.toLowerCase();
+      return (this.itensLoja || []).filter(i =>
+        !busca || (i.nome || '').toLowerCase().includes(busca) || (i.tipo || '').includes(busca)
+      );
+    },
+
+    adminGetMissoes() {
+      const busca = this.adminBusca.toLowerCase();
+      return (this.modelosMissoes || []).filter(m =>
+        !busca || (m.titulo || '').toLowerCase().includes(busca)
+      );
+    },
+
+    adminGetUsuarios() {
+      // Demo: array com o usuário atual
+      const u = [
+        {
+          id: this.usuario?.id || 'demo',
+          nome: (this.perfil?.nome || 'Demo') + ' ' + (this.perfil?.sobrenome || ''),
+          email: this.usuario?.email || 'demo@biblia.app',
+          nivel: this.nivel?.nivel || 1,
+          xp: this.nivel?.xp_total || 0,
+          ouro: this.moeda?.ouro || 0,
+          role: this.perfil?.role || 'user',
+          criado_em: '2026-01-01'
+        }
+      ];
+      return u;
+    },
+
+    _camposItem() {
+      return [
+        { key: 'id',              label: 'ID',            tipo: 'text',   required: true  },
+        { key: 'nome',            label: 'Nome',          tipo: 'text',   required: true  },
+        { key: 'descricao',       label: 'Descrição',     tipo: 'text',   required: false },
+        { key: 'tipo',            label: 'Tipo',          tipo: 'select', required: true,
+          opcoes: ['consumivel','permanente','armadura'] },
+        { key: 'raridade',        label: 'Raridade',      tipo: 'select', required: true,
+          opcoes: ['comum','raro','epico','lendario']   },
+        { key: 'slot',            label: 'Slot (armadura)',tipo:'text',   required: false },
+        { key: 'icone',           label: 'Ícone Bootstrap',tipo:'text',  required: false },
+        { key: 'preco_ouro',      label: 'Preço (ouro)',  tipo: 'number', required: true  },
+        { key: 'nivel_requerido', label: 'Nível mínimo',  tipo: 'number', required: false },
+        { key: 'duracao_minutos', label: 'Duração (min)', tipo: 'number', required: false },
+      ];
+    },
+
+    _camposMissao() {
+      return [
+        { key: 'id',               label: 'ID',          tipo: 'text',   required: true  },
+        { key: 'titulo',           label: 'Título',      tipo: 'text',   required: true  },
+        { key: 'subtitulo',        label: 'Subtítulo',   tipo: 'text',   required: false },
+        { key: 'tipo',             label: 'Tipo',        tipo: 'select', required: true,
+          opcoes: ['diaria','semanal','unica','cooperativa'] },
+        { key: 'recompensa_xp',    label: 'Recompensa XP',  tipo: 'number', required: true  },
+        { key: 'recompensa_ouro',  label: 'Recompensa Ouro',tipo: 'number', required: true  },
+        { key: 'prazo_dias',       label: 'Prazo (dias)',    tipo: 'number', required: false },
+        { key: 'descricao',        label: 'Descrição',   tipo: 'text',   required: false },
+      ];
+    },
+
+    adminAbrirModal(tipo, modo, dadosIniciais) {
+      const campos = tipo === 'item' ? this._camposItem() : this._camposMissao();
+      const dados = { ...dadosIniciais };
+      this.adminModal = { aberto: true, modo, tipo, dados, campos };
+    },
+
+    adminFecharModal() {
+      this.adminModal = { aberto: false, modo: 'add', tipo: null, dados: {}, campos: [] };
+    },
+
+    adminSalvarRegistro() {
+      const { tipo, modo, dados } = this.adminModal;
+      if (tipo === 'item') {
+        const item = {
+          ...dados,
+          preco_ouro: Number(dados.preco_ouro) || 0,
+          nivel_requerido: Number(dados.nivel_requerido) || 1,
+          duracao_minutos: dados.duracao_minutos ? Number(dados.duracao_minutos) : undefined,
+        };
+        if (modo === 'add') {
+          this.itensLoja = [...(this.itensLoja || []), item];
+        } else {
+          this.itensLoja = (this.itensLoja || []).map(i => i.id === item.id ? item : i);
+        }
+        if (this.modoDemo) {
+          try { localStorage.setItem('admin_itens', JSON.stringify(this.itensLoja)); } catch {}
+        }
+      } else if (tipo === 'missao') {
+        const missao = {
+          ...dados,
+          recompensa_xp: Number(dados.recompensa_xp) || 0,
+          recompensa_ouro: Number(dados.recompensa_ouro) || 0,
+        };
+        if (modo === 'add') {
+          this.modelosMissoes = [...(this.modelosMissoes || []), missao];
+        } else {
+          this.modelosMissoes = (this.modelosMissoes || []).map(m => m.id === missao.id ? missao : m);
+        }
+        if (this.modoDemo) {
+          try { localStorage.setItem('admin_missoes', JSON.stringify(this.modelosMissoes)); } catch {}
+        }
+      }
+      this.adminFecharModal();
+      this.sucesso = 'Registro salvo com sucesso!';
+      setTimeout(() => (this.sucesso = ''), 2000);
+    },
+
+    adminIniciarDelete(tipo, id, nome) {
+      // Usa o modal de confirmação universal para maior consistência
+      this.adminDelConfirm = { aberto: false, tipo, id, nome };
+      this.pedirConfirmacao({
+        titulo: 'Excluir registro?',
+        msg: 'Esta ação não pode ser desfeita. O item será removido permanentemente.',
+        detalhe: nome,
+        tipo: 'perigo',
+        icone: 'bi-trash3-fill',
+        labelOk: 'Excluir permanentemente',
+        labelCancelar: 'Cancelar',
+        acao: () => this.adminConfirmarDelete(),
+      });
+    },
+
+    adminConfirmarDelete() {
+      const { tipo, id } = this.adminDelConfirm || {};
+      if (tipo === 'item') {
+        this.itensLoja = (this.itensLoja || []).filter(i => i.id !== id);
+        if (this.modoDemo) {
+          try { localStorage.setItem('admin_itens', JSON.stringify(this.itensLoja)); } catch {}
+        }
+      } else if (tipo === 'missao') {
+        this.modelosMissoes = (this.modelosMissoes || []).filter(m => m.id !== id);
+        if (this.modoDemo) {
+          try { localStorage.setItem('admin_missoes', JSON.stringify(this.modelosMissoes)); } catch {}
+        }
+      }
+      this.adminDelConfirm = { aberto: false, tipo: null, id: null, nome: '' };
+      this.sucesso = 'Excluído com sucesso!';
+      setTimeout(() => (this.sucesso = ''), 2000);
+    },
+
+    // Export JSON
+    adminExportarJSON(tipo) {
+      let dados, nomeArq;
+      if (tipo === 'itens')   { dados = this.itensLoja || [];        nomeArq = 'itens_loja.json'; }
+      else if (tipo === 'missoes') { dados = this.modelosMissoes || []; nomeArq = 'missoes.json'; }
+      else if (tipo === 'conquistas') {
+        dados = (this.conquistas ? this.conquistas() : []).map(c => ({
+          titulo: c.titulo, desc: c.desc, icone: c.icone, cor: c.cor, conquistado: c.conquistado
+        }));
+        nomeArq = 'conquistas.json';
+      } else if (tipo === 'usuarios') { dados = this.adminGetUsuarios(); nomeArq = 'usuarios.json'; }
+      else return;
+      const blob = new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = nomeArq; a.click();
+      URL.revokeObjectURL(url);
+    },
+
+    // Export CSV
+    adminExportarCSV(tipo) {
+      let dados = [];
+      let nomeArq = 'export.csv';
+      if (tipo === 'itens')        { dados = this.itensLoja || [];          nomeArq = 'itens_loja.csv'; }
+      else if (tipo === 'missoes') { dados = this.modelosMissoes || [];      nomeArq = 'missoes.csv'; }
+      else if (tipo === 'usuarios'){ dados = this.adminGetUsuarios();         nomeArq = 'usuarios.csv'; }
+      if (!dados.length) return;
+      const cabecalho = Object.keys(dados[0]).join(';');
+      const linhas    = dados.map(r => Object.values(r).map(v =>
+        typeof v === 'string' && v.includes(';') ? `"${v}"` : (v ?? '')
+      ).join(';'));
+      const csv = [cabecalho, ...linhas].join('\n');
+      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+      const url  = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = nomeArq; a.click();
+      URL.revokeObjectURL(url);
+    },
+
+    // Template CSV download
+    adminBaixarTemplateCSV(tipo) {
+      const templates = {
+        itens: 'id;nome;descricao;tipo;raridade;slot;icone;preco_ouro;nivel_requerido\nexemplo-id;Bíblia;A Palavra de Deus;permanente;epico;;bi-book-fill;50;1',
+        missoes: 'id;titulo;subtitulo;tipo;recompensa_xp;recompensa_ouro;prazo_dias\nexemplo-missao;Ler João 1;Novo Testamento;diaria;30;5;1',
+      };
+      const conteudo = templates[tipo] || '';
+      const blob = new Blob(['\uFEFF' + conteudo], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = `template_${tipo}.csv`; a.click();
+      URL.revokeObjectURL(url);
+    },
+
+    // Import JSON ou CSV
+    adminImportar(tipo, evento) {
+      this.adminImportErro = '';
+      const file = evento.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const conteudo = e.target.result;
+        try {
+          let dados;
+          if (file.name.endsWith('.json')) {
+            dados = JSON.parse(conteudo);
+            if (!Array.isArray(dados)) throw new Error('JSON deve ser um array.');
+          } else {
+            // CSV parsing simples
+            const linhas = conteudo.split('\n').filter(l => l.trim());
+            if (linhas.length < 2) throw new Error('CSV precisa de pelo menos 1 linha de dados.');
+            const cabecalho = linhas[0].split(';').map(c => c.trim().replace(/^\uFEFF/, ''));
+            dados = linhas.slice(1).map(linha => {
+              const vals = linha.split(';');
+              const obj = {};
+              cabecalho.forEach((k, i) => { obj[k] = vals[i]?.trim() || ''; });
+              return obj;
+            });
+          }
+          if (tipo === 'itens') {
+            this.itensLoja = [...(this.itensLoja || []), ...dados];
+            if (this.modoDemo) { try { localStorage.setItem('admin_itens', JSON.stringify(this.itensLoja)); } catch {} }
+          } else if (tipo === 'missoes') {
+            this.modelosMissoes = [...(this.modelosMissoes || []), ...dados];
+            if (this.modoDemo) { try { localStorage.setItem('admin_missoes', JSON.stringify(this.modelosMissoes)); } catch {} }
+          }
+          this.sucesso = `${dados.length} registro(s) importado(s)!`;
+          setTimeout(() => (this.sucesso = ''), 3000);
+        } catch (err) {
+          this.adminImportErro = 'Erro na importação: ' + err.message;
+        }
+      };
+      reader.readAsText(file, 'UTF-8');
+      evento.target.value = ''; // reset input
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // FEED / COMUNIDADE
+    // ═══════════════════════════════════════════════════════════════════════
+
+    carregarFeed() {
+      if (this.feedCarregando) return;
+      this.feedCarregando = true;
+      try {
+        const raw = localStorage.getItem('feed_posts');
+        const salvos = raw ? JSON.parse(raw) : [];
+        if (!salvos.length) {
+          // Posts de exemplo para demo
+          this.feedPosts = [
+            {
+              id: 'post-1', autor: 'Maria S.', avatar: '',
+              versiculos: [{ label: 'Filipenses 4.13', livro: 'PHP', cap: 4, ver: 13 }],
+              versiculo: 'Fl 4.13',
+              comentarios: [
+                { id: 'cmt-1', autor: 'Pedro A.', avatar: '', texto: 'Amém! Que Deus continue te abençoando!', data: new Date(Date.now() - 600000).toISOString() }
+              ],
+              texto: 'Tudo posso naquele que me fortalece! Que dia abençoado hoje.',
+              curtidas: 12, curtidoPor: [], compartilhamentos: 1, data: new Date(Date.now() - 3600000).toISOString()
+            },
+            {
+              id: 'post-2', autor: 'João P.', avatar: '',
+              versiculos: [{ label: 'Salmos 23.1', livro: 'PSA', cap: 23, ver: 1 }],
+              versiculo: 'Sl 23.1',
+              comentarios: [],
+              texto: 'O SENHOR é o meu pastor; nada me faltará. Meditando nisso hoje pela manhã.',
+              curtidas: 8, curtidoPor: [], compartilhamentos: 0, data: new Date(Date.now() - 7200000).toISOString()
+            },
+            {
+              id: 'post-3', autor: 'Ana L.', avatar: '',
+              versiculos: [{ label: 'João 3.16', livro: 'JHN', cap: 3, ver: 16 }],
+              versiculo: 'Jo 3.16',
+              comentarios: [],
+              texto: 'Porque Deus amou o mundo de tal maneira... Que amor incomparável!',
+              curtidas: 24, curtidoPor: [], compartilhamentos: 2, data: new Date(Date.now() - 86400000).toISOString()
+            },
+          ];
+        } else {
+          this.feedPosts = salvos;
+        }
+      } catch { this.feedPosts = []; }
+      this.feedCarregando = false;
+    },
+
+    // ── Abre o modal de publicar, opcionalmente pré-preenchendo versículos
+    abrirFeedModal(opts = {}) {
+      this.feedRascunho = {
+        texto: opts.texto || '',
+        versiculos: opts.versiculos ? [...opts.versiculos] : [],
+      };
+      this.feedVersSel = { livro: opts.livro || (this.livroSelecionado || ''), cap: opts.cap || (this.capituloSelecionado || 1), ver: opts.ver || 1 };
+      this.feedModalAberto = true;
+    },
+
+    // ── Adiciona um versículo ao rascunho
+    feedAdicionarVersiculo() {
+      const { livro, cap, ver } = this.feedVersSel;
+      if (!livro) return;
+      const livroObj = (this.livrosBiblia || []).find(l => l.codigo === livro);
+      const nomeLivro = livroObj?.nome || livro;
+      const label = `${nomeLivro} ${cap}.${ver}`;
+      // Evita duplicata
+      if (this.feedRascunho.versiculos.some(v => v.label === label)) return;
+      this.feedRascunho = {
+        ...this.feedRascunho,
+        versiculos: [...this.feedRascunho.versiculos, { label, livro, cap, ver }],
+      };
+    },
+
+    // ── Remove um versículo do rascunho
+    feedRemoverVersiculo(label) {
+      this.feedRascunho = {
+        ...this.feedRascunho,
+        versiculos: this.feedRascunho.versiculos.filter(v => v.label !== label),
+      };
+    },
+
+    // ── Publica o devocional
+    publicarNoFeed() {
+      const texto = (this.feedRascunho?.texto || '').trim();
+      if (!texto) return;
+      const autorNome = ((this.perfil?.nome || 'Usuário') + ' ' + (this.perfil?.sobrenome || '')).trim();
+      const post = {
+        id: 'post-' + Date.now(),
+        autor: autorNome,
+        avatar: this.perfil?.config_avatar?.emoji || '',
+        versiculos: [...(this.feedRascunho.versiculos || [])],
+        versiculo: (this.feedRascunho.versiculos || []).map(v => v.label).join(' · '), // compat
+        texto,
+        curtidas: 0,
+        curtidoPor: [],
+        comentarios: [],
+        data: new Date().toISOString(),
+        compartilhamentos: 0,
+      };
+      this.feedPosts = [post, ...this.feedPosts];
+      this.feedRascunho = { texto: '', versiculos: [] };
+      this.feedModalAberto = false;
+      try { localStorage.setItem('feed_posts', JSON.stringify(this.feedPosts)); } catch {}
+    },
+
+    // ── Compartilhar versículo selecionado como devocional
+    compartilharVersiculoComoDevocional() {
+      const pendente = this.bibleContextMenu?.pendente;
+      if (!pendente) return;
+      const livroObj = (this.livrosBiblia || []).find(l => l.codigo === this.livroSelecionado);
+      const nomeLivro = livroObj?.nome || this.livroSelecionado;
+      const label = `${nomeLivro} ${this.capituloSelecionado}.${pendente.verse || 1}`;
+      const textoVers = (pendente.text || '').trim();
+      // Limpar seleção antes de navegar
+      this.fecharMenuBiblia();
+      this.bibleSelecaoCustom.ativo = false;
+      if (window.getSelection) window.getSelection().removeAllRanges();
+      this.abrirFeedModal({
+        texto: `"${textoVers}"`,
+        versiculos: [{ label, livro: this.livroSelecionado, cap: this.capituloSelecionado, ver: pendente.verse || 1 }],
+        livro: this.livroSelecionado,
+        cap: this.capituloSelecionado,
+        ver: pendente.verse || 1,
+      });
+      window.location.hash = 'feed';
+    },
+
+    curtirPost(postId) {
+      const uid = this.usuario?.id || 'demo';
+      this.feedPosts = this.feedPosts.map(p => {
+        if (p.id !== postId) return p;
+        const jaCurtiu = (p.curtidoPor || []).includes(uid);
+        return {
+          ...p,
+          curtidas: jaCurtiu ? p.curtidas - 1 : p.curtidas + 1,
+          curtidoPor: jaCurtiu
+            ? p.curtidoPor.filter(u => u !== uid)
+            : [...(p.curtidoPor || []), uid]
+        };
+      });
+      try { localStorage.setItem('feed_posts', JSON.stringify(this.feedPosts)); } catch {}
+    },
+
+    // ── Toggle da seção de comentários
+    toggleComentarios(postId) {
+      this.feedComentariosAbertos = {
+        ...this.feedComentariosAbertos,
+        [postId]: !this.feedComentariosAbertos[postId],
+      };
+    },
+
+    // ── Publicar comentário
+    publicarComentario(postId) {
+      const texto = (this.feedNovoComentario[postId] || '').trim();
+      if (!texto) return;
+      const autorNome = ((this.perfil?.nome || 'Usuário') + ' ' + (this.perfil?.sobrenome || '')).trim();
+      const comentario = {
+        id: 'cmt-' + Date.now(),
+        autor: autorNome,
+        avatar: this.perfil?.config_avatar?.emoji || '',
+        texto,
+        data: new Date().toISOString(),
+      };
+      this.feedPosts = this.feedPosts.map(p => {
+        if (p.id !== postId) return p;
+        return { ...p, comentarios: [...(p.comentarios || []), comentario] };
+      });
+      this.feedNovoComentario = { ...this.feedNovoComentario, [postId]: '' };
+      try { localStorage.setItem('feed_posts', JSON.stringify(this.feedPosts)); } catch {}
+    },
+
+    // ── Recompartilhar (repost simples)
+    recompartilharPost(post) {
+      const autorNome = ((this.perfil?.nome || 'Usuário') + ' ' + (this.perfil?.sobrenome || '')).trim();
+      const novoPost = {
+        id: 'post-' + Date.now(),
+        autor: autorNome,
+        avatar: this.perfil?.config_avatar?.emoji || '',
+        versiculos: post.versiculos || [],
+        versiculo: post.versiculo || '',
+        texto: post.texto,
+        curtidas: 0,
+        curtidoPor: [],
+        comentarios: [],
+        compartilhamentos: 0,
+        repostDe: { autor: post.autor, data: post.data },
+        data: new Date().toISOString(),
+      };
+      this.feedPosts = [novoPost, ...this.feedPosts];
+      try { localStorage.setItem('feed_posts', JSON.stringify(this.feedPosts)); } catch {}
+      this.sucesso = 'Recompartilhado!';
+      setTimeout(() => (this.sucesso = ''), 2000);
+    },
+
+    deletarPost(postId) {
+      this.feedPosts = this.feedPosts.filter(p => p.id !== postId);
+      try { localStorage.setItem('feed_posts', JSON.stringify(this.feedPosts)); } catch {}
+    },
+
+    tempoRelativo(isoString) {
+      if (!isoString) return '';
+      const diff = Date.now() - new Date(isoString).getTime();
+      if (diff < 60000)     return 'agora mesmo';
+      if (diff < 3600000)   return Math.floor(diff / 60000) + ' min atrás';
+      if (diff < 86400000)  return Math.floor(diff / 3600000) + 'h atrás';
+      return Math.floor(diff / 86400000) + 'd atrás';
+    },
 
     VERSAO_TERMOS
   }));
