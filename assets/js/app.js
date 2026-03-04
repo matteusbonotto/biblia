@@ -30,6 +30,7 @@ import { listarItensLoja, comprarItem as comprarItemLoja } from './servicos/loja
 import { formatarTempoRestante } from './componentes/hud.js';
 import { VERSAO_TERMOS } from './dados/constantes.js';
 import { TRILHAS_ESTUDO, ARMADURA_DEUS_SLOTS, ARMADURA_EFEITOS, SLOTS_PERMANENTES, REFS_BIBLICAS, OBRAS_DA_CARNE, FRUTO_DO_ESPIRITO, BATALHA_ESPIRITUAL, TOOLTIPS_FRUTO, TOOLTIPS_OBRA } from './dados/estudoEvangelho.js';
+import { CATEGORIAS_APOLOGETICA, PERGUNTAS_APOLOGETICA, DICAS_ESTUDO } from './dados/apologetica.js';
 
 function rotaAtual() {
   return (window.location.hash || '#login').replace('#', '');
@@ -202,6 +203,9 @@ document.addEventListener('alpine:init', () => {
 
     // ── ADMIN ───────────────────────────────────────────────────────────────
     modoAdmin: false,
+    adminSenha: '',                    // senha digitada no modal
+    adminSenhaErro: '',                // mensagem de erro
+    adminAutenticado: false,           // flag de autenticação
     adminSecao: 'dashboard',
     adminBusca: '',
     adminModal: { aberto: false, modo: 'add', tipo: null, dados: {}, campos: [] },
@@ -244,6 +248,26 @@ document.addEventListener('alpine:init', () => {
     // ── CONQUISTAS TOAST ────────────────────────────────────────────────────
     toastConquista: null,
     conquistasNotificadas: [],
+
+    // ── APOLOGÉTICA ────────────────────────────────────────────────────────
+    apolCategoriaSelecionada: null,        // null = todas, ou id da categoria
+    apolBusca: '',                        // busca de texto
+    apolPerguntaAberta: null,             // id da pergunta expandida
+    apolPerguntasEstudadas: [],           // IDs das perguntas já estudadas (localStorage)
+    apolProgresso: {},                    // { categoriaId: { total: X, estudadas: Y } }
+
+    // ── AMIGOS / COMUNIDADE ────────────────────────────────────────────────
+    amigos: [],                           // Lista de amigos
+    amigosCarregando: false,
+    amigosBusca: '',                      // Busca de amigos
+    convitesPendentes: [],                // Convites recebidos
+    convitesEnviados: [],                 // Convites enviados
+    chatAberto: null,                     // ID do amigo com chat aberto
+    chatMensagens: {},                    // { amigoId: [mensagens] }
+    chatNovaMensagem: '',                 // Texto da nova mensagem
+    chatRapidoAberto: false,             // Chat rápido (flutuante)
+    chatRapidoAmigo: null,               // Amigo no chat rápido
+    modalConvidarMissao: { aberto: false, missao: null, amigosSelecionados: [] },
 
     // Estudo do evangelho
     TRILHAS_ESTUDO,
@@ -384,14 +408,28 @@ document.addEventListener('alpine:init', () => {
         window.location.hash = 'login';
         return;
       }
-      // Guarda: admin só acessa painel se for admin
-      if (r === 'admin' && this.usuario && !this.isAdmin()) {
-        window.location.hash = 'home';
+      // Guarda: admin — resetar autenticação ao sair da página
+      if (r !== 'admin' && this.adminAutenticado) {
+        this.adminAutenticado = false;
+        this.adminSenha = '';
+        this.adminSenhaErro = '';
+      }
+      // Se tentar acessar admin, verificar autenticação (não redireciona, mostra modal)
+      if (r === 'admin' && this.usuario && !this.adminAutenticado && !this.isAdmin()) {
+        // Permanece na página para mostrar modal de autenticação
         return;
       }
       // Carregar feed ao navegar para a página de feed
       if (r === 'feed' && this.usuario) {
         this.carregarFeed();
+      }
+      // Carregar progresso de apologética
+      if (r === 'apologetica' && this.usuario) {
+        this.carregarProgressoApologetica();
+      }
+      // Carregar amigos
+      if (r === 'amigos' && this.usuario) {
+        this.carregarAmigos();
       }
       // Guarda de acesso: se a página requer item e ele não está equipado
       if (this.usuario && !this.temAcesso(r)) {
@@ -1108,7 +1146,7 @@ document.addEventListener('alpine:init', () => {
         if (adminItens) this.itensLoja = adminItens;
         const adminMissoes = (() => { try { const s = localStorage.getItem('admin_missoes'); return s ? JSON.parse(s) : null; } catch { return null; } })();
         if (adminMissoes) this.modelosMissoes = adminMissoes;
-
+        
         // Inicializar timers após carregar dados do demo
         setTimeout(() => {
           this.reinicializarTimersMissoes();
@@ -2031,7 +2069,7 @@ document.addEventListener('alpine:init', () => {
         // highlight puro sobreposto: descarta (vai ser substituído)
       }
       if (!temNotaSobreposta) {
-        const id = 'n-' + Date.now() + '-' + Math.random().toString(36).slice(2, 9);
+      const id = 'n-' + Date.now() + '-' + Math.random().toString(36).slice(2, 9);
         novas.push({ id, type: 'highlight', verse, start, end, text, color });
       }
       this.notacoesCapitulo = novas;
@@ -3867,15 +3905,36 @@ document.addEventListener('alpine:init', () => {
       return this.modoAdmin || this.perfil?.role === 'admin';
     },
 
-    // Entra em modo admin demo
+    // Autenticação do admin
+    autenticarAdmin() {
+      if (this.adminSenha === 'iddqd') {
+        this.adminAutenticado = true;
+        this.adminSenha = '';
+        this.adminSenhaErro = '';
+        this.modoAdmin = true;
+        if (this.perfil) {
+          this.perfil = { ...this.perfil, role: 'admin', nome: this.perfil?.nome || 'Admin' };
+        }
+      } else {
+        this.adminSenhaErro = 'Senha incorreta';
+        this.adminSenha = '';
+        setTimeout(() => (this.adminSenhaErro = ''), 3000);
+      }
+    },
+
+    // Entra em modo admin demo (mantido para compatibilidade)
     entrarModoAdminDemo() {
+      this.adminAutenticado = true;
       this.modoAdmin = true;
       this.perfil = { ...this.perfil, role: 'admin', nome: this.perfil?.nome || 'Admin Demo' };
       window.location.hash = 'admin';
     },
 
     sairModoAdmin() {
+      this.adminAutenticado = false;
       this.modoAdmin = false;
+      this.adminSenha = '';
+      this.adminSenhaErro = '';
       if (this.perfil) this.perfil = { ...this.perfil, role: 'user' };
       window.location.hash = 'home';
     },
@@ -4405,6 +4464,337 @@ document.addEventListener('alpine:init', () => {
       });
       this.feedNovoComentario = { ...this.feedNovoComentario, [postId]: '' };
       try { localStorage.setItem('feed_posts', JSON.stringify(this.feedPosts)); } catch {}
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // APOLOGÉTICA
+    // ═══════════════════════════════════════════════════════════════════════
+
+    carregarProgressoApologetica() {
+      try {
+        const raw = localStorage.getItem('apol_progresso');
+        if (raw) {
+          this.apolPerguntasEstudadas = JSON.parse(raw);
+        } else {
+          this.apolPerguntasEstudadas = [];
+        }
+        this.atualizarProgressoApologetica();
+      } catch (err) {
+        console.error('Erro ao carregar progresso de apologética:', err);
+        this.apolPerguntasEstudadas = [];
+      }
+    },
+
+    atualizarProgressoApologetica() {
+      const progresso = {};
+      CATEGORIAS_APOLOGETICA.forEach(cat => {
+        const perguntasCat = PERGUNTAS_APOLOGETICA.filter(p => p.categoria === cat.id);
+        const estudadas = perguntasCat.filter(p => this.apolPerguntasEstudadas.includes(p.id));
+        progresso[cat.id] = {
+          total: perguntasCat.length,
+          estudadas: estudadas.length,
+          percentual: perguntasCat.length > 0 ? Math.round((estudadas.length / perguntasCat.length) * 100) : 0,
+        };
+      });
+      this.apolProgresso = progresso;
+    },
+
+    marcarPerguntaEstudada(perguntaId) {
+      if (!this.apolPerguntasEstudadas.includes(perguntaId)) {
+        this.apolPerguntasEstudadas.push(perguntaId);
+        try {
+          localStorage.setItem('apol_progresso', JSON.stringify(this.apolPerguntasEstudadas));
+        } catch {}
+        this.atualizarProgressoApologetica();
+        // Nota: XP pode ser adicionado via sistema de missões ou outras atividades
+      }
+    },
+
+    perguntasFiltradas() {
+      let filtradas = PERGUNTAS_APOLOGETICA;
+      // Filtro por categoria
+      if (this.apolCategoriaSelecionada) {
+        filtradas = filtradas.filter(p => p.categoria === this.apolCategoriaSelecionada);
+      }
+      // Filtro por busca
+      if (this.apolBusca.trim()) {
+        const busca = this.apolBusca.toLowerCase();
+        filtradas = filtradas.filter(p =>
+          p.pergunta.toLowerCase().includes(busca) ||
+          p.resposta.toLowerCase().includes(busca) ||
+          (p.pontosChave || []).some(pc => pc.toLowerCase().includes(busca))
+        );
+      }
+      return filtradas;
+    },
+
+    togglePergunta(perguntaId) {
+      if (this.apolPerguntaAberta === perguntaId) {
+        this.apolPerguntaAberta = null;
+      } else {
+        this.apolPerguntaAberta = perguntaId;
+        this.marcarPerguntaEstudada(perguntaId);
+      }
+    },
+
+    selecionarCategoria(categoriaId) {
+      this.apolCategoriaSelecionada = this.apolCategoriaSelecionada === categoriaId ? null : categoriaId;
+      this.apolPerguntaAberta = null; // Fechar pergunta ao trocar categoria
+    },
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // AMIGOS / COMUNIDADE
+    // ═══════════════════════════════════════════════════════════════════════
+
+    carregarAmigos() {
+      if (this.amigosCarregando) return;
+      this.amigosCarregando = true;
+      try {
+        const raw = localStorage.getItem('amigos_lista');
+        if (raw) {
+          this.amigos = JSON.parse(raw);
+        } else {
+          // Amigos de exemplo para demo
+          this.amigos = [
+            { id: 'amigo-1', nome: 'Maria S.', sobrenome: '', avatar: '', nivel: 5, online: true, ultimaVez: new Date().toISOString() },
+            { id: 'amigo-2', nome: 'Pedro A.', sobrenome: '', avatar: '', nivel: 3, online: false, ultimaVez: new Date(Date.now() - 3600000).toISOString() },
+            { id: 'amigo-3', nome: 'Ana C.', sobrenome: '', avatar: '', nivel: 7, online: true, ultimaVez: new Date().toISOString() },
+          ];
+          localStorage.setItem('amigos_lista', JSON.stringify(this.amigos));
+        }
+        this.carregarConvites();
+        this.carregarMensagens();
+      } catch (err) {
+        console.error('Erro ao carregar amigos:', err);
+        this.amigos = [];
+      } finally {
+        this.amigosCarregando = false;
+      }
+    },
+
+    carregarConvites() {
+      try {
+        const raw = localStorage.getItem('convites_pendentes');
+        this.convitesPendentes = raw ? JSON.parse(raw) : [];
+        const rawEnviados = localStorage.getItem('convites_enviados');
+        this.convitesEnviados = rawEnviados ? JSON.parse(rawEnviados) : [];
+      } catch (err) {
+        this.convitesPendentes = [];
+        this.convitesEnviados = [];
+      }
+    },
+
+    carregarMensagens() {
+      try {
+        const raw = localStorage.getItem('chat_mensagens');
+        this.chatMensagens = raw ? JSON.parse(raw) : {};
+      } catch (err) {
+        this.chatMensagens = {};
+      }
+    },
+
+    buscarAmigos() {
+      // Em produção, buscar no banco de dados
+      // Por enquanto, mostra lista de exemplo para demo
+      this.amigosBusca = 'buscar';
+      // Em produção, fazer busca real e mostrar resultados
+    },
+
+    enviarConviteAmizade(usuarioId, nomeUsuario) {
+      // Verificar se já é amigo
+      if (this.amigos.some(a => a.id === usuarioId)) {
+        this.erro = 'Este usuário já é seu amigo';
+        setTimeout(() => (this.erro = ''), 2000);
+        return;
+      }
+      // Verificar se já enviou convite
+      if (this.convitesEnviados.some(c => c.para === usuarioId)) {
+        this.erro = 'Convite já enviado para este usuário';
+        setTimeout(() => (this.erro = ''), 2000);
+        return;
+      }
+      const convite = {
+        id: 'conv-' + Date.now(),
+        de: this.usuario?.id || 'demo',
+        para: usuarioId,
+        nomePara: nomeUsuario,
+        data: new Date().toISOString(),
+        status: 'pendente',
+      };
+      this.convitesEnviados.push(convite);
+      try {
+        localStorage.setItem('convites_enviados', JSON.stringify(this.convitesEnviados));
+      } catch {}
+      this.sucesso = 'Convite enviado!';
+      setTimeout(() => (this.sucesso = ''), 2000);
+    },
+
+    aceitarConvite(conviteId) {
+      const convite = this.convitesPendentes.find(c => c.id === conviteId);
+      if (!convite) return;
+      
+      // Adicionar como amigo
+      const novoAmigo = {
+        id: convite.de,
+        nome: convite.nomeDe || 'Usuário',
+        sobrenome: '',
+        avatar: '',
+        nivel: 1,
+        online: false,
+        ultimaVez: new Date().toISOString(),
+      };
+      this.amigos.push(novoAmigo);
+      
+      // Remover convite
+      this.convitesPendentes = this.convitesPendentes.filter(c => c.id !== conviteId);
+      
+      try {
+        localStorage.setItem('amigos_lista', JSON.stringify(this.amigos));
+        localStorage.setItem('convites_pendentes', JSON.stringify(this.convitesPendentes));
+      } catch {}
+      
+      this.sucesso = 'Amizade aceita!';
+      setTimeout(() => (this.sucesso = ''), 2000);
+    },
+
+    recusarConvite(conviteId) {
+      this.convitesPendentes = this.convitesPendentes.filter(c => c.id !== conviteId);
+      try {
+        localStorage.setItem('convites_pendentes', JSON.stringify(this.convitesPendentes));
+      } catch {}
+    },
+
+    removerAmigo(amigoId) {
+      this.pedirConfirmacao({
+        titulo: 'Remover amigo?',
+        msg: 'Esta ação não pode ser desfeita.',
+        detalhe: 'Você perderá o acesso ao chat e às missões compartilhadas com este amigo.',
+        tipo: 'perigo',
+        icone: 'bi-person-x-fill',
+        labelOk: 'Remover',
+        acao: () => {
+          this.amigos = this.amigos.filter(a => a.id !== amigoId);
+          // Fechar chat se estiver aberto
+          if (this.chatAberto === amigoId) {
+            this.chatAberto = null;
+          }
+          if (this.chatRapidoAmigo?.id === amigoId) {
+            this.chatRapidoAberto = false;
+            this.chatRapidoAmigo = null;
+          }
+          try {
+            localStorage.setItem('amigos_lista', JSON.stringify(this.amigos));
+            // Remover mensagens do chat
+            delete this.chatMensagens[amigoId];
+            localStorage.setItem('chat_mensagens', JSON.stringify(this.chatMensagens));
+          } catch {}
+          this.sucesso = 'Amigo removido';
+          setTimeout(() => (this.sucesso = ''), 2000);
+        },
+      });
+    },
+
+    abrirChat(amigoId) {
+      this.chatAberto = amigoId;
+      if (!this.chatMensagens[amigoId]) {
+        this.chatMensagens[amigoId] = [];
+      }
+      // Scroll para última mensagem
+      setTimeout(() => {
+        const chatContainer = document.querySelector('.chat-mensagens-container');
+        if (chatContainer) {
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+      }, 100);
+    },
+
+    abrirChatRapido(amigo) {
+      this.chatRapidoAberto = true;
+      this.chatRapidoAmigo = amigo;
+      if (!this.chatMensagens[amigo.id]) {
+        this.chatMensagens[amigo.id] = [];
+      }
+    },
+
+    fecharChatRapido() {
+      this.chatRapidoAberto = false;
+      this.chatRapidoAmigo = null;
+    },
+
+    enviarMensagem(amigoId) {
+      if (!this.chatNovaMensagem.trim()) return;
+      
+      const mensagem = {
+        id: 'msg-' + Date.now(),
+        de: this.usuario?.id || 'demo',
+        para: amigoId,
+        texto: this.chatNovaMensagem.trim(),
+        data: new Date().toISOString(),
+        lida: false,
+      };
+      
+      if (!this.chatMensagens[amigoId]) {
+        this.chatMensagens[amigoId] = [];
+      }
+      this.chatMensagens[amigoId].push(mensagem);
+      
+      const textoEnviado = this.chatNovaMensagem.trim();
+      this.chatNovaMensagem = '';
+      
+      try {
+        localStorage.setItem('chat_mensagens', JSON.stringify(this.chatMensagens));
+      } catch {}
+      
+      // Scroll para última mensagem (chat completo ou rápido)
+      setTimeout(() => {
+        const chatContainer = document.querySelector('.chat-mensagens-container');
+        if (chatContainer) {
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        const chatRapido = document.querySelector('.chat-rapido-mensagens');
+        if (chatRapido) {
+          chatRapido.scrollTop = chatRapido.scrollHeight;
+        }
+      }, 100);
+    },
+
+    abrirModalConvidarMissao(missao) {
+      this.modalConvidarMissao = {
+        aberto: true,
+        missao: missao,
+        amigosSelecionados: [],
+      };
+    },
+
+    toggleAmigoSelecionado(amigoId) {
+      const idx = this.modalConvidarMissao.amigosSelecionados.indexOf(amigoId);
+      if (idx >= 0) {
+        this.modalConvidarMissao.amigosSelecionados.splice(idx, 1);
+      } else {
+        this.modalConvidarMissao.amigosSelecionados.push(amigoId);
+      }
+    },
+
+    enviarConviteMissao() {
+      if (this.modalConvidarMissao.amigosSelecionados.length === 0) {
+        this.erro = 'Selecione pelo menos um amigo';
+        setTimeout(() => (this.erro = ''), 2000);
+        return;
+      }
+      
+      // Em produção, criar missão cooperativa
+      // Por enquanto, apenas notificação
+      this.sucesso = `Convite enviado para ${this.modalConvidarMissao.amigosSelecionados.length} amigo(s)!`;
+      this.modalConvidarMissao = { aberto: false, missao: null, amigosSelecionados: [] };
+      setTimeout(() => (this.sucesso = ''), 3000);
+    },
+
+    amigosFiltrados() {
+      if (!this.amigosBusca.trim()) return this.amigos;
+      const busca = this.amigosBusca.toLowerCase();
+      return this.amigos.filter(a =>
+        (a.nome + ' ' + (a.sobrenome || '')).toLowerCase().includes(busca)
+      );
     },
 
     // ── Recompartilhar (repost simples)

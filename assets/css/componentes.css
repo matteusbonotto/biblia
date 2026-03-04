@@ -5676,6 +5676,813 @@
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
+   APOLOGÉTICA
+══════════════════════════════════════════════════════════════════════════ */
+.apol-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+.apol-dicas-box {
+  background: color-mix(in srgb, var(--cor-primaria) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cor-primaria) 20%, transparent);
+  border-radius: 14px;
+  padding: 16px;
+}
+.apol-dicas-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  color: var(--cor-primaria);
+  font-size: 1rem;
+}
+.apol-dicas-lista {
+  margin: 0;
+  padding-left: 20px;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.apol-dicas-lista li {
+  position: relative;
+  padding-left: 20px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--cor-texto);
+}
+.apol-dicas-lista li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: var(--cor-primaria);
+  font-weight: bold;
+}
+.apol-busca-wrap {
+  margin-bottom: 1rem;
+}
+.apol-categorias {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 1.5rem;
+}
+.apol-cat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1px solid var(--cor-borda, #ddd);
+  border-radius: 20px;
+  background: var(--cor-fundo-card);
+  color: var(--cor-texto);
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.apol-cat-chip:hover {
+  border-color: var(--cor-primaria);
+  background: color-mix(in srgb, var(--cor-primaria) 5%, transparent);
+}
+.apol-cat-chip--ativo {
+  border-color: var(--cor-primaria);
+  background: var(--cor-primaria);
+  color: #fff;
+}
+.apol-cat-progresso {
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+.apol-perguntas-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.apol-pergunta-card {
+  background: var(--cor-fundo-card);
+  border: 1px solid var(--cor-borda, #e5e5e5);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: all 0.2s;
+}
+.apol-pergunta-card:hover {
+  border-color: var(--cor-primaria);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.apol-pergunta-card--aberta {
+  border-color: var(--cor-primaria);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+.apol-pergunta-header {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+}
+.apol-pergunta-header-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 1;
+}
+.apol-pergunta-ico {
+  font-size: 1.5rem;
+  color: var(--cor-primaria);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.apol-pergunta-titulo {
+  margin: 0 0 8px 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--cor-texto);
+  line-height: 1.4;
+}
+.apol-pergunta-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 0.82rem;
+  color: var(--cor-texto-secundario);
+}
+.apol-pergunta-cat {
+  padding: 2px 8px;
+  background: color-mix(in srgb, var(--cor-primaria) 10%, transparent);
+  color: var(--cor-primaria);
+  border-radius: 12px;
+  font-weight: 500;
+}
+.apol-pergunta-diff {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+.apol-diff--iniciante {
+  background: color-mix(in srgb, #22c55e 15%, transparent);
+  color: #16a34a;
+}
+.apol-diff--intermediario {
+  background: color-mix(in srgb, #f59e0b 15%, transparent);
+  color: #d97706;
+}
+.apol-diff--avancado {
+  background: color-mix(in srgb, #ef4444 15%, transparent);
+  color: #dc2626;
+}
+.apol-estudada-badge {
+  color: #22c55e;
+  font-size: 1rem;
+}
+.apol-chevron {
+  color: var(--cor-texto-secundario);
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+.apol-pergunta-conteudo {
+  padding: 0 16px 16px 16px;
+  border-top: 1px solid var(--cor-borda, #eee);
+  margin-top: 8px;
+  padding-top: 16px;
+}
+.apol-resposta {
+  margin-bottom: 20px;
+}
+.apol-resposta-texto {
+  margin: 0;
+  line-height: 1.7;
+  color: var(--cor-texto);
+  font-size: 0.95rem;
+}
+.apol-versiculos {
+  margin-bottom: 20px;
+  padding: 16px;
+  background: color-mix(in srgb, var(--cor-primaria) 5%, transparent);
+  border-radius: 12px;
+  border-left: 3px solid var(--cor-primaria);
+}
+.apol-versiculos-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  color: var(--cor-primaria);
+  font-size: 0.9rem;
+}
+.apol-versiculo-item {
+  margin-bottom: 12px;
+}
+.apol-versiculo-item:last-child {
+  margin-bottom: 0;
+}
+.apol-versiculo-ref {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--cor-primaria);
+  font-size: 0.88rem;
+}
+.apol-versiculo-texto {
+  margin: 0;
+  line-height: 1.6;
+  color: var(--cor-texto);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+.apol-pontos-chave {
+  margin-top: 20px;
+  padding: 16px;
+  background: color-mix(in srgb, #f59e0b 8%, transparent);
+  border-radius: 12px;
+  border-left: 3px solid #f59e0b;
+}
+.apol-pontos-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  color: #d97706;
+  font-size: 0.9rem;
+}
+.apol-pontos-lista {
+  margin: 0;
+  padding-left: 20px;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.apol-pontos-lista li {
+  position: relative;
+  padding-left: 20px;
+  line-height: 1.6;
+  color: var(--cor-texto);
+  font-size: 0.9rem;
+}
+.apol-pontos-lista li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #d97706;
+  font-weight: bold;
+}
+.apol-stats-box {
+  background: color-mix(in srgb, var(--cor-primaria) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cor-primaria) 20%, transparent);
+  border-radius: 14px;
+  padding: 16px;
+}
+.apol-stats-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  color: var(--cor-primaria);
+  font-size: 0.95rem;
+}
+.apol-stats-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.apol-stats-bar-wrap {
+  height: 8px;
+  background: color-mix(in srgb, var(--cor-primaria) 20%, transparent);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.apol-stats-bar {
+  height: 100%;
+  background: var(--cor-primaria);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+.apol-stats-texto {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--cor-texto);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   AMIGOS / COMUNIDADE
+══════════════════════════════════════════════════════════════════════════ */
+.amigos-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+.amigos-btn-buscar {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--cor-borda, #ddd);
+  background: var(--cor-fundo-card);
+  color: var(--cor-primaria);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 1.1rem;
+}
+.amigos-btn-buscar:hover {
+  background: var(--cor-primaria);
+  color: #fff;
+  border-color: var(--cor-primaria);
+}
+.amigos-tabs {
+  display: flex;
+  gap: 8px;
+  border-bottom: 2px solid var(--cor-borda, #eee);
+  margin-bottom: 1rem;
+}
+.amigos-tab {
+  padding: 10px 16px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--cor-texto-secundario);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: -2px;
+  transition: all 0.2s;
+}
+.amigos-tab:hover {
+  color: var(--cor-primaria);
+}
+.amigos-tab--ativo {
+  color: var(--cor-primaria);
+  border-bottom-color: var(--cor-primaria);
+  font-weight: 600;
+}
+.amigos-tab-badge {
+  background: var(--cor-primaria);
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+.amigos-busca-wrap {
+  margin-bottom: 1rem;
+}
+.amigos-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.amigo-card {
+  background: var(--cor-fundo-card);
+  border: 1px solid var(--cor-borda, #e5e5e5);
+  border-radius: 14px;
+  padding: 16px;
+  transition: all 0.2s;
+}
+.amigo-card:hover {
+  border-color: var(--cor-primaria);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.amigo-card--convite {
+  background: color-mix(in srgb, var(--cor-primaria) 5%, transparent);
+  border-color: var(--cor-primaria);
+}
+.amigo-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.amigo-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+.amigo-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--cor-primaria) 10%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: var(--cor-primaria);
+}
+.amigo-online-indicator {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #22c55e;
+  border: 2px solid var(--cor-fundo-card);
+}
+.amigo-info {
+  flex: 1;
+  min-width: 0;
+}
+.amigo-nome {
+  margin: 0 0 4px 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--cor-texto);
+}
+.amigo-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 0.82rem;
+  color: var(--cor-texto-secundario);
+}
+.amigo-nivel {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--cor-primaria);
+  font-weight: 500;
+}
+.amigo-status {
+  font-size: 0.78rem;
+}
+.amigo-status--online {
+  color: #22c55e;
+  font-weight: 500;
+}
+.amigo-convite-texto {
+  margin: 0 0 4px 0;
+  font-size: 0.9rem;
+  color: var(--cor-texto-secundario);
+}
+.amigo-convite-data {
+  font-size: 0.75rem;
+  color: var(--cor-texto-secundario);
+}
+.amigo-card-acoes {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.amigo-btn-acao {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid var(--cor-borda, #ddd);
+  background: var(--cor-fundo-card);
+  color: var(--cor-texto);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 1rem;
+}
+.amigo-btn-acao:hover {
+  background: var(--cor-primaria);
+  color: #fff;
+  border-color: var(--cor-primaria);
+}
+.amigo-btn-acao--aceitar {
+  color: #22c55e;
+  border-color: #22c55e;
+}
+.amigo-btn-acao--aceitar:hover {
+  background: #22c55e;
+  color: #fff;
+}
+.amigo-btn-acao--recusar {
+  color: #ef4444;
+  border-color: #ef4444;
+}
+.amigo-btn-acao--recusar:hover {
+  background: #ef4444;
+  color: #fff;
+}
+.amigo-btn-acao--perigo {
+  color: #ef4444;
+  border-color: #ef4444;
+}
+.amigo-btn-acao--perigo:hover {
+  background: #ef4444;
+  color: #fff;
+}
+.amigos-convites {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.amigos-convites-section {
+  margin-top: 20px;
+}
+.amigos-secao-titulo {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: var(--cor-texto);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.amigos-busca-novos {
+  margin-top: 20px;
+}
+.amigos-busca-novos-header {
+  margin-bottom: 20px;
+}
+
+/* Chat Modal */
+.chat-modal-overlay {
+  z-index: 1300;
+}
+.chat-modal-caixa {
+  max-width: 500px;
+  width: 100%;
+  max-height: 80vh;
+  background: var(--cor-fundo-card);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+.chat-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid var(--cor-borda, #eee);
+}
+.chat-modal-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.chat-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--cor-primaria) 10%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: var(--cor-primaria);
+}
+.chat-nome {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--cor-texto);
+}
+.chat-status {
+  font-size: 0.75rem;
+  color: var(--cor-texto-secundario);
+}
+.chat-fechar {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: none;
+  color: var(--cor-texto-secundario);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.chat-fechar:hover {
+  background: var(--cor-borda, #eee);
+  color: var(--cor-texto);
+}
+.chat-mensagens-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 300px;
+  max-height: 400px;
+}
+.chat-msg {
+  display: flex;
+  width: 100%;
+}
+.chat-msg--enviada {
+  justify-content: flex-end;
+}
+.chat-msg--recebida {
+  justify-content: flex-start;
+}
+.chat-msg-bubble {
+  max-width: 70%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: var(--cor-borda, #eee);
+  color: var(--cor-texto);
+}
+.chat-msg-bubble--pequeno {
+  max-width: 85%;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+}
+.chat-msg--enviada .chat-msg-bubble {
+  background: var(--cor-primaria);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+.chat-msg--recebida .chat-msg-bubble {
+  background: var(--cor-borda, #eee);
+  border-bottom-left-radius: 4px;
+}
+.chat-msg-texto {
+  margin: 0;
+  line-height: 1.5;
+  font-size: 0.9rem;
+  word-wrap: break-word;
+}
+.chat-msg-hora {
+  display: block;
+  font-size: 0.7rem;
+  opacity: 0.7;
+  margin-top: 4px;
+  text-align: right;
+}
+.chat-vazio {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--cor-texto-secundario);
+}
+.chat-vazio i {
+  font-size: 3rem;
+  opacity: 0.3;
+  margin-bottom: 12px;
+}
+.chat-input-container {
+  display: flex;
+  gap: 8px;
+  padding: 16px;
+  border-top: 1px solid var(--cor-borda, #eee);
+}
+.chat-input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid var(--cor-borda, #ddd);
+  border-radius: 20px;
+  background: var(--cor-fundo-card);
+  color: var(--cor-texto);
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.chat-input:focus {
+  border-color: var(--cor-primaria);
+}
+.chat-btn-enviar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: var(--cor-primaria);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  font-size: 1.1rem;
+}
+.chat-btn-enviar:hover:not(:disabled) {
+  opacity: 0.88;
+}
+.chat-btn-enviar:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Chat Rápido (Flutuante) */
+.chat-rapido-container {
+  position: fixed;
+  bottom: 80px;
+  right: 16px;
+  width: 320px;
+  max-height: 400px;
+  background: var(--cor-fundo-card);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  z-index: 1200;
+  border: 1px solid var(--cor-borda, #eee);
+}
+.chat-rapido-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--cor-borda, #eee);
+}
+.chat-rapido-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.chat-rapido-nome {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--cor-texto);
+}
+.chat-rapido-fechar {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: none;
+  background: none;
+  color: var(--cor-texto-secundario);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.chat-rapido-fechar:hover {
+  background: var(--cor-borda, #eee);
+}
+.chat-rapido-mensagens {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 250px;
+}
+.chat-rapido-input {
+  display: flex;
+  gap: 6px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--cor-borda, #eee);
+}
+
+/* Seleção de Amigos para Missão */
+.amigos-selecao-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.amigo-selecao-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid var(--cor-borda, #ddd);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.amigo-selecao-item:hover {
+  border-color: var(--cor-primaria);
+  background: color-mix(in srgb, var(--cor-primaria) 5%, transparent);
+}
+.amigo-selecao-item input[type="checkbox"] {
+  margin-right: 12px;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+.amigo-selecao-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+.amigo-selecao-nome {
+  flex: 1;
+  font-weight: 500;
+  color: var(--cor-texto);
+}
+.amigo-selecao-nivel {
+  font-size: 0.85rem;
+  color: var(--cor-texto-secundario);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
    ADMIN PANEL
 ══════════════════════════════════════════════════════════════════════════ */
 .admin-shell {

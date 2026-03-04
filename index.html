@@ -652,6 +652,8 @@
             </a>
 
             <!-- Livre -->
+            <a href="#apologetica"><i class="bi bi-shield-check"></i> Apologética</a>
+            <a href="#amigos"><i class="bi bi-people-fill"></i> Amigos</a>
             <a href="#feed"><i class="bi bi-newspaper"></i> Feed</a>
             <a href="#inventario"><i class="bi bi-backpack"></i> Inventário</a>
             <a href="#loja"><i class="bi bi-shop"></i> Loja</a>
@@ -1854,6 +1856,9 @@
                       <button type="button" class="btn btn-outline-secondary btn-sm" @click="abrirDetalhesMissao(mod, 'modelo')">
                         <i class="bi bi-eye me-1"></i> Ver detalhes
                       </button>
+                      <button type="button" class="btn btn-outline-primary btn-sm" @click="abrirModalConvidarMissao(mod)" title="Convidar amigos">
+                        <i class="bi bi-people-fill me-1"></i> Convidar
+                      </button>
                       <button type="button" class="btn btn-primario btn-sm" @click="iniciarMissao(mod.id)">
                         <i class="bi bi-play-fill me-1"></i> Iniciar
                       </button>
@@ -2884,8 +2889,8 @@
                       </span>
                       <span class="btrad-opcao-nome">Mais em breve…</span>
                       <i class="bi bi-hourglass-split btrad-opcao-em-breve"></i>
-              </div>
-                  </div>
+                    </div>
+                  </div><!-- /btrad-panel -->
                 </div><!-- /btrad-wrap -->
               </div>
 
@@ -3005,7 +3010,6 @@
             </div>
           </template>
 
-          <!-- [Barra de seleção, menu de contexto e post-it movidos para global — ver antes do </body>] -->
 
           <!-- Quiz do livro -->
           <template x-if="viewBiblia === 'quiz' && quizLivroAtivo">
@@ -3484,17 +3488,328 @@
         </div>
 
         <!-- ════════════════════════════════════════════════════════════════ -->
+        <!-- APOLOGÉTICA -->
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <div x-show="pagina === 'apologetica'" style="display: none;">
+          <div class="apol-header">
+            <h2 class="titulo-pagina mb-0">
+              <i class="bi bi-shield-check"></i> Apologética
+            </h2>
+          </div>
+          <p class="subtitulo-pagina mb-3">
+            Aprenda a defender sua fé com sabedoria e amor. Prepare-se para responder qualquer questionamento sobre o cristianismo.
+          </p>
+
+          <!-- Dicas de estudo -->
+          <div class="apol-dicas-box mb-4">
+            <div class="apol-dicas-header">
+              <i class="bi bi-lightbulb-fill"></i>
+              <span class="fw-600">Dicas para estudar</span>
+            </div>
+            <ul class="apol-dicas-lista">
+              <template x-for="(dica, idx) in DICAS_ESTUDO" :key="idx">
+                <li x-text="dica"></li>
+              </template>
+            </ul>
+          </div>
+
+          <!-- Busca -->
+          <div class="apol-busca-wrap mb-3">
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-search"></i></span>
+              <input type="text"
+                     class="form-control"
+                     placeholder="Buscar perguntas ou respostas..."
+                     x-model="apolBusca"
+                     @input="apolPerguntaAberta = null">
+            </div>
+          </div>
+
+          <!-- Categorias (chips) -->
+          <div class="apol-categorias mb-4">
+            <button class="apol-cat-chip"
+                    :class="apolCategoriaSelecionada === null ? 'apol-cat-chip--ativo' : ''"
+                    @click="selecionarCategoria(null)">
+              <i class="bi bi-grid-3x3-gap-fill"></i>
+              <span>Todas</span>
+            </button>
+            <template x-for="cat in CATEGORIAS_APOLOGETICA" :key="cat.id">
+              <button class="apol-cat-chip"
+                      :class="apolCategoriaSelecionada === cat.id ? 'apol-cat-chip--ativo' : ''"
+                      :style="apolCategoriaSelecionada === cat.id ? 'background:' + cat.cor + ';color:#fff' : ''"
+                      @click="selecionarCategoria(cat.id)">
+                <i class="bi" :class="cat.icone"></i>
+                <span x-text="cat.nome"></span>
+                <span class="apol-cat-progresso" x-show="apolProgresso[cat.id]">
+                  (<span x-text="apolProgresso[cat.id]?.estudadas || 0"></span>/<span x-text="apolProgresso[cat.id]?.total || 0"></span>)
+                </span>
+              </button>
+            </template>
+          </div>
+
+          <!-- Lista de perguntas -->
+          <div class="apol-perguntas-lista">
+            <template x-for="pergunta in perguntasFiltradas()" :key="pergunta.id">
+              <div class="apol-pergunta-card"
+                   :class="apolPerguntaAberta === pergunta.id ? 'apol-pergunta-card--aberta' : ''">
+                <!-- Cabeçalho (sempre visível) -->
+                <button class="apol-pergunta-header"
+                        @click="togglePergunta(pergunta.id)">
+                  <div class="apol-pergunta-header-left">
+                    <i class="bi bi-question-circle-fill apol-pergunta-ico"></i>
+                    <div>
+                      <h3 class="apol-pergunta-titulo" x-text="pergunta.pergunta"></h3>
+                      <div class="apol-pergunta-meta">
+                        <span class="apol-pergunta-cat" x-text="CATEGORIAS_APOLOGETICA.find(c => c.id === pergunta.categoria)?.nome"></span>
+                        <span class="apol-pergunta-diff" :class="'apol-diff--' + pergunta.dificuldade" x-text="pergunta.dificuldade === 'iniciante' ? 'Iniciante' : pergunta.dificuldade === 'intermediario' ? 'Intermediário' : 'Avançado'"></span>
+                        <i x-show="apolPerguntasEstudadas.includes(pergunta.id)" class="bi bi-check-circle-fill apol-estudada-badge" title="Já estudada"></i>
+                      </div>
+                    </div>
+                  </div>
+                  <i class="bi apol-chevron"
+                     :class="apolPerguntaAberta === pergunta.id ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+                </button>
+
+                <!-- Conteúdo (expansível) -->
+                <div class="apol-pergunta-conteudo" x-show="apolPerguntaAberta === pergunta.id" x-transition>
+                  <!-- Resposta -->
+                  <div class="apol-resposta">
+                    <p class="apol-resposta-texto" x-text="pergunta.resposta"></p>
+                  </div>
+
+                  <!-- Versículos -->
+                  <div class="apol-versiculos" x-show="pergunta.versiculos && pergunta.versiculos.length > 0">
+                    <div class="apol-versiculos-header">
+                      <i class="bi bi-book-fill"></i>
+                      <span class="fw-600">Versículos de apoio</span>
+                    </div>
+                    <template x-for="vers in pergunta.versiculos" :key="vers.ref">
+                      <div class="apol-versiculo-item">
+                        <span class="apol-versiculo-ref fw-600" x-text="vers.ref"></span>
+                        <p class="apol-versiculo-texto" x-text="vers.texto"></p>
+                      </div>
+                    </template>
+                  </div>
+
+                  <!-- Pontos-chave -->
+                  <div class="apol-pontos-chave" x-show="pergunta.pontosChave && pergunta.pontosChave.length > 0">
+                    <div class="apol-pontos-header">
+                      <i class="bi bi-list-check"></i>
+                      <span class="fw-600">Pontos-chave para lembrar</span>
+                    </div>
+                    <ul class="apol-pontos-lista">
+                      <template x-for="ponto in pergunta.pontosChave" :key="ponto">
+                        <li x-text="ponto"></li>
+                      </template>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+
+          <!-- Vazio -->
+          <div x-show="perguntasFiltradas().length === 0" class="text-center py-5 texto-secundario">
+            <i class="bi bi-search" style="font-size:3rem;opacity:.3"></i>
+            <p class="mt-2">Nenhuma pergunta encontrada.<br>Tente buscar com outras palavras.</p>
+          </div>
+
+          <!-- Estatísticas de progresso -->
+          <div class="apol-stats-box mt-4" x-show="apolCategoriaSelecionada && apolProgresso[apolCategoriaSelecionada]">
+            <div class="apol-stats-header">
+              <i class="bi bi-graph-up-arrow"></i>
+              <span class="fw-600">Seu progresso nesta categoria</span>
+            </div>
+            <div class="apol-stats-content">
+              <div class="apol-stats-bar-wrap">
+                <div class="apol-stats-bar"
+                     :style="'width:' + (apolProgresso[apolCategoriaSelecionada]?.percentual || 0) + '%'">
+                </div>
+              </div>
+              <p class="apol-stats-texto">
+                <span x-text="apolProgresso[apolCategoriaSelecionada]?.estudadas || 0"></span> de
+                <span x-text="apolProgresso[apolCategoriaSelecionada]?.total || 0"></span> perguntas estudadas
+                (<span x-text="apolProgresso[apolCategoriaSelecionada]?.percentual || 0"></span>%)
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <!-- AMIGOS / COMUNIDADE -->
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <div x-show="pagina === 'amigos'" style="display: none;">
+          <div class="amigos-header">
+            <h2 class="titulo-pagina mb-0">
+              <i class="bi bi-people-fill"></i> Amigos
+            </h2>
+            <button class="amigos-btn-buscar" @click="amigosBusca = ''; buscarAmigos()" title="Buscar novos amigos">
+              <i class="bi bi-person-plus-fill"></i>
+            </button>
+          </div>
+          <p class="subtitulo-pagina mb-3">Conecte-se com outros cristãos, faça missões juntos e compartilhe sua jornada</p>
+
+          <!-- Tabs -->
+          <div class="amigos-tabs mb-3">
+            <button class="amigos-tab" :class="amigosBusca === '' ? 'amigos-tab--ativo' : ''" @click="amigosBusca = ''">
+              <i class="bi bi-people"></i> Meus Amigos
+              <span class="amigos-tab-badge" x-text="amigos.length"></span>
+            </button>
+            <button class="amigos-tab" :class="amigosBusca !== '' ? 'amigos-tab--ativo' : ''" @click="amigosBusca = ''; buscarAmigos()">
+              <i class="bi bi-search"></i> Buscar
+            </button>
+            <button class="amigos-tab" @click="carregarConvites()">
+              <i class="bi bi-envelope-fill"></i> Convites
+              <span class="amigos-tab-badge" x-text="convitesPendentes.length" x-show="convitesPendentes.length > 0"></span>
+            </button>
+          </div>
+
+          <!-- Busca -->
+          <div class="amigos-busca-wrap mb-3" x-show="amigosBusca === ''">
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-search"></i></span>
+              <input type="text"
+                     class="form-control"
+                     placeholder="Buscar nos seus amigos..."
+                     x-model="amigosBusca"
+                     @input>
+            </div>
+          </div>
+
+          <!-- Lista de amigos -->
+          <div class="amigos-lista" x-show="amigosBusca === ''">
+            <template x-if="amigosCarregando">
+              <div class="text-center py-4">
+                <div class="spinner-border text-success"></div>
+              </div>
+            </template>
+            <template x-for="amigo in amigosFiltrados()" :key="amigo.id">
+              <div class="amigo-card">
+                <div class="amigo-card-header">
+                  <div class="amigo-avatar-wrap">
+                    <span class="amigo-avatar">
+                      <i class="bi bi-person-circle"></i>
+                    </span>
+                    <span class="amigo-online-indicator" x-show="amigo.online" title="Online"></span>
+                  </div>
+                  <div class="amigo-info">
+                    <h4 class="amigo-nome" x-text="amigo.nome + ' ' + (amigo.sobrenome || '')"></h4>
+                    <div class="amigo-meta">
+                      <span class="amigo-nivel">
+                        <i class="bi bi-star-fill"></i>
+                        Nível <span x-text="amigo.nivel || 1"></span>
+                      </span>
+                      <span class="amigo-status" x-show="!amigo.online" x-text="'Última vez: ' + tempoRelativo(amigo.ultimaVez)"></span>
+                      <span class="amigo-status amigo-status--online" x-show="amigo.online">Online</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="amigo-card-acoes">
+                  <button class="amigo-btn-acao" @click="abrirChatRapido(amigo)" title="Chat rápido">
+                    <i class="bi bi-chat-dots-fill"></i>
+                  </button>
+                  <button class="amigo-btn-acao" @click="abrirChat(amigo.id)" title="Abrir chat">
+                    <i class="bi bi-chat-left-text"></i>
+                  </button>
+                  <button class="amigo-btn-acao" @click="abrirModalConvidarMissao({ id: 'missao-demo', titulo: 'Missão de exemplo' })" title="Convidar para missão">
+                    <i class="bi bi-flag-fill"></i>
+                  </button>
+                  <button class="amigo-btn-acao amigo-btn-acao--perigo" @click="removerAmigo(amigo.id)" title="Remover amigo">
+                    <i class="bi bi-person-x-fill"></i>
+                  </button>
+                </div>
+              </div>
+            </template>
+            <div x-show="!amigosCarregando && amigosFiltrados().length === 0" class="text-center py-5 texto-secundario">
+              <i class="bi bi-people" style="font-size:3rem;opacity:.3"></i>
+              <p class="mt-2">Nenhum amigo encontrado.<br>Busque e adicione novos amigos!</p>
+            </div>
+          </div>
+
+          <!-- Convites pendentes -->
+          <div class="amigos-convites" x-show="amigosBusca === 'convites'">
+            <div class="amigos-convites-section">
+              <h3 class="amigos-secao-titulo">
+                <i class="bi bi-envelope-fill"></i> Convites Pendentes
+                <span class="amigos-tab-badge" x-text="convitesPendentes.length"></span>
+              </h3>
+              <template x-for="convite in convitesPendentes" :key="convite.id">
+                <div class="amigo-card amigo-card--convite">
+                  <div class="amigo-card-header">
+                    <div class="amigo-avatar-wrap">
+                      <span class="amigo-avatar">
+                        <i class="bi bi-person-circle"></i>
+                      </span>
+                    </div>
+                    <div class="amigo-info">
+                      <h4 class="amigo-nome" x-text="convite.nomeDe || 'Usuário'"></h4>
+                      <p class="amigo-convite-texto">quer ser seu amigo</p>
+                      <span class="amigo-convite-data" x-text="tempoRelativo(convite.data)"></span>
+                    </div>
+                  </div>
+                  <div class="amigo-card-acoes">
+                    <button class="amigo-btn-acao amigo-btn-acao--aceitar" @click="aceitarConvite(convite.id)" title="Aceitar">
+                      <i class="bi bi-check-lg"></i>
+                    </button>
+                    <button class="amigo-btn-acao amigo-btn-acao--recusar" @click="recusarConvite(convite.id)" title="Recusar">
+                      <i class="bi bi-x-lg"></i>
+                    </button>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <!-- Busca de novos amigos -->
+          <div class="amigos-busca-novos" x-show="amigosBusca === 'buscar'">
+            <div class="amigos-busca-novos-header mb-3">
+              <h3 class="amigos-secao-titulo">
+                <i class="bi bi-search"></i> Buscar Novos Amigos
+              </h3>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                <input type="text"
+                       class="form-control"
+                       placeholder="Digite o nome ou email..."
+                       @keydown.enter="buscarAmigos()">
+              </div>
+            </div>
+            <div class="text-center py-5 texto-secundario">
+              <i class="bi bi-people" style="font-size:3rem;opacity:.3"></i>
+              <p class="mt-2">Em produção, esta busca encontrará outros usuários do app.<br>Por enquanto, use o botão de adicionar para enviar convites.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ════════════════════════════════════════════════════════════════ -->
         <!-- PAINEL ADMIN -->
         <!-- ════════════════════════════════════════════════════════════════ -->
         <div x-show="pagina === 'admin'" style="display: none;" x-cloak>
-          <template x-if="!isAdmin()">
+          <!-- Modal de autenticação -->
+          <template x-if="!adminAutenticado">
             <div class="text-center py-5">
-              <i class="bi bi-shield-x" style="font-size:3rem;color:#e74c3c"></i>
-              <p class="mt-2 fw-600">Acesso restrito a administradores.</p>
-              <a href="#home" class="btn btn-primary mt-2">Voltar</a>
+              <div class="card-tema p-4 mx-auto" style="max-width:400px">
+                <i class="bi bi-shield-lock-fill" style="font-size:3rem;color:var(--cor-primaria)"></i>
+                <h3 class="mt-3 mb-2">Acesso Administrativo</h3>
+                <p class="texto-secundario mb-3">Digite a senha para acessar o painel</p>
+                <div class="mb-3">
+                  <input type="password"
+                         class="form-control"
+                         placeholder="Senha"
+                         x-model="adminSenha"
+                         @keydown.enter="autenticarAdmin()"
+                         autofocus>
+                  <p x-show="adminSenhaErro" class="text-danger mt-2 mb-0" x-text="adminSenhaErro"></p>
+                </div>
+                <button class="btn btn-primario w-100 mb-2" @click="autenticarAdmin()">
+                  <i class="bi bi-unlock-fill"></i> Entrar
+                </button>
+                <a href="#home" class="btn btn-outline-secondary w-100">Cancelar</a>
+              </div>
             </div>
           </template>
-          <template x-if="isAdmin()">
+          <!-- Painel admin (só aparece após autenticação) -->
+          <template x-if="adminAutenticado">
             <div class="admin-shell">
 
               <!-- Sidebar -->
@@ -5228,6 +5543,133 @@
                 @click="publicarNoFeed()"
                 :disabled="!(feedRascunho.texto || '').trim()">
           <i class="bi bi-send-fill"></i> Publicar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       MODAL CHAT COMPLETO
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <div x-show="chatAberto !== null" class="modal-overlay chat-modal-overlay"
+       @click.self="chatAberto = null" @keydown.escape.window="chatAberto = null"
+       x-transition style="display:none">
+    <div class="chat-modal-caixa">
+      <div class="chat-modal-header">
+        <div class="chat-modal-header-left">
+          <span class="chat-avatar"><i class="bi bi-person-circle"></i></span>
+          <div>
+            <h4 class="chat-nome" x-text="amigos.find(a => a.id === chatAberto)?.nome || 'Amigo'"></h4>
+            <span class="chat-status" x-text="amigos.find(a => a.id === chatAberto)?.online ? 'Online' : 'Offline'"></span>
+          </div>
+        </div>
+        <button class="chat-fechar" @click="chatAberto = null">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="chat-mensagens-container">
+        <template x-for="msg in (chatMensagens[chatAberto] || [])" :key="msg.id">
+          <div class="chat-msg" :class="msg.de === (usuario?.id || 'demo') ? 'chat-msg--enviada' : 'chat-msg--recebida'">
+            <div class="chat-msg-bubble">
+              <p class="chat-msg-texto" x-text="msg.texto"></p>
+              <span class="chat-msg-hora" x-text="new Date(msg.data).toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'})"></span>
+            </div>
+          </div>
+        </template>
+        <div x-show="(chatMensagens[chatAberto] || []).length === 0" class="chat-vazio">
+          <i class="bi bi-chat-dots"></i>
+          <p>Nenhuma mensagem ainda.<br>Envie a primeira mensagem!</p>
+        </div>
+      </div>
+      <div class="chat-input-container">
+        <input type="text"
+               class="chat-input"
+               placeholder="Digite sua mensagem..."
+               x-model="chatNovaMensagem"
+               @keydown.enter.prevent="enviarMensagem(chatAberto)">
+        <button class="chat-btn-enviar" @click="enviarMensagem(chatAberto)" :disabled="!chatNovaMensagem.trim()">
+          <i class="bi bi-send-fill"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       CHAT RÁPIDO (FLUTUANTE)
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <div x-show="chatRapidoAberto && chatRapidoAmigo" class="chat-rapido-container" x-transition style="display:none">
+    <div class="chat-rapido-header">
+      <div class="chat-rapido-header-left">
+        <span class="chat-avatar"><i class="bi bi-person-circle"></i></span>
+        <span class="chat-rapido-nome" x-text="chatRapidoAmigo.nome"></span>
+      </div>
+      <button class="chat-rapido-fechar" @click="fecharChatRapido()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <div class="chat-rapido-mensagens">
+      <template x-for="msg in (chatMensagens[chatRapidoAmigo.id] || []).slice(-5)" :key="msg.id">
+        <div class="chat-msg" :class="msg.de === (usuario?.id || 'demo') ? 'chat-msg--enviada' : 'chat-msg--recebida'">
+          <div class="chat-msg-bubble chat-msg-bubble--pequeno">
+            <p class="chat-msg-texto" x-text="msg.texto"></p>
+          </div>
+        </div>
+      </template>
+    </div>
+    <div class="chat-rapido-input">
+      <input type="text"
+             class="chat-input"
+             placeholder="Mensagem rápida..."
+             x-model="chatNovaMensagem"
+             @keydown.enter.prevent="enviarMensagem(chatRapidoAmigo.id); chatNovaMensagem = ''">
+      <button class="chat-btn-enviar" @click="enviarMensagem(chatRapidoAmigo.id); chatNovaMensagem = ''" :disabled="!chatNovaMensagem.trim()">
+        <i class="bi bi-send-fill"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       MODAL CONVIDAR PARA MISSÃO
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <div x-show="modalConvidarMissao.aberto" class="modal-overlay"
+       @click.self="modalConvidarMissao={aberto:false,missao:null,amigosSelecionados:[]}" x-transition style="display:none">
+    <div class="modal-caixa" style="max-width:500px">
+      <div class="modal-caixa-header">
+        <span class="fw-700"><i class="bi bi-flag-fill"></i> Convidar Amigos para Missão</span>
+        <button class="modal-fechar" @click="modalConvidarMissao={aberto:false,missao:null,amigosSelecionados:[]}">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="modal-caixa-corpo">
+        <p class="mb-3">
+          <strong x-text="modalConvidarMissao.missao?.titulo || 'Missão'"></strong>
+        </p>
+        <p class="texto-secundario mb-3">Selecione os amigos que deseja convidar:</p>
+        <div class="amigos-selecao-lista">
+          <template x-for="amigo in amigos" :key="amigo.id">
+            <label class="amigo-selecao-item">
+              <input type="checkbox"
+                     :checked="modalConvidarMissao.amigosSelecionados.includes(amigo.id)"
+                     @change="toggleAmigoSelecionado(amigo.id)">
+              <div class="amigo-selecao-content">
+                <span class="amigo-avatar"><i class="bi bi-person-circle"></i></span>
+                <span class="amigo-selecao-nome" x-text="amigo.nome + ' ' + (amigo.sobrenome || '')"></span>
+                <span class="amigo-selecao-nivel">Nível <span x-text="amigo.nivel || 1"></span></span>
+              </div>
+            </label>
+          </template>
+          <div x-show="amigos.length === 0" class="text-center py-3 texto-secundario">
+            <i class="bi bi-people"></i>
+            <p class="mt-2">Você ainda não tem amigos.<br>Adicione amigos para convidá-los!</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-caixa-rodape">
+        <button class="btn btn-outline-secondary" @click="modalConvidarMissao={aberto:false,missao:null,amigosSelecionados:[]}">
+          Cancelar
+        </button>
+        <button class="btn btn-primario" @click="enviarConviteMissao()" :disabled="modalConvidarMissao.amigosSelecionados.length === 0">
+          <i class="bi bi-send-fill"></i> Enviar Convite
         </button>
       </div>
     </div>
