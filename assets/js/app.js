@@ -3278,14 +3278,75 @@ document.addEventListener('alpine:init', () => {
     _finalizarDrag(event) {
       if (!this.dragInventario.arrastando) return;
       
+      // Detecta slot no momento exato do drop (pode ter mudado desde o último mousemove)
+      const touch = event.touches ? (event.touches[0] || event.changedTouches?.[0]) : event;
+      let slotFinal = this.dragInventario.slotSobreposto;
+      
+      // Se não tinha slot detectado, tenta detectar novamente no momento do drop
+      // Temporariamente esconde o fantasma para não interferir na detecção
+      const ghostWasVisible = this.dragInventario.ghostElement?.style.display !== 'none';
+      if (this.dragInventario.ghostElement) {
+        this.dragInventario.ghostElement.style.display = 'none';
+      }
+      
+      if (!slotFinal && touch) {
+        const elemento = document.elementFromPoint(touch.clientX, touch.clientY);
+        if (elemento) {
+          // Ignora elementos do drag-ghost
+          if (elemento.closest('.drag-ghost')) {
+            // Se clicou no fantasma, tenta pegar o elemento abaixo dele
+            const elementos = document.elementsFromPoint(touch.clientX, touch.clientY);
+            for (const el of elementos) {
+              if (!el.closest('.drag-ghost')) {
+                const slotElement = el.closest('.perm-frame, .armor-slot');
+                if (slotElement) {
+                  if (slotElement.classList.contains('perm-frame')) {
+                    const slotIndexAttr = slotElement.getAttribute('data-slot-index');
+                    if (slotIndexAttr) {
+                      slotFinal = { tipo: 'permanente', index: parseInt(slotIndexAttr, 10) };
+                      break;
+                    }
+                  } else if (slotElement.classList.contains('armor-slot')) {
+                    const slotId = slotElement.getAttribute('data-slot-id');
+                    if (slotId) {
+                      slotFinal = { tipo: 'armadura', slotId };
+                      break;
+                    }
+                  }
+                }
+              }
+            }
+          } else {
+            const slotElement = elemento.closest('.perm-frame, .armor-slot');
+            if (slotElement) {
+              if (slotElement.classList.contains('perm-frame')) {
+                const slotIndexAttr = slotElement.getAttribute('data-slot-index');
+                if (slotIndexAttr) {
+                  slotFinal = { tipo: 'permanente', index: parseInt(slotIndexAttr, 10) };
+                }
+              } else if (slotElement.classList.contains('armor-slot')) {
+                const slotId = slotElement.getAttribute('data-slot-id');
+                if (slotId) {
+                  slotFinal = { tipo: 'armadura', slotId };
+                }
+              }
+            }
+          }
+        }
+      }
+      
+      // Restaura visibilidade do fantasma se estava visível (será removido depois)
+      if (ghostWasVisible && this.dragInventario.ghostElement) {
+        this.dragInventario.ghostElement.style.display = 'block';
+      }
+      
       this._limparListenersDrag();
       this._removerGhostElement();
       
       const itemId = this.dragInventario.itemId;
-      const slot = this.dragInventario.slotSobreposto;
       const itemDados = this.dragInventario.itemDados;
       
-      // Reseta estado
+      // Reseta estado ANTES de executar ações (para evitar reentrância)
       this.dragInventario.arrastando = false;
       this.dragInventario.ativo = false;
       const itemIdFinal = this.dragInventario.itemId;
@@ -3293,19 +3354,22 @@ document.addEventListener('alpine:init', () => {
       this.dragInventario.itemDados = null;
       this.dragInventario.slotSobreposto = null;
       
-      if (!itemIdFinal) return;
+      if (!itemIdFinal || !itemDados) return;
       
-      // Se estava sobre um slot válido, equipa lá (ou troca posição se já estava equipado)
-      if (slot) {
-        if (slot.tipo === 'permanente') {
-          this.equiparItemNoSlotPermanente(itemIdFinal, slot.index);
-        } else if (slot.tipo === 'armadura') {
-          // Para armadura, o slot já está definido no item, então só equipa normalmente
+      // Se estava sobre um slot válido, equipa/troca lá
+      if (slotFinal) {
+        console.log('[drag] Drop no slot:', slotFinal, 'Item:', itemIdFinal);
+        if (slotFinal.tipo === 'permanente') {
+          // Para permanentes: sempre equipa no slot específico (troca se necessário)
+          this.equiparItemNoSlotPermanente(itemIdFinal, slotFinal.index);
+        } else if (slotFinal.tipo === 'armadura') {
+          // Para armadura: se o item já está equipado, desequipa; senão, equipa
           this.equiparItemInventario(itemIdFinal);
         }
       } else {
         // Arrastou para fora dos slots: se estava equipado, desequipa
-        if (itemDados && itemDados.equipado && itemDados.itens?.tipo !== 'consumivel') {
+        console.log('[drag] Drop fora dos slots, item equipado?', itemDados.equipado);
+        if (itemDados.equipado && itemDados.itens?.tipo !== 'consumivel') {
           this.equiparItemInventario(itemIdFinal);
         }
       }
@@ -3401,7 +3465,8 @@ document.addEventListener('alpine:init', () => {
 
     /**
      * Equipa um item permanente em um slot específico (índice 1-3).
-     * Se o slot já tem item, desequipa ele primeiro.
+     * Se o slot já tem item, troca os itens de posição.
+     * Se o item já está equipado em outro slot, move para o novo slot.
      */
     async equiparItemNoSlotPermanente(linhaIdOuObj, slotIndex) {
       const linhaId = (typeof linhaIdOuObj === 'string') ? linhaIdOuObj : linhaIdOuObj?.id;
@@ -3410,6 +3475,7 @@ document.addEventListener('alpine:init', () => {
         return;
       }
 
+      // Busca dados ATUAIS do inventário
       const inventarioArr = JSON.parse(JSON.stringify(this.inventario || []));
       const linha = inventarioArr.find(i => i.id === linhaId);
       if (!linha || linha.itens?.tipo !== 'permanente') {
@@ -3418,11 +3484,17 @@ document.addEventListener('alpine:init', () => {
         return;
       }
 
-      // Lista de itens permanentes equipados (em ordem)
+      // Lista de itens permanentes equipados (em ordem atual)
       const equipados = inventarioArr.filter(i => i.equipado && i.itens?.tipo === 'permanente');
+      const itemNoSlot = equipados[slotIndex - 1]; // Item que está no slot de destino
+      const itemJaEquipado = linha.equipado; // Se o item sendo arrastado já está equipado
       
-      // Se o slot já tem um item, desequipa ele
-      const itemNoSlot = equipados[slotIndex - 1];
+      // Se o item já está no slot correto, não faz nada
+      if (itemJaEquipado && itemNoSlot && itemNoSlot.id === linhaId) {
+        return; // Já está no lugar certo
+      }
+
+      // Se o slot já tem um item diferente, desequipa ele primeiro
       if (itemNoSlot && itemNoSlot.id !== linhaId) {
         if (this.modoDemo) {
           this.inventario = this.inventario.map(i => i.id === itemNoSlot.id ? { ...i, equipado: false } : i);
@@ -3431,8 +3503,8 @@ document.addEventListener('alpine:init', () => {
         }
       }
 
-      // Se o item já está equipado em outro slot, desequipa primeiro
-      if (linha.equipado) {
+      // Se o item sendo arrastado já está equipado em outro slot, desequipa primeiro
+      if (itemJaEquipado) {
         if (this.modoDemo) {
           this.inventario = this.inventario.map(i => i.id === linhaId ? { ...i, equipado: false } : i);
         } else {
@@ -3440,43 +3512,47 @@ document.addEventListener('alpine:init', () => {
         }
       }
 
-      // Verifica limite antes de equipar
-      const equipadosApos = inventarioArr.filter(
-        i => i.equipado && i.itens?.tipo === 'permanente' && i.id !== linhaId && (!itemNoSlot || i.id !== itemNoSlot.id)
-      ).length;
-      const limite = this.SLOTS_PERMANENTES?.maximo || 3;
-      if (equipadosApos >= limite && !linha.equipado) {
-        this.erro = `Máximo de ${limite} itens permanentes equipados.`;
-        setTimeout(() => (this.erro = ''), 3500);
-        return;
+      // Verifica limite antes de equipar (só se não estava equipado)
+      if (!itemJaEquipado) {
+        const equipadosApos = inventarioArr.filter(
+          i => i.equipado && i.itens?.tipo === 'permanente' && i.id !== linhaId && (!itemNoSlot || i.id !== itemNoSlot.id)
+        ).length;
+        const limite = this.SLOTS_PERMANENTES?.maximo || 3;
+        if (equipadosApos >= limite) {
+          this.erro = `Máximo de ${limite} itens permanentes equipados.`;
+          setTimeout(() => (this.erro = ''), 3500);
+          return;
+        }
       }
 
-      // Equipa o novo item
+      // Equipa o item no slot desejado
       if (this.modoDemo) {
         this.inventario = this.inventario.map(i => i.id === linhaId ? { ...i, equipado: true } : i);
         // Reordena para que o item apareça no slot correto
-        // Move o item para a posição correta no array (mantém ordem dos equipados)
         const equipadosNovos = this.inventario.filter(i => i.equipado && i.itens?.tipo === 'permanente');
         const outros = this.inventario.filter(i => !(i.equipado && i.itens?.tipo === 'permanente'));
         const itemEquipado = equipadosNovos.find(i => i.id === linhaId);
         if (itemEquipado) {
-          equipadosNovos.splice(equipadosNovos.indexOf(itemEquipado), 1);
+          // Remove o item da posição atual
+          const idxAtual = equipadosNovos.indexOf(itemEquipado);
+          if (idxAtual >= 0) equipadosNovos.splice(idxAtual, 1);
+          // Insere na posição do slot desejado
           equipadosNovos.splice(slotIndex - 1, 0, itemEquipado);
         }
         this.inventario = [...equipadosNovos, ...outros];
         this._salvarInventarioDemo();
+        this.sucesso = `Item ${itemJaEquipado ? 'movido' : 'equipado'} no slot ${slotIndex}!`;
+        setTimeout(() => (this.sucesso = ''), 2500);
       } else {
         const r = await equiparItem(this.usuario.id, linhaId, true);
         if (r.sucesso) {
           await this.carregarDadosUsuario();
-          // Nota: a ordem dos slots pode não ser preservada no banco, mas o item será equipado
+          this.sucesso = `Item ${itemJaEquipado ? 'movido' : 'equipado'} no slot ${slotIndex}!`;
+          setTimeout(() => (this.sucesso = ''), 2500);
         } else {
           this.erro = r.erro || '';
         }
       }
-
-      this.sucesso = `Item equipado no slot ${slotIndex}!`;
-      setTimeout(() => (this.sucesso = ''), 2500);
     },
 
     /** Salva o inventário demo no localStorage para persistência */
