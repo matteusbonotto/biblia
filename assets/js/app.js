@@ -200,6 +200,7 @@ document.addEventListener('alpine:init', () => {
       posX: 0,           // posição X do cursor/dedo
       posY: 0,           // posição Y do cursor/dedo
       slotSobreposto: null, // slot que está sendo sobreposto (índice 1-3 para permanentes, slotId para armadura)
+      ghostElement: null, // referência ao elemento fantasma no DOM
     },
 
     // ─── Requisitos de acesso por seção ──────────────────────
@@ -3146,6 +3147,8 @@ document.addEventListener('alpine:init', () => {
       this.dragInventario.timerDrag = setTimeout(() => {
         this.dragInventario.ativo = true;
         this.dragInventario.arrastando = true;
+        // Cria/atualiza elemento fantasma no DOM
+        this._criarGhostElement();
         // Cria handlers uma vez e armazena referências
         if (!this._dragMoveHandler) {
           this._dragMoveHandler = (e) => this._atualizarPosicaoDrag(e);
@@ -3184,10 +3187,44 @@ document.addEventListener('alpine:init', () => {
       }
       if (this.dragInventario.arrastando) {
         this._limparListenersDrag();
+        this._removerGhostElement();
       }
       this.dragInventario.ativo = false;
       this.dragInventario.arrastando = false;
       this.dragInventario.slotSobreposto = null;
+    },
+
+    /** Cria ou atualiza elemento fantasma no DOM */
+    _criarGhostElement() {
+      if (!this.dragInventario.itemDados) return;
+      
+      let ghost = this.dragInventario.ghostElement;
+      if (!ghost) {
+        ghost = document.createElement('div');
+        ghost.className = 'drag-ghost';
+        ghost.style.cssText = 'pointer-events:none; position:fixed; z-index:10000 !important; width:120px; height:120px; display:block;';
+        ghost.innerHTML = `
+          <div class="inv-card inv-card--ghost inv-rar-${this.dragInventario.itemDados?.itens?.raridade || 'comum'}">
+            <div class="inv-card-ico-wrap">
+              <i class="bi ${this.dragInventario.itemDados?.itens?.icone || 'bi-box'}"></i>
+            </div>
+            <div class="inv-card-body">
+              <span class="inv-card-nome">${this.dragInventario.itemDados?.itens?.nome || 'Item'}</span>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(ghost);
+        this.dragInventario.ghostElement = ghost;
+      }
+      ghost.style.display = 'block';
+    },
+
+    /** Remove elemento fantasma do DOM */
+    _removerGhostElement() {
+      if (this.dragInventario.ghostElement) {
+        this.dragInventario.ghostElement.remove();
+        this.dragInventario.ghostElement = null;
+      }
     },
 
     /** Atualiza posição durante drag (chamado por mousemove/touchmove) */
@@ -3195,8 +3232,15 @@ document.addEventListener('alpine:init', () => {
       if (!this.dragInventario.arrastando) return;
       
       const touch = event.touches ? event.touches[0] : event;
+      // Atualiza posição do fantasma (com offset para centralizar)
       this.dragInventario.posX = touch.clientX;
       this.dragInventario.posY = touch.clientY;
+      
+      // Atualiza posição do elemento fantasma diretamente no DOM
+      if (this.dragInventario.ghostElement) {
+        this.dragInventario.ghostElement.style.left = (touch.clientX - 60) + 'px';
+        this.dragInventario.ghostElement.style.top = (touch.clientY - 60) + 'px';
+      }
       
       // Detecta qual slot está sendo sobreposto
       if (event.touches) event.preventDefault(); // previne scroll durante touch
@@ -3230,14 +3274,16 @@ document.addEventListener('alpine:init', () => {
       }
     },
 
-    /** Finaliza drag e equipa no slot sobreposto (se houver) */
+    /** Finaliza drag e equipa no slot sobreposto (se houver) ou desequipa se arrastou para fora */
     _finalizarDrag(event) {
       if (!this.dragInventario.arrastando) return;
       
       this._limparListenersDrag();
+      this._removerGhostElement();
       
       const itemId = this.dragInventario.itemId;
       const slot = this.dragInventario.slotSobreposto;
+      const itemDados = this.dragInventario.itemDados;
       
       // Reseta estado
       this.dragInventario.arrastando = false;
@@ -3247,12 +3293,19 @@ document.addEventListener('alpine:init', () => {
       this.dragInventario.itemDados = null;
       this.dragInventario.slotSobreposto = null;
       
-      // Se estava sobre um slot válido, equipa lá
-      if (slot && itemIdFinal) {
+      if (!itemIdFinal) return;
+      
+      // Se estava sobre um slot válido, equipa lá (ou troca posição se já estava equipado)
+      if (slot) {
         if (slot.tipo === 'permanente') {
           this.equiparItemNoSlotPermanente(itemIdFinal, slot.index);
         } else if (slot.tipo === 'armadura') {
           // Para armadura, o slot já está definido no item, então só equipa normalmente
+          this.equiparItemInventario(itemIdFinal);
+        }
+      } else {
+        // Arrastou para fora dos slots: se estava equipado, desequipa
+        if (itemDados && itemDados.equipado && itemDados.itens?.tipo !== 'consumivel') {
           this.equiparItemInventario(itemIdFinal);
         }
       }

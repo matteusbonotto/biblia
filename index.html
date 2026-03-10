@@ -2345,7 +2345,14 @@
                      x-bind:data-slot-index="i">
                   <!-- Slot preenchido -->
                   <template x-if="inventario.filter(l=>l.equipado&&l.itens?.tipo==='permanente')[i-1]">
-                    <div class="perm-frame-inner">
+                    <div class="perm-frame-inner"
+                         @mousedown.prevent="iniciarPressItemInventario(inventario.filter(l=>l.equipado&&l.itens?.tipo==='permanente')[i-1]?.id, $event)"
+                         @mouseup.prevent="cancelarPressItemInventario(); if (!dragInventario.ativo && !dragInventario.arrastando) abrirInventarioItem(inventario.filter(l=>l.equipado&&l.itens?.tipo==='permanente')[i-1]?.id)"
+                         @mouseleave="if (!dragInventario.arrastando) cancelarPressItemInventario()"
+                         @touchstart.prevent="iniciarPressItemInventario(inventario.filter(l=>l.equipado&&l.itens?.tipo==='permanente')[i-1]?.id, $event)"
+                         @touchend.prevent="cancelarPressItemInventario(); if (!dragInventario.ativo && !dragInventario.arrastando) abrirInventarioItem(inventario.filter(l=>l.equipado&&l.itens?.tipo==='permanente')[i-1]?.id)"
+                         style="cursor: grab;"
+                         :class="dragInventario.arrastando && dragInventario.itemId === inventario.filter(l=>l.equipado&&l.itens?.tipo==='permanente')[i-1]?.id ? 'perm-frame-inner--dragging' : ''">
                       <div class="perm-frame-ico"
                            :class="'inv-rar-' + (inventario.filter(l=>l.equipado&&l.itens?.tipo==='permanente')[i-1]?.itens?.raridade || 'comum')">
                         <i class="bi"
@@ -5410,25 +5417,6 @@
         <button class="btn btn-danger" @click="adminConfirmarDelete()">
           <i class="bi bi-trash3-fill"></i> Excluir
         </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══ DRAG FANTASMA (item sendo arrastado) ═══════════════════════════════════ -->
-  <div x-show="dragInventario.arrastando && dragInventario.itemDados"
-       class="drag-ghost"
-       :style="'left: ' + (dragInventario.posX - 60) + 'px; top: ' + (dragInventario.posY - 60) + 'px;'"
-       x-transition:enter="drag-ghost-enter"
-       x-transition:enter-start="drag-ghost-enter-start"
-       x-transition:enter-end="drag-ghost-enter-end"
-       style="display:none; pointer-events:none; position:fixed; z-index:9999; width:120px; height:120px; opacity:0.8; transform:scale(0.9);">
-    <div class="inv-card inv-card--ghost"
-         :class="'inv-rar-' + (dragInventario.itemDados?.itens?.raridade || 'comum')">
-      <div class="inv-card-ico-wrap">
-        <i class="bi" :class="dragInventario.itemDados?.itens?.icone || 'bi-box'"></i>
-      </div>
-      <div class="inv-card-body">
-        <span class="inv-card-nome" x-text="dragInventario.itemDados?.itens?.nome || 'Item'"></span>
       </div>
     </div>
   </div>

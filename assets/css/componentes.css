@@ -7137,20 +7137,15 @@
 .inv-card--ghost {
   pointer-events: none;
   transform: scale(0.9);
-  box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+  opacity: 0.9;
+  border: 2px solid rgba(139, 92, 246, 0.5);
 }
 .drag-ghost {
   pointer-events: none;
   user-select: none;
-  z-index: 9999;
-}
-.drag-ghost-enter-start {
-  opacity: 0;
-  transform: scale(0.8);
-}
-.drag-ghost-enter-end {
-  opacity: 0.8;
-  transform: scale(0.9);
+  z-index: 10000 !important;
+  will-change: transform;
 }
 .inv-card-use-btn {
   font-size: .68rem;
@@ -7346,6 +7341,16 @@
   box-shadow: 0 0 0 2px #8b5cf6, 0 4px 12px rgba(139, 92, 246, 0.3) !important;
   transform: scale(1.05);
   transition: all 0.2s ease;
+}
+.perm-frame-inner--dragging {
+  opacity: 0.5;
+  transform: scale(0.95);
+}
+.perm-frame-inner {
+  cursor: grab;
+}
+.perm-frame-inner:active {
+  cursor: grabbing;
 }
 
 .perm-frame-inner {
