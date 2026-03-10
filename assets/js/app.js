@@ -3085,8 +3085,16 @@ document.addEventListener('alpine:init', () => {
     // INVENTÁRIO CRUD — Equip / Unequip / Swap / Sell
     // =====================================================
 
-    /** Abre o modal de detalhes de um item do inventário */
-    abrirInventarioItem(linha) {
+    /** Abre o modal de detalhes de um item do inventário (aceita ID ou objeto) */
+    abrirInventarioItem(linhaOuId) {
+      let linha = linhaOuId;
+      if (typeof linhaOuId === 'string') {
+        linha = (this.inventario || []).find(i => i.id === linhaOuId) || null;
+      }
+      if (!linha) {
+        console.warn('[inventario] Item não encontrado ao abrir modal:', linhaOuId);
+        return;
+      }
       this.inventarioItemModal = { aberto: true, linha };
     },
 
