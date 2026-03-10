@@ -2347,10 +2347,10 @@
                   <template x-if="inventario.filter(l=>l.equipado&&l.itens?.tipo==='permanente')[i-1]">
                     <div class="perm-frame-inner"
                          @mousedown.prevent="iniciarPressItemInventario(inventario.filter(l=>l.equipado&&l.itens?.tipo==='permanente')[i-1]?.id, $event)"
-                         @mouseup.prevent="cancelarPressItemInventario(); if (!dragInventario.ativo && !dragInventario.arrastando) abrirInventarioItem(inventario.filter(l=>l.equipado&&l.itens?.tipo==='permanente')[i-1]?.id)"
+                         @mouseup.prevent="if (!dragInventario.ativo && !dragInventario.arrastando) abrirInventarioItem(inventario.filter(l=>l.equipado&&l.itens?.tipo==='permanente')[i-1]?.id); cancelarPressItemInventario()"
                          @mouseleave="if (!dragInventario.arrastando) cancelarPressItemInventario()"
                          @touchstart.prevent="iniciarPressItemInventario(inventario.filter(l=>l.equipado&&l.itens?.tipo==='permanente')[i-1]?.id, $event)"
-                         @touchend.prevent="cancelarPressItemInventario(); if (!dragInventario.ativo && !dragInventario.arrastando) abrirInventarioItem(inventario.filter(l=>l.equipado&&l.itens?.tipo==='permanente')[i-1]?.id)"
+                         @touchend.prevent="if (!dragInventario.ativo && !dragInventario.arrastando) abrirInventarioItem(inventario.filter(l=>l.equipado&&l.itens?.tipo==='permanente')[i-1]?.id); cancelarPressItemInventario()"
                          style="cursor: grab;"
                          :class="dragInventario.arrastando && dragInventario.itemId === inventario.filter(l=>l.equipado&&l.itens?.tipo==='permanente')[i-1]?.id ? 'perm-frame-inner--dragging' : ''">
                       <div class="perm-frame-ico"
@@ -2400,10 +2400,10 @@
                        dragInventario.arrastando && dragInventario.itemId === linha.id ? 'inv-card--dragging' : ''
                      ]"
                      @mousedown.prevent="iniciarPressItemInventario(linha.id, $event)"
-                     @mouseup.prevent="cancelarPressItemInventario(); if (!dragInventario.ativo && !dragInventario.arrastando) abrirInventarioItem(linha.id)"
+                     @mouseup.prevent="if (!dragInventario.ativo && !dragInventario.arrastando) abrirInventarioItem(linha.id); cancelarPressItemInventario()"
                      @mouseleave="if (!dragInventario.arrastando) cancelarPressItemInventario()"
                      @touchstart.prevent="iniciarPressItemInventario(linha.id, $event)"
-                     @touchend.prevent="cancelarPressItemInventario(); if (!dragInventario.ativo && !dragInventario.arrastando) abrirInventarioItem(linha.id)">
+                     @touchend.prevent="if (!dragInventario.ativo && !dragInventario.arrastando) abrirInventarioItem(linha.id); cancelarPressItemInventario()">
                   <div class="inv-card-ico-wrap">
                     <i class="bi" :class="linha.itens?.icone || 'bi-box'"></i>
                     <span class="inv-card-equipped-check" x-show="linha.equipado"><i class="bi bi-check-circle-fill"></i></span>

@@ -7130,7 +7130,7 @@
 .inv-card-action-tag--on { background: #dcfce7; color: #16a34a; }
 .inv-card-action-tag--off { background: #ede9fe; color: #7c3aed; }
 .inv-card--dragging {
-  opacity: 0.5;
+  opacity: 0.15;
   transform: scale(0.95);
   pointer-events: none;
 }
