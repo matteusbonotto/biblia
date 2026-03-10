@@ -7129,6 +7129,29 @@
 }
 .inv-card-action-tag--on { background: #dcfce7; color: #16a34a; }
 .inv-card-action-tag--off { background: #ede9fe; color: #7c3aed; }
+.inv-card--dragging {
+  opacity: 0.5;
+  transform: scale(0.95);
+  pointer-events: none;
+}
+.inv-card--ghost {
+  pointer-events: none;
+  transform: scale(0.9);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+}
+.drag-ghost {
+  pointer-events: none;
+  user-select: none;
+  z-index: 9999;
+}
+.drag-ghost-enter-start {
+  opacity: 0;
+  transform: scale(0.8);
+}
+.drag-ghost-enter-end {
+  opacity: 0.8;
+  transform: scale(0.9);
+}
 .inv-card-use-btn {
   font-size: .68rem;
   font-weight: 700;
@@ -7202,6 +7225,14 @@
 }
 .armor-slot--off { opacity: .65; }
 .armor-slot--off:hover { opacity: 1; }
+.armor-slot--drag-over {
+  border-color: var(--slotcor, #8b5cf6) !important;
+  background: rgba(139, 92, 246, 0.15) !important;
+  box-shadow: 0 0 0 2px var(--slotcor, #8b5cf6), 0 4px 12px rgba(139, 92, 246, 0.3) !important;
+  transform: scale(1.05);
+  transition: all 0.2s ease;
+  opacity: 1 !important;
+}
 
 .armor-slot-glow {
   position: absolute; inset: 0;
@@ -7309,6 +7340,13 @@
   box-shadow: 0 3px 12px rgba(139,92,246,.25);
 }
 .perm-frame--empty { opacity: .5; }
+.perm-frame--drag-over {
+  border-color: #8b5cf6 !important;
+  background: rgba(139, 92, 246, 0.15) !important;
+  box-shadow: 0 0 0 2px #8b5cf6, 0 4px 12px rgba(139, 92, 246, 0.3) !important;
+  transform: scale(1.05);
+  transition: all 0.2s ease;
+}
 
 .perm-frame-inner {
   display: flex; align-items: center; gap: 8px;

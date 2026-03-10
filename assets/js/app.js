@@ -189,11 +189,17 @@ document.addEventListener('alpine:init', () => {
     itemSelecionado: null,
     // Modal de item no inventário (equip / vender / trocar)
     inventarioItemModal: { aberto: false, linha: null },
-    // Press / "quase drag" de itens do inventário (para mobile)
+    // Press / drag visual de itens do inventário
     dragInventario: {
-      timer: null,
-      ativo: false,
+      timerDrag: null,   // dispara após 1s (modo "arrastar")
+      timerEquip: null,  // dispara após 5s (auto-equipar)
+      ativo: false,       // true quando já liberou o "arrastar"
+      arrastando: false,  // true quando está em modo drag visual
       itemId: null,
+      itemDados: null,   // dados do item sendo arrastado
+      posX: 0,           // posição X do cursor/dedo
+      posY: 0,           // posição Y do cursor/dedo
+      slotSobreposto: null, // slot que está sendo sobreposto (índice 1-3 para permanentes, slotId para armadura)
     },
 
     // ─── Requisitos de acesso por seção ──────────────────────
@@ -314,6 +320,9 @@ document.addEventListener('alpine:init', () => {
     temaSalvo: 'claro',
     tempoAtual: Date.now(),
     _tempoContador: 0,
+    // Referências para listeners de drag (para poder remover depois)
+    _dragMoveHandler: null,
+    _dragEndHandler: null,
     init() {
       this.temaSalvo = localStorage.getItem('tema') || 'claro';
       this.aplicarTema(this.temaSalvo);
@@ -3103,28 +3112,161 @@ document.addEventListener('alpine:init', () => {
       this.inventarioItemModal = { aberto: false, linha: null };
     },
 
-    /** Inicia o press longo em um item de inventário (1s = equipar/desequipar) */
-    iniciarPressItemInventario(linhaIdOuObj) {
+    /** Inicia o press longo em um item de inventário (1s = libera drag visual, 5s = auto-equipar) */
+    iniciarPressItemInventario(linhaIdOuObj, event) {
       const linhaId = (typeof linhaIdOuObj === 'string') ? linhaIdOuObj : linhaIdOuObj?.id;
       if (!linhaId) return;
+      
+      // Busca dados do item
+      const linha = (this.inventario || []).find(i => i.id === linhaId);
+      if (!linha) return;
+      
       // Limpa qualquer timer anterior
-      if (this.dragInventario.timer) {
-        clearTimeout(this.dragInventario.timer);
+      if (this.dragInventario.timerDrag) {
+        clearTimeout(this.dragInventario.timerDrag);
       }
+      if (this.dragInventario.timerEquip) {
+        clearTimeout(this.dragInventario.timerEquip);
+      }
+      
       this.dragInventario.ativo = false;
+      this.dragInventario.arrastando = false;
       this.dragInventario.itemId = linhaId;
-      this.dragInventario.timer = setTimeout(() => {
-        // Considera como "drag/press concluído": alterna equipar
+      this.dragInventario.itemDados = linha;
+      this.dragInventario.slotSobreposto = null;
+      
+      // Captura posição inicial
+      if (event) {
+        const touch = event.touches ? event.touches[0] : event;
+        this.dragInventario.posX = touch.clientX;
+        this.dragInventario.posY = touch.clientY;
+      }
+
+      // 1s: libera "modo arrastar visual"
+      this.dragInventario.timerDrag = setTimeout(() => {
         this.dragInventario.ativo = true;
-        this.equiparItemInventario(linhaId);
+        this.dragInventario.arrastando = true;
+        // Cria handlers uma vez e armazena referências
+        if (!this._dragMoveHandler) {
+          this._dragMoveHandler = (e) => this._atualizarPosicaoDrag(e);
+          this._dragEndHandler = (e) => this._finalizarDrag(e);
+        }
+        // Adiciona listeners globais para mousemove/touchmove
+        document.addEventListener('mousemove', this._dragMoveHandler);
+        document.addEventListener('touchmove', this._dragMoveHandler, { passive: false });
+        document.addEventListener('mouseup', this._dragEndHandler);
+        document.addEventListener('touchend', this._dragEndHandler);
       }, 1000);
+
+      // 5s: auto-equipar / auto-desequipar
+      this.dragInventario.timerEquip = setTimeout(() => {
+        if (!this.dragInventario.itemId) return;
+        this._limparListenersDrag();
+        this.equiparItemInventario(this.dragInventario.itemId);
+        // Reseta estado após auto-equip
+        this.dragInventario.ativo = false;
+        this.dragInventario.arrastando = false;
+        this.dragInventario.itemId = null;
+        this.dragInventario.itemDados = null;
+        this.dragInventario.slotSobreposto = null;
+      }, 5000);
     },
 
     /** Cancela o press longo (soltou antes de 1s ou moveu o dedo/mouse) */
     cancelarPressItemInventario() {
-      if (this.dragInventario.timer) {
-        clearTimeout(this.dragInventario.timer);
-        this.dragInventario.timer = null;
+      if (this.dragInventario.timerDrag) {
+        clearTimeout(this.dragInventario.timerDrag);
+        this.dragInventario.timerDrag = null;
+      }
+      if (this.dragInventario.timerEquip) {
+        clearTimeout(this.dragInventario.timerEquip);
+        this.dragInventario.timerEquip = null;
+      }
+      if (this.dragInventario.arrastando) {
+        this._limparListenersDrag();
+      }
+      this.dragInventario.ativo = false;
+      this.dragInventario.arrastando = false;
+      this.dragInventario.slotSobreposto = null;
+    },
+
+    /** Atualiza posição durante drag (chamado por mousemove/touchmove) */
+    _atualizarPosicaoDrag(event) {
+      if (!this.dragInventario.arrastando) return;
+      
+      const touch = event.touches ? event.touches[0] : event;
+      this.dragInventario.posX = touch.clientX;
+      this.dragInventario.posY = touch.clientY;
+      
+      // Detecta qual slot está sendo sobreposto
+      if (event.touches) event.preventDefault(); // previne scroll durante touch
+      
+      // Detecta elemento sob o cursor
+      const elemento = document.elementFromPoint(touch.clientX, touch.clientY);
+      if (!elemento) {
+        this.dragInventario.slotSobreposto = null;
+        return;
+      }
+      
+      // Procura por classe de slot (perm-frame ou armor-slot)
+      const slotElement = elemento.closest('.perm-frame, .armor-slot');
+      if (slotElement) {
+        if (slotElement.classList.contains('perm-frame')) {
+          // Slot permanente: pega o índice do atributo data-slot-index
+          const slotIndexAttr = slotElement.getAttribute('data-slot-index');
+          if (slotIndexAttr) {
+            const slotIndex = parseInt(slotIndexAttr, 10);
+            this.dragInventario.slotSobreposto = { tipo: 'permanente', index: slotIndex };
+          }
+        } else if (slotElement.classList.contains('armor-slot')) {
+          // Slot armadura: pega o slot.id do atributo data-slot-id
+          const slotId = slotElement.getAttribute('data-slot-id');
+          if (slotId) {
+            this.dragInventario.slotSobreposto = { tipo: 'armadura', slotId };
+          }
+        }
+      } else {
+        this.dragInventario.slotSobreposto = null;
+      }
+    },
+
+    /** Finaliza drag e equipa no slot sobreposto (se houver) */
+    _finalizarDrag(event) {
+      if (!this.dragInventario.arrastando) return;
+      
+      this._limparListenersDrag();
+      
+      const itemId = this.dragInventario.itemId;
+      const slot = this.dragInventario.slotSobreposto;
+      
+      // Reseta estado
+      this.dragInventario.arrastando = false;
+      this.dragInventario.ativo = false;
+      const itemIdFinal = this.dragInventario.itemId;
+      this.dragInventario.itemId = null;
+      this.dragInventario.itemDados = null;
+      this.dragInventario.slotSobreposto = null;
+      
+      // Se estava sobre um slot válido, equipa lá
+      if (slot && itemIdFinal) {
+        if (slot.tipo === 'permanente') {
+          this.equiparItemNoSlotPermanente(itemIdFinal, slot.index);
+        } else if (slot.tipo === 'armadura') {
+          // Para armadura, o slot já está definido no item, então só equipa normalmente
+          this.equiparItemInventario(itemIdFinal);
+        }
+      }
+    },
+
+    /** Remove listeners globais de drag */
+    _limparListenersDrag() {
+      if (this._dragMoveHandler) {
+        document.removeEventListener('mousemove', this._dragMoveHandler);
+        document.removeEventListener('touchmove', this._dragMoveHandler);
+      }
+      if (this._dragEndHandler) {
+        document.removeEventListener('mouseup', this._dragEndHandler);
+        document.removeEventListener('touchend', this._dragEndHandler);
       }
     },
 
@@ -3201,6 +3343,86 @@ document.addEventListener('alpine:init', () => {
       const linhaAtualizada = this.inventario.find(i => i.id === linhaId);
       if (linhaAtualizada) this.inventarioItemModal = { ...this.inventarioItemModal, linha: { ...linhaAtualizada } };
       this.sucesso = linha.equipado ? 'Item desequipado!' : 'Item equipado!';
+      setTimeout(() => (this.sucesso = ''), 2500);
+    },
+
+    /**
+     * Equipa um item permanente em um slot específico (índice 1-3).
+     * Se o slot já tem item, desequipa ele primeiro.
+     */
+    async equiparItemNoSlotPermanente(linhaIdOuObj, slotIndex) {
+      const linhaId = (typeof linhaIdOuObj === 'string') ? linhaIdOuObj : linhaIdOuObj?.id;
+      if (!linhaId || !slotIndex || slotIndex < 1 || slotIndex > (this.SLOTS_PERMANENTES?.maximo || 3)) {
+        console.warn('[equiparSlot] Parâmetros inválidos', { linhaId, slotIndex });
+        return;
+      }
+
+      const inventarioArr = JSON.parse(JSON.stringify(this.inventario || []));
+      const linha = inventarioArr.find(i => i.id === linhaId);
+      if (!linha || linha.itens?.tipo !== 'permanente') {
+        this.erro = 'Item inválido ou não é permanente.';
+        setTimeout(() => (this.erro = ''), 3000);
+        return;
+      }
+
+      // Lista de itens permanentes equipados (em ordem)
+      const equipados = inventarioArr.filter(i => i.equipado && i.itens?.tipo === 'permanente');
+      
+      // Se o slot já tem um item, desequipa ele
+      const itemNoSlot = equipados[slotIndex - 1];
+      if (itemNoSlot && itemNoSlot.id !== linhaId) {
+        if (this.modoDemo) {
+          this.inventario = this.inventario.map(i => i.id === itemNoSlot.id ? { ...i, equipado: false } : i);
+        } else {
+          await equiparItem(this.usuario.id, itemNoSlot.id, false);
+        }
+      }
+
+      // Se o item já está equipado em outro slot, desequipa primeiro
+      if (linha.equipado) {
+        if (this.modoDemo) {
+          this.inventario = this.inventario.map(i => i.id === linhaId ? { ...i, equipado: false } : i);
+        } else {
+          await equiparItem(this.usuario.id, linhaId, false);
+        }
+      }
+
+      // Verifica limite antes de equipar
+      const equipadosApos = inventarioArr.filter(
+        i => i.equipado && i.itens?.tipo === 'permanente' && i.id !== linhaId && (!itemNoSlot || i.id !== itemNoSlot.id)
+      ).length;
+      const limite = this.SLOTS_PERMANENTES?.maximo || 3;
+      if (equipadosApos >= limite && !linha.equipado) {
+        this.erro = `Máximo de ${limite} itens permanentes equipados.`;
+        setTimeout(() => (this.erro = ''), 3500);
+        return;
+      }
+
+      // Equipa o novo item
+      if (this.modoDemo) {
+        this.inventario = this.inventario.map(i => i.id === linhaId ? { ...i, equipado: true } : i);
+        // Reordena para que o item apareça no slot correto
+        // Move o item para a posição correta no array (mantém ordem dos equipados)
+        const equipadosNovos = this.inventario.filter(i => i.equipado && i.itens?.tipo === 'permanente');
+        const outros = this.inventario.filter(i => !(i.equipado && i.itens?.tipo === 'permanente'));
+        const itemEquipado = equipadosNovos.find(i => i.id === linhaId);
+        if (itemEquipado) {
+          equipadosNovos.splice(equipadosNovos.indexOf(itemEquipado), 1);
+          equipadosNovos.splice(slotIndex - 1, 0, itemEquipado);
+        }
+        this.inventario = [...equipadosNovos, ...outros];
+        this._salvarInventarioDemo();
+      } else {
+        const r = await equiparItem(this.usuario.id, linhaId, true);
+        if (r.sucesso) {
+          await this.carregarDadosUsuario();
+          // Nota: a ordem dos slots pode não ser preservada no banco, mas o item será equipado
+        } else {
+          this.erro = r.erro || '';
+        }
+      }
+
+      this.sucesso = `Item equipado no slot ${slotIndex}!`;
       setTimeout(() => (this.sucesso = ''), 2500);
     },
 
@@ -4061,6 +4283,36 @@ document.addEventListener('alpine:init', () => {
       } finally {
         this.carregando = false;
         this.modalExcluirConta = { aberto: false };
+      }
+    },
+
+    /**
+     * Limpa o cache local do app (localStorage relacionado ao app).
+     * Não exclui a conta nem dados no Supabase.
+     */
+    limparCacheLocal() {
+      try {
+        const keys = Object.keys(localStorage);
+        keys.forEach(k => {
+          if (
+            k.startsWith('demo_') ||
+            k.startsWith('progresso') ||
+            k.startsWith('notas_') ||
+            k.startsWith('marcacoes_') ||
+            k === 'tema' ||
+            k === 'biblia_fonte' ||
+            k === 'biblia_velocidade' ||
+            k === 'conquistas_notificadas'
+          ) {
+            localStorage.removeItem(k);
+          }
+        });
+        this.sucesso = 'Cache do app limpo com sucesso. Alguns dados serão recarregados.';
+        setTimeout(() => { this.sucesso = ''; }, 3000);
+      } catch (e) {
+        console.error('Falha ao limpar cache local:', e);
+        this.erro = 'Não foi possível limpar o cache. Tente novamente.';
+        setTimeout(() => { this.erro = ''; }, 3000);
       }
     },
 

@@ -2253,10 +2253,16 @@
             <div class="armor-slots-grid">
               <template x-for="slot in ARMADURA_DEUS_SLOTS" :key="slot.id">
                 <div class="armor-slot"
-                     :class="getItemEquipadoSlot(slot.id) ? 'armor-slot--on' : 'armor-slot--off'"
+                     :class="[
+                       getItemEquipadoSlot(slot.id) ? 'armor-slot--on' : 'armor-slot--off',
+                       dragInventario.arrastando && dragInventario.slotSobreposto?.tipo === 'armadura' && dragInventario.slotSobreposto?.slotId === slot.id
+                         ? 'armor-slot--drag-over'
+                         : ''
+                     ]"
                      :style="getItemEquipadoSlot(slot.id)
                        ? '--slotcor:' + ARMADURA_EFEITOS[slot.id].cor
                        : '--slotcor:#94a3b8'"
+                     :data-slot-id="slot.id"
                      @click="toggleEquiparSlot(slot.id)">
                   <!-- Glow overlay -->
                   <div class="armor-slot-glow" x-show="getItemEquipadoSlot(slot.id)"></div>
@@ -2327,9 +2333,16 @@
             <div class="perm-frames">
               <template x-for="i in SLOTS_PERMANENTES.maximo" :key="i">
                 <div class="perm-frame"
-                     :class="inventario.filter(l=>l.equipado&&l.itens?.tipo==='permanente')[i-1]
-                       ? 'perm-frame--filled'
-                       : 'perm-frame--empty'">
+                     :class="[
+                       inventario.filter(l=>l.equipado&&l.itens?.tipo==='permanente')[i-1]
+                         ? 'perm-frame--filled'
+                         : 'perm-frame--empty',
+                       dragInventario.arrastando && dragInventario.slotSobreposto?.tipo === 'permanente' && dragInventario.slotSobreposto?.index === i
+                         ? 'perm-frame--drag-over'
+                         : ''
+                     ]"
+                     :data-slot-index="i"
+                     x-bind:data-slot-index="i">
                   <!-- Slot preenchido -->
                   <template x-if="inventario.filter(l=>l.equipado&&l.itens?.tipo==='permanente')[i-1]">
                     <div class="perm-frame-inner">
@@ -2374,12 +2387,16 @@
             <div class="inv-cards-grid">
               <template x-for="linha in inventario.filter(l => l.itens?.tipo === 'permanente')" :key="linha.id">
                 <div class="inv-card"
-                     :class="['inv-rar-' + (linha.itens?.raridade || 'comum'), linha.equipado ? 'inv-card--on' : '']"
-                     @mousedown.prevent="iniciarPressItemInventario(linha.id)"
-                     @mouseup.prevent="cancelarPressItemInventario(); if (!dragInventario.ativo) abrirInventarioItem(linha.id)"
-                     @mouseleave="cancelarPressItemInventario()"
-                     @touchstart.prevent="iniciarPressItemInventario(linha.id)"
-                     @touchend.prevent="cancelarPressItemInventario(); if (!dragInventario.ativo) abrirInventarioItem(linha.id)">
+                     :class="[
+                       'inv-rar-' + (linha.itens?.raridade || 'comum'),
+                       linha.equipado ? 'inv-card--on' : '',
+                       dragInventario.arrastando && dragInventario.itemId === linha.id ? 'inv-card--dragging' : ''
+                     ]"
+                     @mousedown.prevent="iniciarPressItemInventario(linha.id, $event)"
+                     @mouseup.prevent="cancelarPressItemInventario(); if (!dragInventario.ativo && !dragInventario.arrastando) abrirInventarioItem(linha.id)"
+                     @mouseleave="if (!dragInventario.arrastando) cancelarPressItemInventario()"
+                     @touchstart.prevent="iniciarPressItemInventario(linha.id, $event)"
+                     @touchend.prevent="cancelarPressItemInventario(); if (!dragInventario.ativo && !dragInventario.arrastando) abrirInventarioItem(linha.id)">
                   <div class="inv-card-ico-wrap">
                     <i class="bi" :class="linha.itens?.icone || 'bi-box'"></i>
                     <span class="inv-card-equipped-check" x-show="linha.equipado"><i class="bi bi-check-circle-fill"></i></span>
@@ -4221,6 +4238,17 @@
           </div>
 
           <div class="mt-4 pt-2" style="display:flex;flex-direction:column;gap:8px">
+            <button type="button" class="btn btn-outline-secondary w-100"
+                    @click="pedirConfirmacao({
+                      titulo:'Limpar cache do app?',
+                      msg:'Isso limpa dados salvos no dispositivo (tema, progresso offline, modo demo, marcações locais). Seus dados na conta permanecem intactos.',
+                      tipo:'aviso',
+                      icone:'bi-arrow-clockwise',
+                      labelOk:'Limpar cache',
+                      acao:()=>limparCacheLocal()
+                    })">
+              <i class="bi bi-arrow-clockwise"></i> Limpar cache do app
+            </button>
             <button type="button" class="btn btn-outline-danger w-100"
                     @click="pedirConfirmacao({ titulo:'Sair da conta?', msg:'Você será desconectado. Seu progresso ficará salvo.', tipo:'aviso', icone:'bi-box-arrow-right', labelOk:'Sair', acao:()=>sair() })">
               <i class="bi bi-box-arrow-right"></i> Sair da conta
@@ -5226,7 +5254,7 @@
               <button class="btn-inv"
                       :class="inventarioItemModal.linha.equipado ? 'btn-inv-desequipar' : 'btn-inv-equipar'"
                       x-show="inventarioItemModal.linha.itens?.tipo !== 'consumivel'"
-                      @click="equiparItemInventario(inventarioItemModal.linha?.id)">
+                      @click="equiparItemInventario(inventarioItemModal.linha)">
                 <i :class="inventarioItemModal.linha.equipado ? 'bi bi-dash-circle-fill' : 'bi bi-plus-circle-fill'"></i>
                 <span x-text="inventarioItemModal.linha.equipado ? 'Desequipar' : 'Equipar'"></span>
               </button>
@@ -5382,6 +5410,25 @@
         <button class="btn btn-danger" @click="adminConfirmarDelete()">
           <i class="bi bi-trash3-fill"></i> Excluir
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ DRAG FANTASMA (item sendo arrastado) ═══════════════════════════════════ -->
+  <div x-show="dragInventario.arrastando && dragInventario.itemDados"
+       class="drag-ghost"
+       :style="'left: ' + (dragInventario.posX - 60) + 'px; top: ' + (dragInventario.posY - 60) + 'px;'"
+       x-transition:enter="drag-ghost-enter"
+       x-transition:enter-start="drag-ghost-enter-start"
+       x-transition:enter-end="drag-ghost-enter-end"
+       style="display:none; pointer-events:none; position:fixed; z-index:9999; width:120px; height:120px; opacity:0.8; transform:scale(0.9);">
+    <div class="inv-card inv-card--ghost"
+         :class="'inv-rar-' + (dragInventario.itemDados?.itens?.raridade || 'comum')">
+      <div class="inv-card-ico-wrap">
+        <i class="bi" :class="dragInventario.itemDados?.itens?.icone || 'bi-box'"></i>
+      </div>
+      <div class="inv-card-body">
+        <span class="inv-card-nome" x-text="dragInventario.itemDados?.itens?.nome || 'Item'"></span>
       </div>
     </div>
   </div>
