@@ -181,7 +181,7 @@ document.addEventListener('alpine:init', () => {
 
     // Ranking
     ranking: [],
-    // Loja
+    // Loja / Inventário
     itensLoja: [],
     filtroLoja: null,
     viewLoja: 'grid',
@@ -189,6 +189,12 @@ document.addEventListener('alpine:init', () => {
     itemSelecionado: null,
     // Modal de item no inventário (equip / vender / trocar)
     inventarioItemModal: { aberto: false, linha: null },
+    // Press / "quase drag" de itens do inventário (para mobile)
+    dragInventario: {
+      timer: null,
+      ativo: false,
+      itemId: null,
+    },
 
     // ─── Requisitos de acesso por seção ──────────────────────
     // Cada página pode exigir um item equipado no inventário.
@@ -3087,6 +3093,31 @@ document.addEventListener('alpine:init', () => {
     /** Fecha o modal */
     fecharInventarioItem() {
       this.inventarioItemModal = { aberto: false, linha: null };
+    },
+
+    /** Inicia o press longo em um item de inventário (1s = equipar/desequipar) */
+    iniciarPressItemInventario(linhaIdOuObj) {
+      const linhaId = (typeof linhaIdOuObj === 'string') ? linhaIdOuObj : linhaIdOuObj?.id;
+      if (!linhaId) return;
+      // Limpa qualquer timer anterior
+      if (this.dragInventario.timer) {
+        clearTimeout(this.dragInventario.timer);
+      }
+      this.dragInventario.ativo = false;
+      this.dragInventario.itemId = linhaId;
+      this.dragInventario.timer = setTimeout(() => {
+        // Considera como "drag/press concluído": alterna equipar
+        this.dragInventario.ativo = true;
+        this.equiparItemInventario(linhaId);
+      }, 1000);
+    },
+
+    /** Cancela o press longo (soltou antes de 1s ou moveu o dedo/mouse) */
+    cancelarPressItemInventario() {
+      if (this.dragInventario.timer) {
+        clearTimeout(this.dragInventario.timer);
+        this.dragInventario.timer = null;
+      }
     },
 
     /**

@@ -2375,7 +2375,11 @@
               <template x-for="linha in inventario.filter(l => l.itens?.tipo === 'permanente')" :key="linha.id">
                 <div class="inv-card"
                      :class="['inv-rar-' + (linha.itens?.raridade || 'comum'), linha.equipado ? 'inv-card--on' : '']"
-                     @click="abrirInventarioItem(linha.id)">
+                     @mousedown.prevent="iniciarPressItemInventario(linha.id)"
+                     @mouseup.prevent="cancelarPressItemInventario(); if (!dragInventario.ativo) abrirInventarioItem(linha.id)"
+                     @mouseleave="cancelarPressItemInventario()"
+                     @touchstart.prevent="iniciarPressItemInventario(linha.id)"
+                     @touchend.prevent="cancelarPressItemInventario(); if (!dragInventario.ativo) abrirInventarioItem(linha.id)">
                   <div class="inv-card-ico-wrap">
                     <i class="bi" :class="linha.itens?.icone || 'bi-box'"></i>
                     <span class="inv-card-equipped-check" x-show="linha.equipado"><i class="bi bi-check-circle-fill"></i></span>
@@ -5222,17 +5226,7 @@
               <button class="btn-inv"
                       :class="inventarioItemModal.linha.equipado ? 'btn-inv-desequipar' : 'btn-inv-equipar'"
                       x-show="inventarioItemModal.linha.itens?.tipo !== 'consumivel'"
-                      @click="pedirConfirmacao({
-                        titulo: inventarioItemModal.linha.equipado ? 'Desequipar item?' : 'Equipar item?',
-                        msg: inventarioItemModal.linha.equipado
-                          ? 'O bônus deste item será removido.'
-                          : 'O item será equipado e seus bônus ativados.',
-                        detalhe: inventarioItemModal.linha.itens?.nome,
-                        tipo: inventarioItemModal.linha.equipado ? 'aviso' : 'info',
-                        icone: inventarioItemModal.linha.equipado ? 'bi-dash-circle-fill' : 'bi-plus-circle-fill',
-                        labelOk: inventarioItemModal.linha.equipado ? 'Desequipar' : 'Equipar',
-                        acao: () => equiparItemInventario(inventarioItemModal.linha?.id)
-                      })">
+                      @click="equiparItemInventario(inventarioItemModal.linha?.id)">
                 <i :class="inventarioItemModal.linha.equipado ? 'bi bi-dash-circle-fill' : 'bi bi-plus-circle-fill'"></i>
                 <span x-text="inventarioItemModal.linha.equipado ? 'Desequipar' : 'Equipar'"></span>
               </button>
